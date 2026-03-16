@@ -126,7 +126,7 @@ export function Home() {
                 glareColor="#ffffff"
                 glareOpacity={0.4}
                 glareSize={200}
-                maskImage={`url(${import.meta.env.BASE_URL}portpic.png)`}
+                maskImage={`${import.meta.env.BASE_URL}portpic.png`}
                 className="!border-0 block overflow-hidden rounded-lg"
               >
                 <img

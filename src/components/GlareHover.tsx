@@ -86,11 +86,11 @@ const GlareHover: React.FC<GlareHoverProps> = ({
     backgroundPosition: '-100% -100%, 0 0',
     pointerEvents: 'none',
     ...(maskImage && {
-      maskImage: `url(${maskImage})`,
+      maskImage: `url("${maskImage}")`,
       maskSize: 'cover',
       maskPosition: 'center',
       maskRepeat: 'no-repeat',
-      WebkitMaskImage: `url(${maskImage})`,
+      WebkitMaskImage: `url("${maskImage}")`,
       WebkitMaskSize: 'cover',
       WebkitMaskPosition: 'center',
       WebkitMaskRepeat: 'no-repeat',
@@ -111,8 +111,8 @@ const GlareHover: React.FC<GlareHoverProps> = ({
       onMouseEnter={animateIn}
       onMouseLeave={animateOut}
     >
-      <div ref={overlayRef} style={overlayStyle} />
       {children}
+      <div ref={overlayRef} style={overlayStyle} aria-hidden />
     </div>
   );
 };
