@@ -126,11 +126,11 @@ export function Home() {
                 glareColor="#ffffff"
                 glareOpacity={0.4}
                 glareSize={200}
-                maskImage="/portpic.png"
+                maskImage={`url(${import.meta.env.BASE_URL}portpic.png)`}
                 className="!border-0 block overflow-hidden rounded-lg"
               >
                 <img
-                  src="/portpic.png"
+                  src={`${import.meta.env.BASE_URL}portpic.png`}
                   alt="AJ Zichella"
                   className="w-full h-auto object-cover shadow-[6px_6px_20px_rgba(0,0,0,0.5)]"
                 />

@@ -12,7 +12,7 @@ export function App() {
         <div className="flex flex-col items-center gap-6 px-4 py-8">
           <div className="w-24">
             <img
-              src="/logo-aj.png"
+              src={`${import.meta.env.BASE_URL}logo-aj.png`}
               alt="AJ Zichella monogram"
               className="h-auto w-full"
             />
