@@ -1,39 +1,14 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef } from "react";
 import { motion } from "motion/react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, ArrowRight } from "lucide-react";
 import LiquidEther from "../components/LiquidEther";
 import GradientText from "../components/GradientText";
 import BlurText from "../components/BlurText";
 import GlareHover from "../components/GlareHover";
+import { CaseStudyCard } from "../components/CaseStudyCard";
 
 export function Home() {
   const sectionRef = useRef<HTMLElement>(null);
-  const [scrollBlur, setScrollBlur] = useState(0);
-  const [entranceDone, setEntranceDone] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setEntranceDone(true), 600);
-    return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    const section = sectionRef.current;
-    if (!section) return;
-    const scrollParent = document.getElementById("main-scroll");
-    if (!scrollParent) return;
-
-    const handleScroll = () => {
-      const rect = section.getBoundingClientRect();
-      const viewportHeight = window.innerHeight;
-      const scrolledOut = Math.max(0, -rect.top);
-      const blurAmount = Math.min(8, (scrolledOut / viewportHeight) * 8);
-      setScrollBlur(blurAmount);
-    };
-
-    scrollParent.addEventListener("scroll", handleScroll);
-    handleScroll();
-    return () => scrollParent.removeEventListener("scroll", handleScroll);
-  }, []);
 
   return (
     <>
@@ -44,8 +19,8 @@ export function Home() {
       >
         <div className="absolute inset-0 w-full h-full">
           <LiquidEther
-            mouseForce={20}
-            cursorSize={100}
+            mouseForce={12}
+            cursorSize={80}
             isViscous={false}
             colors={["#5227FF", "#00aeef", "#4ba6b3"]}
             autoDemo
@@ -53,9 +28,20 @@ export function Home() {
             autoIntensity={2.2}
             autoResumeDelay={0}
             isBounce
-            resolution={0.5}
+            resolution={0.4}
+            iterationsViscous={20}
+            iterationsPoisson={20}
+            preferPerformance
           />
         </div>
+        {/* Single dark overlay: uniform tint + smooth fade to black at bottom */}
+        <div
+          className="absolute inset-0 pointer-events-none z-[5]"
+          style={{
+            background: 'linear-gradient(to bottom, rgba(0,0,0,0.45), black)',
+          }}
+          aria-hidden
+        />
         <div className="relative z-10 flex h-full flex-col justify-center items-center px-6 md:px-12 lg:px-16">
           <div className="w-full max-w-[1200px] mx-auto flex flex-col lg:flex-row items-start lg:items-center gap-8 lg:gap-12">
             <div className="flex flex-col items-start flex-1 min-w-0">
@@ -81,7 +67,10 @@ export function Home() {
             direction="top"
             stepDuration={0.25}
             threshold={0}
-            getWordClassName={(_, i) => {
+            animationFrom={undefined}
+            animationTo={undefined}
+            onAnimationComplete={undefined}
+            getWordClassName={(_: string, i: number) => {
               if (i >= 2 && i <= 4) return 'text-white font-bold';
               if (i >= 7 && i <= 8) return 'text-white';
               return '';
@@ -93,7 +82,7 @@ export function Home() {
               aria-hidden
             />
             <p className="text-base text-[#999999]">
-              Current status — Senior product designer for{" "}
+              Current status — Senior product designer, design engineer for{" "}
               <a
                 href="https://digitalocean.com"
                 target="_blank"
@@ -104,18 +93,34 @@ export function Home() {
               </a>
             </p>
           </div>
+          <motion.div
+            className="mt-10"
+            initial={{ filter: "blur(10px)", opacity: 0, y: -20 }}
+            animate={{ filter: "blur(0px)", opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, delay: 0.2, ease: "easeOut" }}
+          >
+            <a
+              href="https://www.linkedin.com/in/angela-zichella/"
+              target="_blank"
+              rel="noreferrer noopener"
+              className="rainbow-cta group relative inline-flex rounded-[8px] p-[2px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00aeef] focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+            >
+              <span className="relative flex w-full min-w-0 items-center rounded-[6px] bg-[#03040A] px-6 py-3 text-sm font-medium text-white transition-all duration-200 group-hover:opacity-95">
+                <span className="flex flex-1 justify-center min-w-0">
+                  Connect with me on LinkedIn
+                </span>
+                <span className="flex shrink-0 w-0 overflow-hidden justify-end transition-all duration-200 ease-out group-hover:ml-2 group-hover:w-4">
+                  <ArrowRight className="h-4 w-4 shrink-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
+                </span>
+              </span>
+            </a>
+          </motion.div>
             </div>
             <motion.div
               className="shrink-0 w-full max-w-[340px] lg:max-w-[420px]"
-              initial={{ filter: "blur(12px)", opacity: 0 }}
-              animate={{
-                filter: `blur(${entranceDone ? scrollBlur : 0}px)`,
-                opacity: 1,
-              }}
-              transition={{
-                filter: { duration: entranceDone ? 0.2 : 0.6, ease: "easeOut" },
-                opacity: { duration: 0.6, ease: "easeOut" },
-              }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
             >
               <GlareHover
                 width="100%"
@@ -155,10 +160,85 @@ export function Home() {
               ease: "easeInOut",
             }}
           >
-            <div className="h-8 w-px bg-gradient-to-b from-[#00aeef]/80 to-transparent" />
-            <ChevronDown className="h-5 w-5 text-[#00aeef]/80 -mt-1" strokeWidth={2.5} />
+            <div className="h-10 w-px bg-gradient-to-b from-[#00aeef]/80 to-transparent" />
+            <ChevronDown className="h-7 w-7 text-[#00aeef]/80 -mt-1" strokeWidth={2.5} />
           </motion.div>
         </motion.div>
+      </section>
+
+      {/* Case Studies section - appears after scrolling */}
+      <section id="case-studies" className="w-full shrink-0 px-6 py-16 md:px-12 lg:px-16">
+        <div className="mx-auto max-w-[1200px]">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.4 }}
+            className="mb-4"
+          >
+            <h2 className="text-2xl font-bold text-white md:text-3xl">
+              Case Studies
+            </h2>
+            <p className="mt-2 text-lg text-[#999999]">
+              What I&apos;ve designed recently
+            </p>
+          </motion.div>
+
+          <div className="mt-12 flex flex-col gap-6">
+            {[
+              {
+                company: "DigitalOcean | Cloud Computing & Hosting",
+                title: "RBAC - Predefined Roles",
+                description:
+                  "Adding 3 new roles to simplify users' more granular access needs with more restrictive RBAC solutions.",
+                tags: ["Product design", "Access control", "Web app"],
+                metrics: [
+                  { value: "Simplified", label: "access management" },
+                  { value: "Granular", label: "role options" },
+                ],
+                link: "https://ajzichella.com/",
+              },
+              {
+                company: "DigitalOcean | Cloud Computing & Hosting",
+                title: "DBaaS - Kafka",
+                description:
+                  "Integrating a Kafka solution into our Managed Databases product to simplify users' architecture and Topic upkeep as well as provide a reliable environment to prevent data loss.",
+                tags: ["Product design", "Managed databases", "Developer experience"],
+                metrics: [
+                  { value: "Simplified", label: "Topic upkeep" },
+                  { value: "Reliable", label: "data environment" },
+                ],
+                link: "https://ajzichella.com/",
+              },
+              {
+                company: "DigitalOcean | Cloud Computing & Hosting",
+                title: "DDoS Protection",
+                description:
+                  "Building an e2e simple \"set it and forget it\" experience for DigitalOcean users against DDoS Attacks so users are protected and informed about their networks.",
+                tags: ["Product design", "Security", "Developer experience"],
+                metrics: [
+                  { value: "Protected", label: "networks" },
+                  { value: "Informed", label: "users" },
+                ],
+                link: "https://ajzichella.com/",
+              },
+              {
+                company: "STORIS | Retail ERP & eCommerce",
+                title: "eCommerce Enhanced Checkout Redesign",
+                description:
+                  "The old multi-step checkout provided a broken checkout system that affected our eCommerce clients and shopping end users. The new checkout provides a more streamlined experience to increase conversions and revenue.",
+                tags: ["UX redesign", "E‑commerce", "Checkout"],
+                metrics: [
+                  { value: "Streamlined", label: "checkout experience" },
+                  { value: "Increased", label: "conversions and revenue" },
+                ],
+                link: "https://ajzichella.com/",
+              },
+            ].map((study, i) => (
+              <CaseStudyCard key={study.title} study={study} index={i} />
+            ))}
+          </div>
+        </div>
       </section>
     </>
   );
