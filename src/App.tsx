@@ -1,61 +1,112 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Routes, Route, NavLink } from "react-router-dom";
-import { Home, FolderKanban, User } from "lucide-react";
+import { Home, FolderKanban, User, Menu, X } from "lucide-react";
 import { Home as HomePage } from "./pages/Home";
 import { Portfolio as PortfolioPage } from "./pages/Portfolio";
 import { About as AboutPage } from "./pages/About";
 
+const navLinkClass = ({ isActive }: { isActive: boolean }) =>
+  `flex items-center gap-2 rounded-md px-4 py-6 lg:py-4 text-left hover:bg-slate-800 text-lg lg:text-sm ${
+    isActive ? "text-[#00aeef] bg-slate-800/50" : "text-[#00aeef]"
+  }`;
+
 export function App() {
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (menuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [menuOpen]);
+
+  const NavContent = () => (
+    <>
+      <div className="flex flex-col items-center gap-6 px-4 py-8">
+        <div className="w-24">
+          <img
+            src={`${import.meta.env.BASE_URL}logo-aj.png`}
+            alt="AJ Zichella monogram"
+            className="h-auto w-full"
+          />
+        </div>
+      </div>
+      <nav className="mt-4 flex flex-col gap-1 px-4 text-sm font-medium">
+        <NavLink
+          to="/"
+          end
+          className={navLinkClass}
+          onClick={() => setMenuOpen(false)}
+        >
+          <Home className="h-4 w-4" />
+          <span>Home</span>
+        </NavLink>
+        <NavLink
+          to="/portfolio"
+          className={navLinkClass}
+          onClick={() => setMenuOpen(false)}
+        >
+          <FolderKanban className="h-4 w-4" />
+          <span>Portfolio</span>
+        </NavLink>
+        <NavLink
+          to="/about"
+          className={navLinkClass}
+          onClick={() => setMenuOpen(false)}
+        >
+          <User className="h-4 w-4" />
+          <span>About me</span>
+        </NavLink>
+      </nav>
+    </>
+  );
+
   return (
     <div className="flex min-h-screen bg-black text-slate-50">
-      <aside className="w-52 shrink-0 border-r border-slate-800 bg-black text-white flex flex-col">
-        <div className="flex flex-col items-center gap-6 px-4 py-8">
-          <div className="w-24">
-            <img
-              src={`${import.meta.env.BASE_URL}logo-aj.png`}
-              alt="AJ Zichella monogram"
-              className="h-auto w-full"
-            />
-          </div>
+      {/* Hamburger button - mobile only, top right */}
+      <button
+        type="button"
+        onClick={() => setMenuOpen(!menuOpen)}
+        className="fixed z-50 flex lg:hidden items-center justify-center w-12 h-12 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-white border border-slate-700 top-[max(1rem,env(safe-area-inset-top))] right-[max(1rem,env(safe-area-inset-right))]"
+        aria-label={menuOpen ? "Close menu" : "Open menu"}
+        aria-expanded={menuOpen}
+      >
+        {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+      </button>
+
+      {/* Mobile drawer - 80% of screen, slides up from bottom */}
+      {menuOpen && (
+        <button
+          type="button"
+          onClick={() => setMenuOpen(false)}
+          className="fixed inset-0 z-40 lg:hidden bg-black/60 backdrop-blur-sm"
+          aria-label="Close menu"
+        />
+      )}
+      <div
+        className={`
+          fixed bottom-0 left-0 right-0 z-50 lg:hidden
+          h-[80vh]
+          flex flex-col bg-black text-white border-t border-slate-800 rounded-t-2xl
+          transform transition-transform duration-300 ease-out
+          ${menuOpen ? "translate-y-0" : "translate-y-full"}
+        `}
+      >
+        <div className="flex flex-1 flex-col items-center justify-center px-8 py-6 overflow-y-auto">
+          <NavContent />
         </div>
-        <nav className="mt-4 flex flex-col gap-1 px-4 text-sm font-medium">
-          <NavLink
-            to="/"
-            end
-            className={({ isActive }) =>
-              `flex items-center gap-2 rounded-md px-4 py-4 text-left hover:bg-slate-800 ${
-                isActive ? "text-[#00aeef] bg-slate-800/50" : "text-[#00aeef]"
-              }`
-            }
-          >
-            <Home className="h-4 w-4" />
-            <span>Home</span>
-          </NavLink>
-          <NavLink
-            to="/portfolio"
-            className={({ isActive }) =>
-              `flex items-center gap-2 rounded-md px-4 py-4 text-left hover:bg-slate-800 ${
-                isActive ? "text-[#00aeef] bg-slate-800/50" : "text-[#00aeef]"
-              }`
-            }
-          >
-            <FolderKanban className="h-4 w-4" />
-            <span>Portfolio</span>
-          </NavLink>
-          <NavLink
-            to="/about"
-            className={({ isActive }) =>
-              `flex items-center gap-2 rounded-md px-4 py-4 text-left hover:bg-slate-800 ${
-                isActive ? "text-[#00aeef] bg-slate-800/50" : "text-[#00aeef]"
-              }`
-            }
-          >
-            <User className="h-4 w-4" />
-            <span>About me</span>
-          </NavLink>
-        </nav>
+      </div>
+
+      {/* Sidebar - desktop only */}
+      <aside className="hidden lg:flex w-52 shrink-0 border-r border-slate-800 bg-black text-white flex-col">
+        <NavContent />
       </aside>
-      <main id="main-scroll" className="flex-1 overflow-y-auto">
+
+      <main id="main-scroll" className="flex-1 overflow-y-auto min-w-0">
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/portfolio" element={<PortfolioPage />} />
