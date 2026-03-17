@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
 import { motion } from "motion/react";
+import { ChevronDown } from "lucide-react";
 import LiquidEther from "../components/LiquidEther";
 import GradientText from "../components/GradientText";
 import BlurText from "../components/BlurText";
@@ -45,9 +46,8 @@ export function Home() {
           <LiquidEther
             mouseForce={20}
             cursorSize={100}
-            isViscous
-            viscous={30}
-            colors={["#5227FF", "#00aeef", "#08dbf7"]}
+            isViscous={false}
+            colors={["#5227FF", "#00aeef", "#4ba6b3"]}
             autoDemo
             autoSpeed={0.5}
             autoIntensity={2.2}
@@ -68,14 +68,14 @@ export function Home() {
               colors={["#7ee8ff", "#00aeef", "#006b8f"]}
               direction="diagonal"
               animationSpeed={6}
-              className="text-5xl font-bold tracking-tight md:text-6xl lg:text-7xl xl:text-8xl"
+              className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl"
             >
               AJ Zichella
             </GradientText>
           </motion.div>
           <BlurText
             text="I'm a Senior Product Designer with a 7+ year specialty in web apps for developer and retail experiences who is dedicated to crafting simple, pleasant, and usable experiences for humans."
-            className="mt-4 max-w-2xl text-[28px] md:text-[30px] text-[#999999] font-semibold"
+            className="mt-4 max-w-2xl text-lg sm:text-xl md:text-[30px] text-[#999999] font-semibold leading-[1.6] gap-y-2"
             delay={50}
             animateBy="words"
             direction="top"
@@ -92,7 +92,7 @@ export function Home() {
               className="h-2.5 w-2.5 shrink-0 rounded-full bg-[#39ff14] shadow-[0_0_8px_2px_#39ff14] animate-blink"
               aria-hidden
             />
-            <p className="text-sm text-[#999999]">
+            <p className="text-base text-[#999999]">
               Current status — Senior product designer for{" "}
               <a
                 href="https://digitalocean.com"
@@ -138,6 +138,27 @@ export function Home() {
             </motion.div>
           </div>
         </div>
+
+        {/* Scroll indicator - line arrow pointing down */}
+        <motion.div
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.2, duration: 0.5 }}
+        >
+          <motion.div
+            className="flex flex-col items-center"
+            animate={{ y: [0, 6, 0] }}
+            transition={{
+              duration: 1.5,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          >
+            <div className="h-8 w-px bg-gradient-to-b from-[#00aeef]/80 to-transparent" />
+            <ChevronDown className="h-5 w-5 text-[#00aeef]/80 -mt-1" strokeWidth={2.5} />
+          </motion.div>
+        </motion.div>
       </section>
     </>
   );
