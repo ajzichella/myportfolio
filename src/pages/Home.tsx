@@ -6,6 +6,7 @@ import GradientText from "../components/GradientText";
 import BlurText from "../components/BlurText";
 import GlareHover from "../components/GlareHover";
 import { CaseStudyCard } from "../components/CaseStudyCard";
+import { BlobBackground } from "../components/BlobBackground";
 
 export function Home() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -34,11 +35,19 @@ export function Home() {
             preferPerformance
           />
         </div>
-        {/* Single dark overlay: uniform tint + smooth fade to black at bottom */}
+        {/* Dark overlay: uniform tint + smooth fade to black at bottom */}
         <div
           className="absolute inset-0 pointer-events-none z-[5]"
           style={{
             background: 'linear-gradient(to bottom, rgba(0,0,0,0.45), black)',
+          }}
+          aria-hidden
+        />
+        {/* Soft top edge - blends cutoff into black so it's never visible */}
+        <div
+          className="absolute top-0 left-0 right-0 h-24 pointer-events-none z-[6]"
+          style={{
+            background: 'linear-gradient(to bottom, black, transparent)',
           }}
           aria-hidden
         />
@@ -53,7 +62,7 @@ export function Home() {
             <GradientText
               colors={["#7ee8ff", "#00aeef", "#006b8f"]}
               direction="diagonal"
-              animationSpeed={6}
+              animationSpeed={3}
               className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl"
             >
               AJ Zichella
@@ -62,10 +71,10 @@ export function Home() {
           <BlurText
             text="I'm a Senior Product Designer with a 7+ year specialty in web apps for developer and retail experiences who is dedicated to crafting simple, pleasant, and usable experiences for humans."
             className="mt-4 max-w-2xl text-lg sm:text-xl md:text-[30px] text-[#999999] font-semibold leading-[1.6] gap-y-2"
-            delay={50}
+            delay={30}
             animateBy="words"
             direction="top"
-            stepDuration={0.25}
+            stepDuration={0.15}
             threshold={0}
             animationFrom={undefined}
             animationTo={undefined}
@@ -76,7 +85,12 @@ export function Home() {
               return '';
             }}
           />
-          <div className="mt-6 flex items-center gap-2">
+          <motion.div
+            className="mt-6 flex items-center gap-2"
+            initial={{ filter: "blur(10px)", opacity: 0, y: -20 }}
+            animate={{ filter: "blur(0px)", opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, delay: 0.15, ease: "easeOut" }}
+          >
             <span
               className="h-2.5 w-2.5 shrink-0 rounded-full bg-[#39ff14] shadow-[0_0_8px_2px_#39ff14] animate-blink"
               aria-hidden
@@ -92,7 +106,7 @@ export function Home() {
                 DigitalOcean
               </a>
             </p>
-          </div>
+          </motion.div>
           <motion.div
             className="mt-10"
             initial={{ filter: "blur(10px)", opacity: 0, y: -20 }}
@@ -117,7 +131,7 @@ export function Home() {
           </motion.div>
             </div>
             <motion.div
-              className="shrink-0 w-full max-w-[340px] lg:max-w-[420px]"
+              className="shrink-0 w-full max-w-[340px] lg:max-w-[360px] xl:max-w-[380px]"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.6, ease: "easeOut" }}
@@ -147,9 +161,9 @@ export function Home() {
         {/* Scroll indicator - line arrow pointing down */}
         <motion.div
           className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.2, duration: 0.5 }}
+          initial={{ opacity: 0, y: -24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.2, duration: 0.5, ease: "easeOut" }}
         >
           <motion.div
             className="flex flex-col items-center"
@@ -167,8 +181,9 @@ export function Home() {
       </section>
 
       {/* Case Studies section - appears after scrolling */}
-      <section id="case-studies" className="w-full shrink-0 px-6 py-16 md:px-12 lg:px-16">
-        <div className="mx-auto max-w-[1200px]">
+      <section id="case-studies" className="relative w-full shrink-0 overflow-hidden px-6 py-16 md:px-12 lg:px-16">
+        <BlobBackground />
+        <div className="relative z-10 mx-auto max-w-[1200px]">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}

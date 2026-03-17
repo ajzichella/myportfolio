@@ -15,12 +15,6 @@ interface CaseStudyCardProps {
   index: number;
 }
 
-const BLOBS = [
-  { size: 90, left: "8%", top: "15%", duration: 8 },
-  { size: 70, left: "50%", top: "85%", duration: 10 },
-  { size: 60, left: "75%", top: "12%", duration: 7 },
-];
-
 export function CaseStudyCard({ study, index }: CaseStudyCardProps) {
   const [spotlight, setSpotlight] = useState({ x: 50, y: 50 });
   const [isHovered, setIsHovered] = useState(false);
@@ -50,36 +44,6 @@ export function CaseStudyCard({ study, index }: CaseStudyCardProps) {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {/* Floating blobs - visible until hovered */}
-      {BLOBS.map((blob, i) => (
-        <motion.div
-          key={i}
-          className="pointer-events-none absolute rounded-full bg-[#00aeef]/20 blur-2xl"
-          style={{
-            width: blob.size,
-            height: blob.size,
-            left: blob.left,
-            top: blob.top,
-          }}
-          animate={
-            isHovered
-              ? { opacity: 0 }
-              : {
-                  x: [0, 40, -30, -25, 0],
-                  y: [0, -30, 40, -25, 0],
-                  scale: [1, 1.15, 0.88, 1.1, 1],
-                  opacity: 1,
-                }
-          }
-          transition={{
-            duration: blob.duration,
-            repeat: Infinity,
-            ease: "easeInOut",
-            opacity: { duration: 0.5 },
-          }}
-          aria-hidden
-        />
-      ))}
       {/* Cursor-following spotlight overlay - visible when hovered */}
       <div
         className="pointer-events-none absolute inset-0 transition-opacity duration-500"
