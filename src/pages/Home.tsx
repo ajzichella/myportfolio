@@ -16,7 +16,7 @@ export function Home() {
       <section
         ref={sectionRef}
         id="home"
-        className="relative h-screen w-full shrink-0"
+        className="relative w-full shrink-0 min-h-[calc(100vh+5rem)] lg:min-h-0 lg:h-screen -mt-[max(env(safe-area-inset-top),5rem)] lg:mt-0"
       >
         <div className="absolute inset-0 w-full h-full">
           <LiquidEther
@@ -35,23 +35,20 @@ export function Home() {
             preferPerformance
           />
         </div>
-        {/* Dark overlay: uniform tint + smooth fade to black at bottom */}
+        {/* Dark overlay: transparent gradient with smooth transition to 90% black at bottom */}
         <div
-          className="absolute inset-0 pointer-events-none z-[5]"
+          className="hero-overlay absolute inset-0 pointer-events-none z-[5]"
+          aria-hidden
+        />
+        {/* Soft top edge - blends cutoff into black on desktop only; hidden on mobile/tablet so liquid ether reaches top */}
+        <div
+          className="absolute top-0 left-0 right-0 h-24 pointer-events-none z-[6] hidden lg:block"
           style={{
-            background: 'linear-gradient(to bottom, rgba(0,0,0,0.45), black)',
+            background: 'linear-gradient(to bottom, rgba(0,0,0,0.6), transparent)',
           }}
           aria-hidden
         />
-        {/* Soft top edge - blends cutoff into black so it's never visible */}
-        <div
-          className="absolute top-0 left-0 right-0 h-24 pointer-events-none z-[6]"
-          style={{
-            background: 'linear-gradient(to bottom, black, transparent)',
-          }}
-          aria-hidden
-        />
-        <div className="relative z-10 flex h-full flex-col justify-center items-center px-6 md:px-12 lg:px-16">
+        <div className="relative z-10 flex h-full flex-col justify-center items-center px-6 md:px-12 lg:px-16 pt-[max(env(safe-area-inset-top),5rem)] lg:pt-0">
           <div className="w-full max-w-[1200px] mx-auto flex flex-col lg:flex-row items-start lg:items-center gap-8 lg:gap-12">
             <div className="flex flex-col items-start flex-1 min-w-0">
           <motion.div
@@ -155,12 +152,32 @@ export function Home() {
                 />
               </GlareHover>
             </motion.div>
+            {/* Scroll indicator on mobile - in flow below image, centered */}
+            <motion.div
+              className="flex flex-col items-center justify-center gap-1 mt-6 w-full self-center lg:hidden"
+              initial={{ opacity: 0, y: -24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.2, duration: 0.5, ease: "easeOut" }}
+            >
+              <motion.div
+                className="flex flex-col items-center"
+                animate={{ y: [0, 6, 0] }}
+                transition={{
+                  duration: 1.5,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+              >
+                <div className="h-10 w-px bg-gradient-to-b from-[#00aeef]/80 to-transparent" />
+                <ChevronDown className="h-7 w-7 text-[#00aeef]/80 -mt-1" strokeWidth={2.5} />
+              </motion.div>
+            </motion.div>
           </div>
         </div>
 
-        {/* Scroll indicator - line arrow pointing down */}
+        {/* Scroll indicator - desktop only, absolute at bottom */}
         <motion.div
-          className="absolute bottom-12 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1 lg:bottom-8"
+          className="absolute bottom-12 left-1/2 -translate-x-1/2 z-10 hidden lg:flex flex-col items-center gap-1 lg:bottom-8"
           initial={{ opacity: 0, y: -24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.2, duration: 0.5, ease: "easeOut" }}
