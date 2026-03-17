@@ -24,9 +24,9 @@ export function App() {
     };
   }, [menuOpen]);
 
-  const NavContent = () => (
+  const NavContent = ({ variant = "desktop" }: { variant?: "mobile" | "desktop" }) => (
     <>
-      <div className="flex flex-col items-center gap-6 px-4 py-8">
+      <div className={`flex flex-col items-center px-4 ${variant === "mobile" ? "pt-2" : "gap-6 py-8"}`}>
         <div className="w-24">
           <img
             src={`${import.meta.env.BASE_URL}logo-aj.png`}
@@ -35,7 +35,7 @@ export function App() {
           />
         </div>
       </div>
-      <nav className="mt-4 flex flex-col gap-1 px-4 text-sm font-medium">
+      <nav className={`flex flex-col gap-1 px-4 text-sm font-medium ${variant === "mobile" ? "mt-24" : "mt-4"}`}>
         <NavLink
           to="/"
           end
@@ -67,18 +67,18 @@ export function App() {
 
   return (
     <div className="flex min-h-screen bg-black text-slate-50">
-      {/* Hamburger button - mobile only, top right */}
+      {/* Hamburger / X button - mobile only, top right, always above content */}
       <button
         type="button"
         onClick={() => setMenuOpen(!menuOpen)}
-        className="fixed z-50 flex lg:hidden items-center justify-center w-12 h-12 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-white border border-slate-700 top-[max(1rem,env(safe-area-inset-top))] right-[max(1rem,env(safe-area-inset-right))]"
+        className="fixed z-[60] flex lg:hidden items-center justify-center w-12 h-12 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-white border border-slate-700 top-[max(1rem,env(safe-area-inset-top))] right-[max(1rem,env(safe-area-inset-right))]"
         aria-label={menuOpen ? "Close menu" : "Open menu"}
         aria-expanded={menuOpen}
       >
         {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
       </button>
 
-      {/* Mobile drawer - 80% of screen, slides up from bottom */}
+      {/* Mobile drawer - drops from top, backdrop */}
       {menuOpen && (
         <button
           type="button"
@@ -89,15 +89,15 @@ export function App() {
       )}
       <div
         className={`
-          fixed bottom-0 left-0 right-0 z-50 lg:hidden
+          fixed top-0 left-0 right-0 z-50 lg:hidden
           h-[80vh]
-          flex flex-col bg-black text-white border-t border-slate-800 rounded-t-2xl
+          flex flex-col bg-black text-white border-b border-slate-800 rounded-b-2xl
           transform transition-transform duration-300 ease-out
-          ${menuOpen ? "translate-y-0" : "translate-y-full"}
+          ${menuOpen ? "translate-y-0" : "-translate-y-full"}
         `}
       >
         <div className="flex flex-1 flex-col items-center justify-center px-8 py-6 overflow-y-auto">
-          <NavContent />
+          <NavContent variant="mobile" />
         </div>
       </div>
 
@@ -106,7 +106,7 @@ export function App() {
         <NavContent />
       </aside>
 
-      <main id="main-scroll" className="flex-1 overflow-y-auto min-w-0 lg:ml-52">
+      <main id="main-scroll" className="flex-1 overflow-y-auto min-w-0 lg:ml-52 pt-[max(env(safe-area-inset-top),5rem)] lg:pt-0">
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/portfolio" element={<PortfolioPage />} />
