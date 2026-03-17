@@ -101,12 +101,12 @@ export function App() {
         </div>
       </div>
 
-      {/* Sidebar - desktop only */}
-      <aside className="hidden lg:flex w-52 shrink-0 border-r border-slate-800 bg-black text-white flex-col">
+      {/* Sidebar - desktop only, fixed so it never scrolls */}
+      <aside className="hidden lg:flex fixed left-0 top-0 bottom-0 w-52 shrink-0 border-r border-slate-800 bg-black text-white flex-col z-30">
         <NavContent />
       </aside>
 
-      <main id="main-scroll" className="flex-1 overflow-y-auto min-w-0">
+      <main id="main-scroll" className="flex-1 overflow-y-auto min-w-0 lg:ml-52">
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/portfolio" element={<PortfolioPage />} />
