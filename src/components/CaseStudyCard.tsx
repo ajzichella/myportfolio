@@ -8,6 +8,8 @@ interface Study {
   tags: string[];
   metrics: { value: string; label: string }[];
   link: string;
+  /** [backgroundImage, foregroundImage] for stacked layout */
+  images?: [string, string];
 }
 
 interface CaseStudyCardProps {
@@ -35,18 +37,19 @@ export function CaseStudyCard({ study, index }: CaseStudyCardProps) {
   return (
     <motion.article
       key={study.title}
+      data-figma-capture={study.title === "RBAC - Predefined Roles" ? "rbac-card" : undefined}
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.4, delay: 0.1 * index }}
-      className="group relative overflow-hidden rounded-xl case-study-card border border-slate-700/40 p-6 backdrop-blur-xl transition-all duration-300"
+      className={`group relative rounded-xl case-study-card border border-slate-700/40 p-6 backdrop-blur-xl transition-all duration-300 ${study.images ? "overflow-visible" : "overflow-hidden"}`}
       onMouseMove={handleMouseMove}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
       {/* Cursor-following spotlight overlay - visible when hovered */}
       <div
-        className="pointer-events-none absolute inset-0 transition-opacity duration-500"
+        className="pointer-events-none absolute inset-0 rounded-xl transition-opacity duration-500"
         style={{
           background: `radial-gradient(circle 140px at ${spotlight.x}% ${spotlight.y}%, rgba(0, 174, 239, 0.15), transparent 65%)`,
           transition: "background 0.2s ease-out",
@@ -54,59 +57,100 @@ export function CaseStudyCard({ study, index }: CaseStudyCardProps) {
         }}
         aria-hidden
       />
-      <div className="relative flex flex-col gap-4">
-        <div>
-          <p className="text-sm font-medium text-[#00aeef] flex items-center gap-2">
-            {study.company.startsWith("DigitalOcean") && (
-              <img
-                src={`${import.meta.env.BASE_URL}digitalocean-icon.svg`}
-                alt=""
-                className="h-4 w-4 shrink-0"
-                aria-hidden
-              />
-            )}
-            {study.company}
+      <div className={`relative flex gap-6 ${study.images ? "flex-col lg:flex-row" : "flex-row"}`}>
+        <div className={`flex min-w-0 flex-1 flex-col gap-4 ${study.images ? "w-full lg:max-w-[60%]" : "max-w-[60%]"}`}>
+          <div>
+            <p className="text-sm font-medium text-[#00aeef] flex items-center gap-2">
+              {study.company.startsWith("DigitalOcean") && (
+                <img
+                  src={`${import.meta.env.BASE_URL}digitalocean-icon.svg`}
+                  alt=""
+                  className="h-4 w-4 shrink-0"
+                  aria-hidden
+                />
+              )}
+              <span className="break-words">{study.company}</span>
+            </p>
+            <h3 className="mt-2 text-lg font-semibold text-white break-words">
+              {study.title}
+            </h3>
+          </div>
+          <p className="text-sm leading-relaxed text-slate-300 break-words">
+            {study.description}
           </p>
-          <h3 className="mt-2 text-lg font-semibold text-white">
-            {study.title}
-          </h3>
-        </div>
-        <p className="text-sm leading-relaxed text-slate-300">
-          {study.description}
-        </p>
-        <div className="flex flex-wrap gap-2">
-          {study.tags.map((tag) => (
-            <span
-              key={tag}
-              className="rounded-md bg-slate-700/50 px-2.5 py-1 text-xs text-slate-300"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-        <div className="flex flex-wrap gap-4">
-          {study.metrics.map((m) => (
-            <div key={m.label}>
-              <span className="font-semibold text-[#00aeef]">
-                {m.value}{" "}
+          <div className="flex flex-wrap gap-2">
+            {study.tags.map((tag) => (
+              <span
+                key={tag}
+                className="rounded-md bg-slate-700/50 px-2.5 py-1 text-xs text-slate-300"
+              >
+                {tag}
               </span>
-              <span className="text-sm text-slate-400">{m.label}</span>
-            </div>
-          ))}
-        </div>
-        <a
-          href={study.link}
-          target="_blank"
-          rel="noreferrer noopener"
-          className="rainbow-cta group/card relative mt-2 inline-flex w-fit rounded-[6px] p-[1.5px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00aeef] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f172a]"
-        >
-          <span className="relative flex items-center gap-0 rounded-[4px] bg-[#03040A] px-3 py-1.5 text-xs font-medium text-white transition-all duration-200 group-hover/card:gap-1.5 group-hover/card:opacity-95">
-            View case study
-            <span className="flex shrink-0 w-0 overflow-hidden transition-all duration-200 ease-out group-hover/card:w-4">
-              <ArrowRight className="h-3.5 w-3.5 opacity-0 transition-opacity duration-200 group-hover/card:opacity-100" />
+            ))}
+          </div>
+          <div className="flex flex-wrap gap-4">
+            {study.metrics.map((m) => (
+              <div key={m.label}>
+                <span className="font-semibold text-[#00aeef]">
+                  {m.value}{" "}
+                </span>
+                <span className="text-sm text-slate-400">{m.label}</span>
+              </div>
+            ))}
+          </div>
+          <a
+            href={study.link}
+            target="_blank"
+            rel="noreferrer noopener"
+            className="rainbow-cta group/card relative mt-2 inline-flex w-fit rounded-[6px] p-[1.5px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00aeef] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f172a]"
+          >
+            <span className="relative flex items-center gap-0 rounded-[4px] bg-[#03040A] px-3 py-1.5 text-xs font-medium text-white transition-all duration-200 group-hover/card:gap-1.5 group-hover/card:opacity-95">
+              View case study
+              <span className="flex shrink-0 w-0 overflow-hidden transition-all duration-200 ease-out group-hover/card:w-4">
+                <ArrowRight className="h-3.5 w-3.5 opacity-0 transition-opacity duration-200 group-hover/card:opacity-100" />
+              </span>
             </span>
-          </span>
-        </a>
+          </a>
+        </div>
+        {/* Image area - stacked images */}
+        {study.images && (
+          <>
+            {/* Mobile: in-flow images at top (rendered via flex-col order) */}
+            <div className="relative w-full lg:hidden order-first overflow-hidden">
+              <div className="flex items-start gap-3 px-2">
+                <img
+                  src={study.images[0]}
+                  alt="Invite Team Members"
+                  className="w-[48%] rounded-lg"
+                />
+                <img
+                  src={study.images[1]}
+                  alt="Change Role modal"
+                  className="w-[48%] rounded-lg"
+                />
+              </div>
+            </div>
+            {/* Desktop: absolute positioned, extending above card */}
+            <div className="relative hidden lg:block min-w-[40%] flex-1">
+              <motion.img
+                src={study.images[0]}
+                alt="Invite Team Members"
+                className="pointer-events-auto absolute -top-16 left-0 w-[55%] rounded-lg origin-bottom"
+                whileHover={{ y: -12, scale: 1.04 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+              />
+              <motion.img
+                src={study.images[1]}
+                alt="Change Role modal"
+                className="pointer-events-auto absolute -top-24 right-0 w-[55%] rounded-lg z-10 origin-bottom"
+                whileHover={{ y: -16, scale: 1.05 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+              />
+            </div>
+          </>
+        )}
+        {/* Empty spacer for cards without images */}
+        {!study.images && <div className="min-w-[40%] flex-1" aria-hidden />}
       </div>
     </motion.article>
   );

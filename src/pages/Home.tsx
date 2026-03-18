@@ -229,6 +229,10 @@ export function Home() {
                   { value: "Granular", label: "role options" },
                 ],
                 link: "https://ajzichella.com/",
+                images: [
+                  `${import.meta.env.BASE_URL}invite-team-members.png`,
+                  `${import.meta.env.BASE_URL}rbac-role-modal.png`,
+                ],
               },
               {
                 company: "DigitalOcean | Cloud Computing & Hosting",
