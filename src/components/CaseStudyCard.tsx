@@ -1,15 +1,18 @@
 import React, { useState, useCallback } from "react";
 import { motion } from "motion/react";
 import { ArrowRight } from "lucide-react";
-interface Study {
+
+export interface Study {
   company: string;
   title: string;
   description: string;
   tags: string[];
   metrics: { value: string; label: string }[];
   link: string;
-  /** [backgroundImage, foregroundImage] for stacked layout */
-  images?: [string, string];
+  /** One hero screenshot or two stacked thumbnails */
+  images?: readonly [string] | readonly [string, string];
+  /** Alt text for each image; parallel to `images` when provided */
+  imageAlts?: readonly [string] | readonly [string, string];
 }
 
 interface CaseStudyCardProps {
@@ -34,6 +37,18 @@ export function CaseStudyCard({ study, index }: CaseStudyCardProps) {
     setSpotlight({ x: 50, y: 50 });
   }, []);
 
+  const images = study.images;
+  const imageCount = images?.length ?? 0;
+  const hasImages = imageCount === 1 || imageCount === 2;
+  const altFor = (i: 0 | 1) =>
+    study.imageAlts?.[i] ?? "Case study screenshot";
+
+  /* No backdrop-filter on image column — transparent PNGs would composite black.
+     Single-hero: no overflow-hidden on wrapper so drop-shadow isn’t clipped;
+     img uses drop-shadow (follows alpha) instead of rectangular box-shadow. */
+  const imageChrome = "rounded-lg overflow-hidden isolate";
+  const imageChromeSingle = "rounded-lg isolate";
+
   return (
     <motion.article
       key={study.title}
@@ -42,7 +57,7 @@ export function CaseStudyCard({ study, index }: CaseStudyCardProps) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.4, delay: 0.1 * index }}
-      className={`group relative rounded-xl case-study-card border border-slate-700/40 p-6 backdrop-blur-xl transition-all duration-300 ${study.images ? "overflow-visible" : "overflow-hidden"}`}
+      className={`group relative rounded-xl case-study-card border border-slate-700/40 p-6 transition-all duration-300 ${hasImages && imageCount === 2 ? "overflow-visible" : "overflow-hidden"}`}
       onMouseMove={handleMouseMove}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
@@ -57,8 +72,10 @@ export function CaseStudyCard({ study, index }: CaseStudyCardProps) {
         }}
         aria-hidden
       />
-      <div className={`relative flex gap-6 ${study.images ? "flex-col lg:flex-row" : "flex-row"}`}>
-        <div className={`flex min-w-0 flex-1 flex-col gap-4 ${study.images ? "w-full lg:max-w-[60%]" : "max-w-[60%]"}`}>
+      <div className={`relative flex gap-6 ${hasImages ? "flex-col lg:flex-row" : "flex-row"}`}>
+        <div
+          className={`flex min-w-0 flex-1 flex-col gap-4 rounded-xl backdrop-blur-xl ${hasImages ? "w-full lg:max-w-[60%]" : "max-w-[60%]"}`}
+        >
           <div>
             <p className="text-sm font-medium text-[#00aeef] flex items-center gap-2">
               {study.company.startsWith("DigitalOcean") && (
@@ -112,45 +129,73 @@ export function CaseStudyCard({ study, index }: CaseStudyCardProps) {
             </span>
           </a>
         </div>
-        {/* Image area - stacked images */}
-        {study.images && (
+        {/* Single hero image */}
+        {images && imageCount === 1 && (
           <>
-            {/* Mobile: in-flow images at top (rendered via flex-col order) */}
-            <div className="relative w-full lg:hidden order-first overflow-hidden">
-              <div className="flex items-start gap-3 px-2">
-                <img
-                  src={study.images[0]}
-                  alt="Invite Team Members"
-                  className="w-[48%] rounded-lg"
-                />
-                <img
-                  src={study.images[1]}
-                  alt="Change Role modal"
-                  className="w-[48%] rounded-lg"
-                />
-              </div>
+            <div
+              className={`flex w-full justify-end pr-6 order-first lg:hidden ${imageChromeSingle}`}
+            >
+              <img
+                src={images[0]}
+                alt={altFor(0)}
+                className="max-h-[min(410px,62vh)] w-auto max-w-[min(368px,95%)] object-contain object-right object-top drop-shadow-xl"
+              />
             </div>
-            {/* Desktop: absolute positioned, extending above card */}
-            <div className="relative hidden lg:block min-w-[40%] flex-1">
-              <motion.img
-                src={study.images[0]}
-                alt="Invite Team Members"
-                className="pointer-events-auto absolute -top-16 left-0 w-[55%] rounded-lg origin-bottom"
-                whileHover={{ y: -12, scale: 1.04 }}
+            <div className="relative hidden min-w-0 shrink-0 flex-col items-end justify-start lg:flex lg:max-w-[56%]">
+              <motion.div
+                className={`pointer-events-auto w-full max-w-[min(100%,460px)] origin-center lg:mr-8 ${imageChromeSingle}`}
+                whileHover={{ scale: 1.03 }}
                 transition={{ duration: 0.3, ease: "easeOut" }}
-              />
-              <motion.img
-                src={study.images[1]}
-                alt="Change Role modal"
-                className="pointer-events-auto absolute -top-24 right-0 w-[55%] rounded-lg z-10 origin-bottom"
-                whileHover={{ y: -16, scale: 1.05 }}
-                transition={{ duration: 0.3, ease: "easeOut" }}
-              />
+              >
+                <img
+                  src={images[0]}
+                  alt={altFor(0)}
+                  className="max-h-[min(540px,62vh)] w-full min-h-0 object-contain object-right object-top drop-shadow-xl"
+                />
+              </motion.div>
             </div>
           </>
         )}
-        {/* Empty spacer for cards without images */}
-        {!study.images && <div className="min-w-[40%] flex-1" aria-hidden />}
+        {/* Two stacked images */}
+        {images && imageCount === 2 && (
+          <>
+            <div className="w-full lg:hidden order-first">
+              <div className="flex items-start gap-2">
+                <div className={`flex-1 min-w-0 ${imageChrome}`}>
+                  <img
+                    src={images[0]}
+                    alt={altFor(0)}
+                    className="w-full"
+                  />
+                </div>
+                <div className={`flex-1 min-w-0 ${imageChrome}`}>
+                  <img
+                    src={images[1]}
+                    alt={altFor(1)}
+                    className="w-full"
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="relative hidden lg:block min-w-[40%] flex-1">
+              <motion.div
+                className={`pointer-events-auto absolute -top-16 left-0 w-[55%] z-[1] origin-bottom ${imageChrome}`}
+                whileHover={{ y: -12, scale: 1.04 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+              >
+                <img src={images[0]} alt={altFor(0)} className="w-full" />
+              </motion.div>
+              <motion.div
+                className={`pointer-events-auto absolute -top-24 right-0 w-[55%] z-10 origin-bottom ${imageChrome}`}
+                whileHover={{ y: -16, scale: 1.05 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+              >
+                <img src={images[1]} alt={altFor(1)} className="w-full" />
+              </motion.div>
+            </div>
+          </>
+        )}
+        {!hasImages && <div className="min-w-[40%] flex-1" aria-hidden />}
       </div>
     </motion.article>
   );

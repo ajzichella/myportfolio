@@ -232,19 +232,11 @@ export function Home() {
                 images: [
                   `${import.meta.env.BASE_URL}invite-team-members.png`,
                   `${import.meta.env.BASE_URL}rbac-role-modal.png`,
-                ],
-              },
-              {
-                company: "DigitalOcean | Cloud Computing & Hosting",
-                title: "DBaaS - Kafka",
-                description:
-                  "Integrating a Kafka solution into our Managed Databases product to simplify users' architecture and Topic upkeep as well as provide a reliable environment to prevent data loss.",
-                tags: ["Product design", "Managed databases", "Developer experience"],
-                metrics: [
-                  { value: "Simplified", label: "Topic upkeep" },
-                  { value: "Reliable", label: "data environment" },
-                ],
-                link: "https://ajzichella.com/",
+                ] as const,
+                imageAlts: [
+                  "Invite team members screen showing member list and roles",
+                  "Change role modal for assigning a predefined RBAC role",
+                ] as const,
               },
               {
                 company: "DigitalOcean | Cloud Computing & Hosting",
@@ -255,6 +247,22 @@ export function Home() {
                 metrics: [
                   { value: "Protected", label: "networks" },
                   { value: "Informed", label: "users" },
+                ],
+                link: "https://ajzichella.com/",
+                images: [`${import.meta.env.BASE_URL}ddos1.png`] as const,
+                imageAlts: [
+                  "DDoS Protection networking dashboard with Back Online notification card showing shrimp illustration and recovery message",
+                ] as const,
+              },
+              {
+                company: "DigitalOcean | Cloud Computing & Hosting",
+                title: "DBaaS - Kafka",
+                description:
+                  "Integrating a Kafka solution into our Managed Databases product to simplify users' architecture and Topic upkeep as well as provide a reliable environment to prevent data loss.",
+                tags: ["Product design", "Managed databases", "Developer experience"],
+                metrics: [
+                  { value: "Simplified", label: "Topic upkeep" },
+                  { value: "Reliable", label: "data environment" },
                 ],
                 link: "https://ajzichella.com/",
               },
