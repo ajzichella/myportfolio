@@ -237,6 +237,7 @@ export function Home() {
                   "Invite team members screen showing member list and roles",
                   "Change role modal for assigning a predefined RBAC role",
                 ] as const,
+                sideOverlapSecondLeftExtraPx: 32,
               },
               {
                 company: "DigitalOcean | Cloud Computing & Hosting",
@@ -265,18 +266,35 @@ export function Home() {
                   { value: "Reliable", label: "data environment" },
                 ],
                 link: "https://ajzichella.com/",
+                images: [
+                  `${import.meta.env.BASE_URL}kafka-permissions.png`,
+                  `${import.meta.env.BASE_URL}kafka-create-topic.png`,
+                ] as const,
+                imageAlts: [
+                  "Kafka topic permissions modal with Admin, Produce, Consume, and Consume and Produce roles",
+                  "Create Topic form with partition count, replication factor, and retention settings",
+                ] as const,
               },
               {
                 company: "STORIS | Retail ERP & eCommerce",
                 title: "eCommerce Enhanced Checkout Redesign",
                 description:
-                  "The old multi-step checkout provided a broken checkout system that affected our eCommerce clients and shopping end users. The new checkout provides a more streamlined experience to increase conversions and revenue.",
+                  "Redesigned a broken multi-step checkout that hurt retailers and shoppers with a faster flow that solved conversion issues and lifted revenue.",
                 tags: ["UX redesign", "E‑commerce", "Checkout"],
                 metrics: [
                   { value: "Streamlined", label: "checkout experience" },
                   { value: "Increased", label: "conversions and revenue" },
                 ],
                 link: "https://ajzichella.com/",
+                images: [
+                  `${import.meta.env.BASE_URL}estoris2.png`,
+                  `${import.meta.env.BASE_URL}checkout_mobile.png`,
+                ] as const,
+                imageAlts: [
+                  "STORIS admin Checkout Settings with delivery options and store pickup",
+                  "STORIS mobile secure checkout — shipping information step",
+                ] as const,
+                twoImageLayout: "hero-phone" as const,
               },
             ].map((study, i) => (
               <CaseStudyCard key={study.title} study={study} index={i} />

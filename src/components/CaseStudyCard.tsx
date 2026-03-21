@@ -13,6 +13,11 @@ export interface Study {
   images?: readonly [string] | readonly [string, string];
   /** Alt text for each image; parallel to `images` when provided */
   imageAlts?: readonly [string] | readonly [string, string];
+  /** Two-image layout variant. Default "side-overlap" puts both at similar size.
+   *  "hero-phone" puts images[0] as a wide hero with images[1] as a narrow phone mock overlaid at the right. */
+  twoImageLayout?: "side-overlap" | "hero-phone";
+  /** Side-overlap layout only: move the front (second) image further left by this many px (more overlap); invite/first unchanged */
+  sideOverlapSecondLeftExtraPx?: number;
 }
 
 interface CaseStudyCardProps {
@@ -43,11 +48,10 @@ export function CaseStudyCard({ study, index }: CaseStudyCardProps) {
   const altFor = (i: 0 | 1) =>
     study.imageAlts?.[i] ?? "Case study screenshot";
 
-  /* No backdrop-filter on image column — transparent PNGs would composite black.
-     Single-hero: no overflow-hidden on wrapper so drop-shadow isn’t clipped;
-     img uses drop-shadow (follows alpha) instead of rectangular box-shadow. */
-  const imageChrome = "rounded-lg overflow-hidden isolate";
-  const imageChromeSingle = "rounded-lg isolate";
+  /* Stacked / overlapping images: motion.img + no drop-shadow on those layers avoids
+     Chromium black matte (transform parent + filter on child). Single-hero still uses
+     drop-shadow on the img only. No overflow-hidden/isolate on image wrappers. */
+  const imageChromeSingle = "rounded-lg";
 
   return (
     <motion.article
@@ -57,7 +61,7 @@ export function CaseStudyCard({ study, index }: CaseStudyCardProps) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.4, delay: 0.1 * index }}
-      className={`group relative rounded-xl case-study-card border border-slate-700/40 p-6 transition-all duration-300 ${hasImages && imageCount === 2 ? "overflow-visible" : "overflow-hidden"}`}
+      className={`relative rounded-xl case-study-card border border-slate-700/40 p-8 transition-all duration-300 lg:min-h-[min(380px,46vh)] ${hasImages && imageCount === 2 ? "overflow-visible" : "overflow-hidden"}`}
       onMouseMove={handleMouseMove}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
@@ -72,9 +76,11 @@ export function CaseStudyCard({ study, index }: CaseStudyCardProps) {
         }}
         aria-hidden
       />
-      <div className={`relative flex gap-6 ${hasImages ? "flex-col lg:flex-row" : "flex-row"}`}>
+      <div
+        className={`relative flex h-full gap-8 ${hasImages ? "flex-col lg:flex-row lg:items-stretch" : "flex-row"}`}
+      >
         <div
-          className={`flex min-w-0 flex-1 flex-col gap-4 rounded-xl backdrop-blur-xl ${hasImages ? "w-full lg:max-w-[60%]" : "max-w-[60%]"}`}
+          className={`flex min-w-0 flex-1 flex-col gap-4 rounded-xl backdrop-blur-xl ${hasImages ? "w-full lg:w-1/2 lg:flex-none lg:min-h-0" : "w-full"}`}
         >
           <div>
             <p className="text-sm font-medium text-[#00aeef] flex items-center gap-2">
@@ -115,16 +121,22 @@ export function CaseStudyCard({ study, index }: CaseStudyCardProps) {
               </div>
             ))}
           </div>
+          <div
+            className="max-lg:hidden min-h-[1px] w-full flex-1 basis-0 shrink max-h-12"
+            aria-hidden
+          />
           <a
             href={study.link}
             target="_blank"
             rel="noreferrer noopener"
-            className="rainbow-cta group/card relative mt-2 inline-flex w-fit rounded-[6px] p-[1.5px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00aeef] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f172a]"
+            className="rainbow-cta group/cta relative inline-flex self-start rounded-[8px] p-[2px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00aeef] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f172a] max-lg:mt-2"
           >
-            <span className="relative flex items-center gap-0 rounded-[4px] bg-[#03040A] px-3 py-1.5 text-xs font-medium text-white transition-all duration-200 group-hover/card:gap-1.5 group-hover/card:opacity-95">
-              View case study
-              <span className="flex shrink-0 w-0 overflow-hidden transition-all duration-200 ease-out group-hover/card:w-4">
-                <ArrowRight className="h-3.5 w-3.5 opacity-0 transition-opacity duration-200 group-hover/card:opacity-100" />
+            <span className="relative flex w-full min-w-0 items-center rounded-[6px] bg-[#03040A] px-6 py-3 text-sm font-medium text-white transition-all duration-200 group-hover/cta:opacity-95">
+              <span className="flex min-w-0 flex-1 justify-center">
+                View case study
+              </span>
+              <span className="flex w-0 shrink-0 justify-end overflow-hidden transition-all duration-200 ease-out group-hover/cta:ml-2 group-hover/cta:w-4">
+                <ArrowRight className="h-4 w-4 shrink-0 opacity-0 transition-opacity duration-200 group-hover/cta:opacity-100" />
               </span>
             </span>
           </a>
@@ -133,69 +145,119 @@ export function CaseStudyCard({ study, index }: CaseStudyCardProps) {
         {images && imageCount === 1 && (
           <>
             <div
-              className={`flex w-full justify-end pr-6 order-first lg:hidden ${imageChromeSingle}`}
+              className={`flex w-full justify-center order-first lg:hidden ${imageChromeSingle}`}
             >
               <img
                 src={images[0]}
                 alt={altFor(0)}
-                className="max-h-[min(410px,62vh)] w-auto max-w-[min(368px,95%)] object-contain object-right object-top drop-shadow-xl"
+                className="max-h-[min(460px,65vh)] w-auto max-w-[min(400px,95%)] object-contain object-center object-top drop-shadow-xl"
               />
             </div>
-            <div className="relative hidden min-w-0 shrink-0 flex-col items-end justify-start lg:flex lg:max-w-[56%]">
+            <div className="relative hidden min-w-0 shrink-0 flex-col items-end justify-start lg:flex lg:w-1/2 lg:flex-none">
               <motion.div
-                className={`pointer-events-auto w-full max-w-[min(100%,460px)] origin-center lg:mr-8 ${imageChromeSingle}`}
-                whileHover={{ scale: 1.03 }}
+                className={`pointer-events-auto w-full max-w-[min(100%,520px)] origin-bottom lg:mr-6 ${imageChromeSingle}`}
+                whileHover={{ y: -14, scale: 1.04 }}
                 transition={{ duration: 0.3, ease: "easeOut" }}
               >
                 <img
                   src={images[0]}
                   alt={altFor(0)}
-                  className="max-h-[min(540px,62vh)] w-full min-h-0 object-contain object-right object-top drop-shadow-xl"
+                  className="max-h-[min(600px,68vh)] w-full min-h-0 object-contain object-right object-top drop-shadow-xl"
                 />
               </motion.div>
             </div>
           </>
         )}
-        {/* Two stacked images */}
-        {images && imageCount === 2 && (
+        {/* Two stacked images — side-overlap (RBAC / Kafka) */}
+        {images && imageCount === 2 && study.twoImageLayout !== "hero-phone" && (
           <>
             <div className="w-full lg:hidden order-first">
               <div className="flex items-start gap-2">
-                <div className={`flex-1 min-w-0 ${imageChrome}`}>
+                <div className="flex-1 min-w-0">
                   <img
                     src={images[0]}
                     alt={altFor(0)}
-                    className="w-full"
+                    className="w-full rounded-lg"
                   />
                 </div>
-                <div className={`flex-1 min-w-0 ${imageChrome}`}>
+                <div className="flex-1 min-w-0">
                   <img
                     src={images[1]}
                     alt={altFor(1)}
-                    className="w-full"
+                    className="w-full rounded-lg"
                   />
                 </div>
               </div>
             </div>
-            <div className="relative hidden lg:block min-w-[40%] flex-1">
-              <motion.div
-                className={`pointer-events-auto absolute -top-16 left-0 w-[55%] z-[1] origin-bottom ${imageChrome}`}
+            <div className="relative z-[2] hidden min-h-[min(320px,40vh)] lg:w-1/2 lg:flex-none lg:block">
+              <motion.img
+                src={images[0]}
+                alt={altFor(0)}
+                className="pointer-events-auto absolute -top-4 left-0 z-[1] w-[55%] rounded-lg"
+                style={{ transformOrigin: "bottom center" }}
                 whileHover={{ y: -12, scale: 1.04 }}
                 transition={{ duration: 0.3, ease: "easeOut" }}
-              >
-                <img src={images[0]} alt={altFor(0)} className="w-full" />
-              </motion.div>
-              <motion.div
-                className={`pointer-events-auto absolute -top-24 right-0 w-[55%] z-10 origin-bottom ${imageChrome}`}
+              />
+              <motion.img
+                src={images[1]}
+                alt={altFor(1)}
+                className="pointer-events-auto absolute -top-[54px] left-[calc(55%-32px)] z-10 w-[55%] rounded-lg"
+                style={{
+                  transformOrigin: "bottom center",
+                  ...(study.sideOverlapSecondLeftExtraPx != null
+                    ? {
+                        left: `calc(55% - ${32 + study.sideOverlapSecondLeftExtraPx}px)`,
+                      }
+                    : {}),
+                }}
                 whileHover={{ y: -16, scale: 1.05 }}
                 transition={{ duration: 0.3, ease: "easeOut" }}
-              >
-                <img src={images[1]} alt={altFor(1)} className="w-full" />
-              </motion.div>
+              />
             </div>
           </>
         )}
-        {!hasImages && <div className="min-w-[40%] flex-1" aria-hidden />}
+        {/* Two stacked images — hero-phone (wide desktop + narrow phone overlay) */}
+        {images && imageCount === 2 && study.twoImageLayout === "hero-phone" && (
+          <>
+            <div className="w-full lg:hidden order-first">
+              <div className="flex items-start justify-center gap-3">
+                <div className="flex min-h-0 min-w-0 flex-1 justify-center">
+                  <img
+                    src={images[0]}
+                    alt={altFor(0)}
+                    className="max-h-[min(300px,46vh)] w-full rounded-lg object-contain object-top"
+                  />
+                </div>
+                <div className="flex min-h-0 min-w-0 flex-1 justify-center">
+                  <img
+                    src={images[1]}
+                    alt={altFor(1)}
+                    className="max-h-[min(300px,46vh)] w-full rounded-lg object-contain object-top"
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="relative z-[2] hidden min-h-[min(320px,40vh)] lg:w-1/2 lg:flex-none lg:block">
+              <motion.img
+                src={images[0]}
+                alt={altFor(0)}
+                className="pointer-events-auto absolute -top-3 left-[-12px] z-[1] max-h-[min(400px,44vh)] max-w-[74%] w-auto rounded-lg object-contain object-left object-top"
+                style={{ transformOrigin: "bottom left" }}
+                whileHover={{ y: -10, scale: 1.03 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+              />
+              <motion.img
+                src={images[1]}
+                alt={altFor(1)}
+                className="pointer-events-auto absolute -top-[26px] right-5 z-10 w-[32%] max-w-[200px]"
+                style={{ transformOrigin: "bottom center" }}
+                whileHover={{ y: -14, scale: 1.05 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+              />
+            </div>
+          </>
+        )}
+        {!hasImages && <div className="hidden lg:block lg:w-1/2 lg:flex-none" aria-hidden />}
       </div>
     </motion.article>
   );
