@@ -94,14 +94,26 @@ export function Home() {
             />
             <p className="text-base text-[#999999]">
               Current status — Senior product designer, design engineer for{" "}
-              <a
-                href="https://digitalocean.com"
-                target="_blank"
-                rel="noreferrer"
-                className="text-[#00aeef] hover:underline"
-              >
-                DigitalOcean
-              </a>
+              <span className="relative inline-block align-baseline group/do">
+                <a
+                  href="https://digitalocean.com"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-[#00aeef] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00aeef] focus-visible:ring-offset-2 focus-visible:ring-offset-black rounded-sm"
+                  aria-describedby="digitalocean-hero-tooltip"
+                >
+                  DigitalOcean
+                </a>
+                <span
+                  id="digitalocean-hero-tooltip"
+                  role="tooltip"
+                  className="pointer-events-none absolute bottom-[calc(100%+0.5rem)] left-1/2 z-50 w-[min(calc(100vw-2rem),22rem)] -translate-x-1/2 rounded-xl border border-[#00aeef]/45 bg-[#050d14] px-4 py-3.5 text-left text-sm font-normal leading-relaxed text-slate-100 shadow-[0_0_28px_rgba(0,174,239,0.22),0_12px_40px_rgba(0,0,0,0.45)] ring-1 ring-inset ring-[#00aeef]/15 opacity-0 transition-opacity duration-200 group-hover/do:opacity-100 group-focus-within/do:opacity-100 sm:w-[26rem]"
+                >
+                  DigitalOcean is a cloud service provider that is tailored for
+                  new-to-tech people and principal engineers alike, best known
+                  for its UX and simplicity.
+                </span>
+              </span>
             </p>
           </motion.div>
           <motion.div
@@ -223,7 +235,7 @@ export function Home() {
                 title: "RBAC - Predefined Roles",
                 description:
                   "Adding 3 new roles to simplify users' more granular access needs with more restrictive RBAC solutions.",
-                tags: ["Product design", "Access control", "Web app"],
+                tags: ["Product design", "IAM", "Access control"],
                 metrics: [
                   { value: "Simplified", label: "access management" },
                   { value: "Granular", label: "role options" },
@@ -244,7 +256,7 @@ export function Home() {
                 title: "DDoS Protection",
                 description:
                   "Building an e2e simple \"set it and forget it\" experience for DigitalOcean users against DDoS Attacks so users are protected and informed about their networks.",
-                tags: ["Product design", "Security", "Developer experience"],
+                tags: ["Product design", "Security", "Networking"],
                 metrics: [
                   { value: "Protected", label: "networks" },
                   { value: "Informed", label: "users" },
@@ -260,7 +272,7 @@ export function Home() {
                 title: "DBaaS - Kafka",
                 description:
                   "Integrating a Kafka solution into our Managed Databases product to simplify users' architecture and Topic upkeep as well as provide a reliable environment to prevent data loss.",
-                tags: ["Product design", "Managed databases", "Developer experience"],
+                tags: ["Product design", "Managed databases", "DevOps"],
                 metrics: [
                   { value: "Simplified", label: "Topic upkeep" },
                   { value: "Reliable", label: "data environment" },
@@ -280,7 +292,7 @@ export function Home() {
                 title: "eCommerce Enhanced Checkout Redesign",
                 description:
                   "Redesigned a broken multi-step checkout that hurt retailers and shoppers with a faster flow that solved conversion issues and lifted revenue.",
-                tags: ["UX redesign", "E‑commerce", "Checkout"],
+                tags: ["eCommerce", "B2B and B2C", "Billing"],
                 metrics: [
                   { value: "Streamlined", label: "checkout experience" },
                   { value: "Increased", label: "conversions and revenue" },

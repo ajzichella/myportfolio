@@ -61,7 +61,7 @@ export function CaseStudyCard({ study, index }: CaseStudyCardProps) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.4, delay: 0.1 * index }}
-      className={`relative rounded-xl case-study-card border border-slate-700/40 p-8 transition-all duration-300 lg:min-h-[min(380px,46vh)] ${hasImages && imageCount === 2 ? "overflow-visible" : "overflow-hidden"}`}
+      className={`relative rounded-xl case-study-card p-8 transition-all duration-300 lg:min-h-[min(380px,46vh)] ${hasImages && imageCount === 2 ? "overflow-visible" : "overflow-hidden"}`}
       onMouseMove={handleMouseMove}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
@@ -80,7 +80,7 @@ export function CaseStudyCard({ study, index }: CaseStudyCardProps) {
         className={`relative flex h-full gap-8 ${hasImages ? "flex-col lg:flex-row lg:items-stretch" : "flex-row"}`}
       >
         <div
-          className={`flex min-w-0 flex-1 flex-col gap-4 rounded-xl backdrop-blur-xl ${hasImages ? "w-full lg:w-1/2 lg:flex-none lg:min-h-0" : "w-full"}`}
+          className={`flex min-w-0 flex-1 flex-col gap-4 rounded-xl ${hasImages ? "w-full lg:w-1/2 lg:flex-none lg:min-h-0" : "w-full"}`}
         >
           <div>
             <p className="text-sm font-medium text-[#00aeef] flex items-center gap-2">
@@ -89,6 +89,14 @@ export function CaseStudyCard({ study, index }: CaseStudyCardProps) {
                   src={`${import.meta.env.BASE_URL}digitalocean-icon.svg`}
                   alt=""
                   className="h-4 w-4 shrink-0"
+                  aria-hidden
+                />
+              )}
+              {study.company.startsWith("STORIS") && (
+                <img
+                  src={`${import.meta.env.BASE_URL}storis-favicon.ico`}
+                  alt=""
+                  className="h-4 w-4 shrink-0 object-contain"
                   aria-hidden
                 />
               )}
