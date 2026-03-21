@@ -1,4 +1,5 @@
 import React, { useRef } from "react";
+import { Link } from "react-router-dom";
 import { motion } from "motion/react";
 import { ChevronDown, ArrowRight } from "lucide-react";
 import LiquidEther from "../components/LiquidEther";
@@ -7,6 +8,7 @@ import BlurText from "../components/BlurText";
 import GlareHover from "../components/GlareHover";
 import { CaseStudyCard } from "../components/CaseStudyCard";
 import { BlobBackground } from "../components/BlobBackground";
+import { getFeaturedCaseStudies } from "../data/caseStudies";
 
 export function Home() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -229,89 +231,19 @@ export function Home() {
           </motion.div>
 
           <div className="mt-12 flex flex-col gap-6">
-            {[
-              {
-                company: "DigitalOcean | Cloud Computing & Hosting",
-                title: "RBAC - Predefined Roles",
-                description:
-                  "Adding 3 new roles to simplify users' more granular access needs with more restrictive RBAC solutions.",
-                tags: ["Product design", "IAM", "Access control"],
-                metrics: [
-                  { value: "Simplified", label: "access management" },
-                  { value: "Granular", label: "role options" },
-                ],
-                link: "https://ajzichella.com/",
-                images: [
-                  `${import.meta.env.BASE_URL}invite-team-members.png`,
-                  `${import.meta.env.BASE_URL}rbac-role-modal.png`,
-                ] as const,
-                imageAlts: [
-                  "Invite team members screen showing member list and roles",
-                  "Change role modal for assigning a predefined RBAC role",
-                ] as const,
-                sideOverlapSecondLeftExtraPx: 32,
-              },
-              {
-                company: "DigitalOcean | Cloud Computing & Hosting",
-                title: "DDoS Protection",
-                description:
-                  "Building an e2e simple \"set it and forget it\" experience for DigitalOcean users against DDoS Attacks so users are protected and informed about their networks.",
-                tags: ["Product design", "Security", "Networking"],
-                metrics: [
-                  { value: "Protected", label: "networks" },
-                  { value: "Informed", label: "users" },
-                ],
-                link: "https://ajzichella.com/",
-                images: [`${import.meta.env.BASE_URL}ddos1.png`] as const,
-                imageAlts: [
-                  "DDoS Protection networking dashboard with Back Online notification card showing shrimp illustration and recovery message",
-                ] as const,
-              },
-              {
-                company: "DigitalOcean | Cloud Computing & Hosting",
-                title: "DBaaS - Kafka",
-                description:
-                  "Integrating a Kafka solution into our Managed Databases product to simplify users' architecture and Topic upkeep as well as provide a reliable environment to prevent data loss.",
-                tags: ["Product design", "Managed databases", "DevOps"],
-                metrics: [
-                  { value: "Simplified", label: "Topic upkeep" },
-                  { value: "Reliable", label: "data environment" },
-                ],
-                link: "https://ajzichella.com/",
-                images: [
-                  `${import.meta.env.BASE_URL}kafka-permissions.png`,
-                  `${import.meta.env.BASE_URL}kafka-create-topic.png`,
-                ] as const,
-                imageAlts: [
-                  "Kafka topic permissions modal with Admin, Produce, Consume, and Consume and Produce roles",
-                  "Create Topic form with partition count, replication factor, and retention settings",
-                ] as const,
-              },
-              {
-                company: "STORIS | Retail ERP & eCommerce",
-                title: "eCommerce Enhanced Checkout Redesign",
-                description:
-                  "Redesigned a broken multi-step checkout that hurt retailers and shoppers with a faster flow that solved conversion issues and lifted revenue.",
-                tags: ["eCommerce", "B2B and B2C", "Billing"],
-                metrics: [
-                  { value: "Streamlined", label: "checkout experience" },
-                  { value: "Increased", label: "conversions and revenue" },
-                ],
-                link: "https://ajzichella.com/",
-                images: [
-                  `${import.meta.env.BASE_URL}estoris2.png`,
-                  `${import.meta.env.BASE_URL}checkout_mobile.png`,
-                ] as const,
-                imageAlts: [
-                  "STORIS admin Checkout Settings with delivery options and store pickup",
-                  "STORIS mobile secure checkout — shipping information step",
-                ] as const,
-                twoImageLayout: "hero-phone" as const,
-              },
-            ].map((study, i) => (
+            {getFeaturedCaseStudies().map((study, i) => (
               <CaseStudyCard key={study.title} study={study} index={i} />
             ))}
           </div>
+          <p className="mt-10 text-center text-base text-[#999999]">
+            <Link
+              to="/portfolio"
+              className="font-medium text-[#00aeef] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00aeef] focus-visible:ring-offset-2 focus-visible:ring-offset-black rounded-sm"
+            >
+              View all case studies
+            </Link>
+            {" — filter by topic on the portfolio page."}
+          </p>
         </div>
       </section>
     </>
