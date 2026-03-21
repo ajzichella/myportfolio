@@ -111,6 +111,7 @@ export function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/portfolio" element={<PortfolioPage />} />
           <Route path="/about" element={<AboutPage />} />
+          <Route path="*" element={<HomePage />} />
         </Routes>
       </main>
     </div>
