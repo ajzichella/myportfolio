@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { Routes, Route, NavLink } from "react-router-dom";
+import React, { useState, useEffect, useLayoutEffect } from "react";
+import { Routes, Route, NavLink, Navigate, useLocation } from "react-router-dom";
 import { Home, FolderKanban, User, Menu, X } from "lucide-react";
 import { Home as HomePage } from "./pages/Home";
 import { Portfolio as PortfolioPage } from "./pages/Portfolio";
 import { About as AboutPage } from "./pages/About";
+import { Footer } from "./components/Footer";
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   `flex items-center gap-2 rounded-md px-4 py-6 lg:py-4 text-left hover:bg-slate-800 text-lg lg:text-sm ${
@@ -12,6 +13,20 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
 
 export function App() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const location = useLocation();
+
+  // Scroll to top on every navigation (before paint so content doesn’t flash mid-scroll).
+  // `location.key` changes per history entry; pathname/search cover query updates.
+  useLayoutEffect(() => {
+    const main = document.getElementById("main-scroll");
+    if (main) {
+      main.scrollTop = 0;
+      main.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    }
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, [location.pathname, location.search, location.key]);
 
   useEffect(() => {
     if (menuOpen) {
@@ -46,12 +61,12 @@ export function App() {
           <span>Home</span>
         </NavLink>
         <NavLink
-          to="/portfolio"
+          to="/case-studies"
           className={navLinkClass}
           onClick={() => setMenuOpen(false)}
         >
           <FolderKanban className="h-4 w-4" />
-          <span>Portfolio</span>
+          <span>Case studies</span>
         </NavLink>
         <NavLink
           to="/about"
@@ -106,14 +121,21 @@ export function App() {
         <NavContent />
       </aside>
 
-      <main id="main-scroll" className="flex-1 overflow-y-auto min-w-0 lg:ml-52 pt-[max(env(safe-area-inset-top),5rem)] lg:pt-0">
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/portfolio" element={<PortfolioPage />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="*" element={<HomePage />} />
-        </Routes>
-      </main>
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col lg:ml-52">
+        <main
+          id="main-scroll"
+          className="min-h-0 min-w-0 flex-1 overflow-y-auto pt-[max(env(safe-area-inset-top),5rem)] lg:pt-0"
+        >
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/case-studies" element={<PortfolioPage />} />
+            <Route path="/portfolio" element={<Navigate to="/case-studies" replace />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="*" element={<HomePage />} />
+          </Routes>
+        </main>
+        <Footer />
+      </div>
     </div>
   );
 }

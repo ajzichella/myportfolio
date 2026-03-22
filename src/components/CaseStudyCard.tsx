@@ -83,12 +83,12 @@ export function CaseStudyCard({ study, index }: CaseStudyCardProps) {
           className={`flex min-w-0 flex-1 flex-col gap-4 rounded-xl ${hasImages ? "w-full lg:w-1/2 lg:flex-none lg:min-h-0" : "w-full"}`}
         >
           <div>
-            <p className="text-sm font-medium text-[#00aeef] flex items-center gap-2">
+            <p className="text-sm font-medium text-accent-readable flex items-center gap-2">
               {study.company.startsWith("DigitalOcean") && (
                 <img
                   src={`${import.meta.env.BASE_URL}digitalocean-icon.svg`}
                   alt=""
-                  className="h-4 w-4 shrink-0"
+                  className="h-4 w-4 shrink-0 object-contain"
                   aria-hidden
                 />
               )}
@@ -122,7 +122,7 @@ export function CaseStudyCard({ study, index }: CaseStudyCardProps) {
           <div className="flex flex-wrap gap-4">
             {study.metrics.map((m) => (
               <div key={m.label}>
-                <span className="font-semibold text-[#00aeef]">
+                <span className="font-semibold text-accent-readable">
                   {m.value}{" "}
                 </span>
                 <span className="text-sm text-slate-400">{m.label}</span>

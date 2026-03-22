@@ -2,6 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
+/**
+ * Lighter cyan for non-link UI (labels, bullets, badges, metrics).
+ * Keeps the #00aeef link / focus brand while improving contrast on dark cards.
+ */
+@layer utilities {
+  .text-accent-readable {
+    color: #a3e8f7;
+  }
+}
+
 body {
   @apply font-sans antialiased;
   font-family: "Inter", system-ui, sans-serif;

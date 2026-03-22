@@ -8,7 +8,33 @@ import BlurText from "../components/BlurText";
 import GlareHover from "../components/GlareHover";
 import { CaseStudyCard } from "../components/CaseStudyCard";
 import { BlobBackground } from "../components/BlobBackground";
+import { DigitalOceanHeaderWordmark } from "../components/DigitalOceanHeaderWordmark";
 import { getFeaturedCaseStudies } from "../data/caseStudies";
+
+/** Case Studies header tooltips: gray panel, dark text — above trigger; high z so they paint over hero when scrolled. */
+const csTooltipShadow =
+  "shadow-[0_0_28px_rgba(0,174,239,0.22),0_12px_40px_rgba(0,0,0,0.45)] ring-1 ring-inset ring-[#00aeef]/25";
+
+const csTooltipDo =
+  `pointer-events-none absolute bottom-[calc(100%+0.5rem)] left-1/2 z-[110] w-max max-w-[min(18rem,calc(100vw-2rem))] sm:max-w-[22rem] -translate-x-1/2 rounded-xl border border-[#00aeef]/45 bg-[#999999] px-3 py-2.5 text-left text-sm font-normal leading-relaxed text-slate-900 opacity-0 transition-opacity duration-200 group-hover/do-cs:opacity-100 group-focus-within/do-cs:opacity-100 sm:px-4 sm:py-3.5 ${csTooltipShadow}`;
+
+const csTooltipAmd =
+  `pointer-events-none absolute bottom-[calc(100%+0.5rem)] left-1/2 z-[110] w-max max-w-[min(13rem,calc(100vw-15rem))] sm:max-w-[15rem] -translate-x-1/2 rounded-xl border border-[#00aeef]/45 bg-[#999999] px-3 py-2.5 text-left text-sm font-normal leading-relaxed text-slate-900 opacity-0 transition-opacity duration-200 group-hover/amd-cs:opacity-100 group-focus-within/amd-cs:opacity-100 sm:px-4 sm:py-3.5 ${csTooltipShadow}`;
+
+const csTooltipAshley =
+  `pointer-events-none absolute bottom-[calc(100%+0.5rem)] right-0 left-auto z-[110] w-max max-w-[min(13rem,calc(100vw-15rem))] sm:max-w-[15rem] rounded-xl border border-[#00aeef]/45 bg-[#999999] px-3 py-2.5 text-left text-sm font-normal leading-relaxed text-slate-900 opacity-0 transition-opacity duration-200 group-hover/ashley-cs:opacity-100 group-focus-within/ashley-cs:opacity-100 sm:px-4 sm:py-3.5 ${csTooltipShadow}`;
+
+/** Same panel as Case Studies DO tooltip; `group/do-hero` so it does not clash with `group/do-cs`. */
+const heroDoTooltip =
+  `pointer-events-none absolute bottom-[calc(100%+0.5rem)] left-1/2 z-50 w-max max-w-[min(18rem,calc(100vw-2rem))] sm:max-w-[22rem] -translate-x-1/2 rounded-xl border border-[#00aeef]/45 bg-[#999999] px-3 py-2.5 text-left text-sm font-normal leading-relaxed text-slate-900 opacity-0 transition-opacity duration-200 group-hover/do-hero:opacity-100 group-focus-within/do-hero:opacity-100 sm:px-4 sm:py-3.5 ${csTooltipShadow}`;
+
+const digitalOceanTooltipCopy = (
+  <>
+    DigitalOcean is a cloud service provider tailored towards all, from tech
+    newcomers and principal engineers alike. DO is best known for its UX and
+    simplicity in the cloud computing industry.
+  </>
+);
 
 export function Home() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -18,7 +44,7 @@ export function Home() {
       <section
         ref={sectionRef}
         id="home"
-        className="relative w-full shrink-0 min-h-[calc(100vh+5rem)] lg:min-h-0 lg:h-screen -mt-[max(env(safe-area-inset-top),5rem)] lg:mt-0"
+        className="relative z-0 w-full shrink-0 min-h-[calc(100vh+5rem)] lg:min-h-0 lg:h-screen -mt-[max(env(safe-area-inset-top),5rem)] lg:mt-0"
       >
         <div className="absolute inset-0 w-full h-full">
           <LiquidEther
@@ -68,7 +94,7 @@ export function Home() {
             </GradientText>
           </motion.div>
           <BlurText
-            text="I'm a Senior Product Designer with a 7+ year specialty in web apps for developer and retail experiences who is dedicated to crafting simple, pleasant, and usable experiences for humans."
+            text="I'm a Senior Product Designer with an 8+ year specialty in web apps for developer and retail experiences who is dedicated to crafting simple, pleasant, and usable experiences for humans."
             className="mt-4 max-w-2xl text-lg sm:text-xl md:text-[30px] text-[#999999] font-semibold leading-[1.6] gap-y-2"
             delay={30}
             animateBy="words"
@@ -96,12 +122,12 @@ export function Home() {
             />
             <p className="text-base text-[#999999]">
               Current status — Senior product designer, design engineer for{" "}
-              <span className="relative inline-block align-baseline group/do">
+              <span className="relative inline-block group/do-hero">
                 <a
-                  href="https://digitalocean.com"
+                  href="https://www.digitalocean.com"
                   target="_blank"
-                  rel="noreferrer"
-                  className="text-[#00aeef] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00aeef] focus-visible:ring-offset-2 focus-visible:ring-offset-black rounded-sm"
+                  rel="noreferrer noopener"
+                  className="font-medium text-[#00aeef] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00aeef] focus-visible:ring-offset-2 focus-visible:ring-offset-black rounded-sm"
                   aria-describedby="digitalocean-hero-tooltip"
                 >
                   DigitalOcean
@@ -109,13 +135,12 @@ export function Home() {
                 <span
                   id="digitalocean-hero-tooltip"
                   role="tooltip"
-                  className="pointer-events-none absolute bottom-[calc(100%+0.5rem)] left-1/2 z-50 w-[min(calc(100vw-2rem),22rem)] -translate-x-1/2 rounded-xl border border-[#00aeef]/45 bg-[#050d14] px-4 py-3.5 text-left text-sm font-normal leading-relaxed text-slate-100 shadow-[0_0_28px_rgba(0,174,239,0.22),0_12px_40px_rgba(0,0,0,0.45)] ring-1 ring-inset ring-[#00aeef]/15 opacity-0 transition-opacity duration-200 group-hover/do:opacity-100 group-focus-within/do:opacity-100 sm:w-[26rem]"
+                  className={heroDoTooltip}
                 >
-                  DigitalOcean is a cloud service provider that is tailored for
-                  new-to-tech people and principal engineers alike, best known
-                  for its UX and simplicity.
+                  {digitalOceanTooltipCopy}
                 </span>
               </span>
+              .
             </p>
           </motion.div>
           <motion.div
@@ -212,7 +237,10 @@ export function Home() {
       </section>
 
       {/* Case Studies section - appears after scrolling */}
-      <section id="case-studies" className="relative w-full shrink-0 overflow-hidden px-6 py-16 md:px-12 lg:px-16">
+      <section
+        id="case-studies"
+        className="relative z-10 w-full shrink-0 overflow-visible px-6 py-16 md:px-12 lg:px-16"
+      >
         <BlobBackground />
         <div className="relative z-10 mx-auto max-w-[1200px]">
           <motion.div
@@ -220,14 +248,93 @@ export function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.4 }}
-            className="mb-4"
+            className="mb-4 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between lg:gap-8"
           >
-            <h2 className="text-2xl font-bold text-white md:text-3xl">
-              Case Studies
-            </h2>
-            <p className="mt-2 text-lg text-[#999999]">
-              What I&apos;ve designed recently
-            </p>
+            <div className="min-w-0">
+              <h2 className="text-2xl font-bold text-white md:text-3xl">
+                Case Studies
+              </h2>
+              <p className="mt-2 text-lg text-[#999999]">
+                What I&apos;ve designed recently
+              </p>
+            </div>
+            <div
+              className="flex shrink-0 flex-wrap items-center gap-6 sm:gap-8 lg:justify-end"
+              aria-label="DigitalOcean, AMD, and Ashley — hover or focus each logo for details"
+            >
+              <span className="relative z-[100] inline-flex items-center group/do-cs">
+                <a
+                  href="https://www.digitalocean.com"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="block min-w-[9rem] max-w-[min(100%,28rem)] rounded-md p-1 opacity-90 transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00aeef] focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+                  aria-label="DigitalOcean"
+                  aria-describedby="digitalocean-case-studies-tooltip"
+                >
+                  <DigitalOceanHeaderWordmark className="block h-6 w-auto max-h-6 max-w-[min(28rem,calc(100vw-10rem))]" />
+                </a>
+                <span
+                  id="digitalocean-case-studies-tooltip"
+                  role="tooltip"
+                  className={csTooltipDo}
+                >
+                  {digitalOceanTooltipCopy}
+                </span>
+              </span>
+              <span
+                className="relative z-[100] inline-flex cursor-default items-center rounded-sm outline-none group/amd-cs focus-visible:ring-2 focus-visible:ring-[#00aeef] focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+                tabIndex={0}
+                aria-label="AMD"
+                aria-describedby="amd-case-studies-tooltip"
+              >
+                <img
+                  src={`${import.meta.env.BASE_URL}logo-amd-white.svg`}
+                  alt=""
+                  aria-hidden
+                  className="h-6 w-auto max-h-6 max-w-[min(4.5rem,22vw)] object-contain object-center opacity-90"
+                  width={72}
+                  height={18}
+                />
+                <span
+                  id="amd-case-studies-tooltip"
+                  role="tooltip"
+                  className={csTooltipAmd}
+                >
+                  <span className="mb-1 block text-center text-4xl leading-none" aria-hidden>
+                    🤫
+                  </span>
+                  <span className="mb-1.5 block text-center text-base font-bold leading-tight sm:text-lg">
+                    Under NDA
+                  </span>
+                  Worked with AMD on massive product release as the sole lead
+                  product designer
+                </span>
+              </span>
+              <span
+                className="relative z-[100] inline-flex cursor-default items-center rounded-sm outline-none group/ashley-cs focus-visible:ring-2 focus-visible:ring-[#00aeef] focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+                tabIndex={0}
+                aria-label="Ashley Home Furnishings"
+                aria-describedby="ashley-case-studies-tooltip"
+              >
+                <img
+                  src={`${import.meta.env.BASE_URL}logo-ashley-white.svg`}
+                  alt=""
+                  aria-hidden
+                  className="h-6 w-auto max-h-6 max-w-[min(6.5rem,40vw)] object-contain object-center opacity-90"
+                  width={96}
+                  height={46}
+                />
+                <span
+                  id="ashley-case-studies-tooltip"
+                  role="tooltip"
+                  className={csTooltipAshley}
+                >
+                  Designed Ashley&apos;s Home Furnishings&apos; eCommerce
+                  delivery tracker while working at STORIS. Unable to provide
+                  further details.
+                </span>
+              </span>
+            </div>
           </motion.div>
 
           <div className="mt-12 flex flex-col gap-6">
