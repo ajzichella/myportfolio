@@ -8,7 +8,7 @@ export const CASE_STUDIES: Study[] = [
     title: "RBAC - Predefined Roles",
     description:
       "Adding 3 new roles to simplify users' more granular access needs with more restrictive RBAC solutions.",
-    tags: ["Product design", "IAM", "Access control"],
+    tags: ["IAM", "Access control"],
     metrics: [
       { value: "Simplified", label: "access management" },
       { value: "Granular", label: "role options" },
@@ -26,7 +26,7 @@ export const CASE_STUDIES: Study[] = [
     title: "DDoS Protection",
     description:
       'Building an e2e simple "set it and forget it" experience for DigitalOcean users against DDoS Attacks so users are protected and informed about their networks.',
-    tags: ["Product design", "Security", "Networking"],
+    tags: ["Security", "Networking"],
     metrics: [
       { value: "Protected", label: "networks" },
       { value: "Informed", label: "users" },
@@ -42,7 +42,7 @@ export const CASE_STUDIES: Study[] = [
     title: "DBaaS - Kafka",
     description:
       "Integrating a Kafka solution into our Managed Databases product to simplify users' architecture and Topic upkeep as well as provide a reliable environment to prevent data loss.",
-    tags: ["Product design", "Managed databases", "DevOps"],
+    tags: ["Managed databases", "DevOps"],
     metrics: [
       { value: "Simplified", label: "Topic upkeep" },
       { value: "Reliable", label: "data environment" },
@@ -78,7 +78,6 @@ export const CASE_STUDIES: Study[] = [
 export const FEATURED_CASE_STUDY_TITLES: readonly string[] = [
   "RBAC - Predefined Roles",
   "DDoS Protection",
-  "DBaaS - Kafka",
 ];
 
 export function getFeaturedCaseStudies(): Study[] {

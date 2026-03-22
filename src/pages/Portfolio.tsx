@@ -98,7 +98,7 @@ export function Portfolio() {
           className="mb-4"
         >
           <h1 className="text-2xl font-bold text-white md:text-3xl">
-            Portfolio
+            Case studies
           </h1>
           <p className="mt-2 text-lg text-[#999999]">
             Case studies — filter by badge to explore by topic.
@@ -116,7 +116,7 @@ export function Portfolio() {
             aria-pressed={selectedTags.size === 0}
             className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00aeef] focus-visible:ring-offset-2 focus-visible:ring-offset-black ${
               selectedTags.size === 0
-                ? "border border-[#00aeef] bg-[#00aeef]/10 text-[#00aeef]"
+                ? "border border-[#00aeef] bg-[#00aeef]/10 text-accent-readable"
                 : "border border-transparent bg-slate-700/50 text-slate-300 hover:bg-slate-700/70"
             }`}
           >
@@ -133,7 +133,7 @@ export function Portfolio() {
                   aria-pressed={active}
                   className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00aeef] focus-visible:ring-offset-2 focus-visible:ring-offset-black ${
                     active
-                      ? "border border-[#00aeef] bg-[#00aeef]/10 text-[#00aeef]"
+                      ? "border border-[#00aeef] bg-[#00aeef]/10 text-accent-readable"
                       : "border border-transparent bg-slate-700/50 text-slate-300 hover:bg-slate-700/70"
                   }`}
                 >

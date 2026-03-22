@@ -67,6 +67,10 @@ All links use **#00aeef** for consistency.
 
 When adding new links, ensure they use `#00aeef` unless overridden for a specific design reason.
 
+### Non-link accent text
+
+For labels, bullets, badges, metrics, and other **non-link** emphasis on dark UI, use the utility class **`text-accent-readable`** (`#a3e8f7` in `src/styles.css`) instead of `text-[#00aeef]` so copy stays legible while still reading as cyan. **Links, `NavLink` items, and Lucide / decorative icons stay `#00aeef` (or `#00aeef`/opacity where used before).**
+
 ---
 
 ## Transparent PNG Images

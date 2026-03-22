@@ -957,7 +957,19 @@ export default function LiquidEther({
         this.running = false;
       }
       init() {
-        this.props.$wrapper.prepend(Common.renderer.domElement);
+        const wrap = this.props.$wrapper;
+        // Remove only WebGL canvases. Do not strip all firstChild nodes — React may
+        // place marker nodes in the mount div; clearing everything can break the
+        // tree and make unrelated UI (e.g. routes) stack or mis-render.
+        const canvases = [...wrap.getElementsByTagName('canvas')];
+        for (const c of canvases) {
+          try {
+            c.remove();
+          } catch (_) {
+            void 0;
+          }
+        }
+        wrap.prepend(Common.renderer.domElement);
         this.output = new Output();
       }
       resize() {
@@ -993,8 +1005,10 @@ export default function LiquidEther({
           document.removeEventListener('visibilitychange', this._onVisibility);
           Mouse.dispose();
           if (Common.renderer) {
-            const canvas = Common.renderer.domElement;
-            if (canvas && canvas.parentNode) canvas.parentNode.removeChild(canvas);
+            // Do not call canvas.remove() / removeChild here. React still owns the
+            // mount div and will detach the whole subtree on unmount; mutating the
+            // tree first causes removeChildFromContainer / commitDeletion errors
+            // (see React 18 + Three.js teardown order).
             Common.renderer.dispose();
             Common.renderer.forceContextLoss();
           }
