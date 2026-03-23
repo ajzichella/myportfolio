@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from "react";
+import { Link } from "react-router-dom";
 import { motion } from "motion/react";
 import { ArrowRight } from "lucide-react";
 
@@ -47,6 +48,8 @@ export function CaseStudyCard({ study, index }: CaseStudyCardProps) {
   const hasImages = imageCount === 1 || imageCount === 2;
   const altFor = (i: 0 | 1) =>
     study.imageAlts?.[i] ?? "Case study screenshot";
+
+  const isInternalLink = study.link.startsWith("/");
 
   /* Stacked / overlapping images: motion.img + no drop-shadow on those layers avoids
      Chromium black matte (transform parent + filter on child). Single-hero still uses
@@ -133,21 +136,37 @@ export function CaseStudyCard({ study, index }: CaseStudyCardProps) {
             className="max-lg:hidden min-h-[1px] w-full flex-1 basis-0 shrink max-h-12"
             aria-hidden
           />
-          <a
-            href={study.link}
-            target="_blank"
-            rel="noreferrer noopener"
-            className="rainbow-cta group/cta relative inline-flex self-start rounded-[8px] p-[2px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00aeef] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f172a] max-lg:mt-2"
-          >
-            <span className="relative flex w-full min-w-0 items-center rounded-[6px] bg-[#03040A] px-6 py-3 text-sm font-medium text-white transition-all duration-200 group-hover/cta:opacity-95">
-              <span className="flex min-w-0 flex-1 justify-center">
-                View case study
+          {isInternalLink ? (
+            <Link
+              to={study.link}
+              className="rainbow-cta group/cta relative inline-flex self-start rounded-[8px] p-[2px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00aeef] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f172a] max-lg:mt-2"
+            >
+              <span className="relative flex w-full min-w-0 items-center rounded-[6px] bg-[#03040A] px-6 py-3 text-sm font-medium text-white transition-all duration-200 group-hover/cta:opacity-95">
+                <span className="flex min-w-0 flex-1 justify-center">
+                  View case study
+                </span>
+                <span className="flex w-0 shrink-0 justify-end overflow-hidden transition-all duration-200 ease-out group-hover/cta:ml-2 group-hover/cta:w-4">
+                  <ArrowRight className="h-4 w-4 shrink-0 opacity-0 transition-opacity duration-200 group-hover/cta:opacity-100" />
+                </span>
               </span>
-              <span className="flex w-0 shrink-0 justify-end overflow-hidden transition-all duration-200 ease-out group-hover/cta:ml-2 group-hover/cta:w-4">
-                <ArrowRight className="h-4 w-4 shrink-0 opacity-0 transition-opacity duration-200 group-hover/cta:opacity-100" />
+            </Link>
+          ) : (
+            <a
+              href={study.link}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="rainbow-cta group/cta relative inline-flex self-start rounded-[8px] p-[2px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00aeef] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f172a] max-lg:mt-2"
+            >
+              <span className="relative flex w-full min-w-0 items-center rounded-[6px] bg-[#03040A] px-6 py-3 text-sm font-medium text-white transition-all duration-200 group-hover/cta:opacity-95">
+                <span className="flex min-w-0 flex-1 justify-center">
+                  View case study
+                </span>
+                <span className="flex w-0 shrink-0 justify-end overflow-hidden transition-all duration-200 ease-out group-hover/cta:ml-2 group-hover/cta:w-4">
+                  <ArrowRight className="h-4 w-4 shrink-0 opacity-0 transition-opacity duration-200 group-hover/cta:opacity-100" />
+                </span>
               </span>
-            </span>
-          </a>
+            </a>
+          )}
         </div>
         {/* Single hero image */}
         {images && imageCount === 1 && (
