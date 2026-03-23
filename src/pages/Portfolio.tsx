@@ -3,6 +3,7 @@ import { useSearchParams, Link } from "react-router-dom";
 import { motion } from "motion/react";
 import { BlobBackground } from "../components/BlobBackground";
 import { CaseStudyCard } from "../components/CaseStudyCard";
+import GradientText from "../components/GradientText";
 import { CASE_STUDIES, getAllTags } from "../data/caseStudies";
 
 const TAGS_PARAM = "tags";
@@ -97,8 +98,14 @@ export function Portfolio() {
           transition={{ duration: 0.4 }}
           className="mb-4"
         >
-          <h1 className="text-2xl font-bold text-white md:text-3xl">
-            Case studies
+          <h1 className="text-2xl font-bold md:text-3xl">
+            <GradientText
+              colors={["#7ee8ff", "#00aeef", "#006b8f"]}
+              direction="diagonal"
+              animationSpeed={3}
+            >
+              Case studies
+            </GradientText>
           </h1>
           <p className="mt-2 text-lg text-[#999999]">
             Case studies — filter by badge to explore by topic.
