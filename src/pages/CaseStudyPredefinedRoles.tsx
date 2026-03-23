@@ -1,8 +1,9 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { animate, motion, useInView, useReducedMotion } from "motion/react";
-import { ArrowRight, ChevronRight } from "lucide-react";
+import { motion } from "motion/react";
+import { ArrowRight, ChevronRight, List, X } from "lucide-react";
 import { BlobBackground } from "../components/BlobBackground";
+import { ResultsSection } from "../components/ResultsSection";
 
 const base = import.meta.env.BASE_URL;
 
@@ -19,9 +20,17 @@ const sectionTitle =
 
 const labelClass = "text-xs font-semibold uppercase tracking-wide text-accent-readable";
 
-/** Neon green / teal gradient for animated result counters */
-const resultMetricNumberClass =
-  "text-2xl font-bold tabular-nums md:text-3xl bg-gradient-to-br from-[#8fffc4] via-[#3ee0c8] to-[#5bdbd8] bg-clip-text text-transparent [filter:drop-shadow(0_0_12px_rgba(62,224,200,0.4))]";
+const CASE_STUDY_SECTION_INDEX = [
+  { id: "rbac-results-heading", label: "Results" },
+  { id: "rbac-scope-heading", label: "Scope & collaboration" },
+  { id: "rbac-research-heading", label: "Research" },
+  { id: "rbac-strategy-heading", label: "Strategy" },
+  { id: "rbac-docs-heading", label: "Documentation" },
+  { id: "rbac-experience-heading", label: "Experience & communication" },
+  { id: "rbac-video-heading", label: "Walkthrough" },
+  { id: "rbac-quote-heading", label: "Customer voice" },
+  { id: "rbac-peer-heading", label: "Peer feedback" },
+] as const;
 
 const WALKTHROUGH_EMBED_SRC =
   "https://www.youtube.com/embed/MKSNUTt3PuQ?si=uEFqLt-00ti7sGjA";
@@ -47,20 +56,26 @@ function Figure({
   src,
   alt,
   caption,
+  captionClassName,
+  imageClassName,
 }: {
   src: string;
   alt: string;
   caption?: string;
+  captionClassName?: string;
+  imageClassName?: string;
 }) {
   return (
     <figure className="mt-6">
       <img
         src={src}
         alt={alt}
-        className="w-full max-w-4xl rounded-lg border border-slate-600/40 bg-slate-950/50 drop-shadow-xl"
+        className={imageClassName ?? "w-full max-w-4xl rounded-lg border border-slate-600/40 bg-slate-950/50 drop-shadow-xl"}
       />
       {caption ? (
-        <figcaption className="mt-2 max-w-3xl text-sm leading-relaxed text-[#999999]">
+        <figcaption
+          className={`mt-2 max-w-3xl text-sm leading-relaxed ${captionClassName ?? "text-[#999999]"}`}
+        >
           {caption}
         </figcaption>
       ) : null}
@@ -68,224 +83,38 @@ function Figure({
   );
 }
 
-type ResultNumberFormat = "int-plus" | "percent" | "approx-percent";
-
-function AnimatedResultNumber({
-  value,
-  format,
-  active,
-  delay = 0,
-  className,
-}: {
-  value: number;
-  format: ResultNumberFormat;
-  active: boolean;
-  delay?: number;
-  className?: string;
-}) {
-  const reduceMotion = useReducedMotion();
-  const [display, setDisplay] = useState(0);
-
-  useEffect(() => {
-    if (!active) return;
-    if (reduceMotion) {
-      setDisplay(value);
-      return;
-    }
-    const controls = animate(0, value, {
-      duration: 1.75,
-      delay,
-      ease: [0.22, 1, 0.36, 1],
-      onUpdate: (latest) => setDisplay(latest),
-    });
-    return () => controls.stop();
-  }, [active, value, delay, reduceMotion]);
-
-  let text: string;
-  if (format === "int-plus") {
-    text = `${Math.round(display).toLocaleString("en-US")}+`;
-  } else if (format === "percent") {
-    text = `${Math.round(display)}%`;
-  } else {
-    text = `~${Math.round(display)}%`;
-  }
-
-  return <p className={className}>{text}</p>;
-}
-
-/** Subtle palette; pieces spawn at the top edge and fall through the card (seamless loop). */
-const CONFETTI_PALETTE = [
-  "rgba(0, 174, 239, 0.5)",
-  "rgba(103, 232, 249, 0.42)",
-  "rgba(165, 180, 252, 0.38)",
-  "rgba(148, 163, 184, 0.4)",
-  "rgba(251, 191, 36, 0.32)",
-];
-
-const LAUNCH_BURST_DURATION = 0.55;
-const LAUNCH_BURST_CYCLE = 2.15;
-
-/** Party popper (🎉) with a short radial “confetti shot” synced to the pop motion. */
-function LaunchImpactPartyPopper() {
-  const reduceMotion = useReducedMotion();
-  const burst = useMemo(
-    () =>
-      Array.from({ length: 10 }, (_, i) => {
-        const a = (i / 10) * Math.PI * 2 - Math.PI * 0.65;
-        const dist = 14 + (i % 4) * 4;
-        return {
-          id: i,
-          dx: Math.round(Math.cos(a) * dist),
-          dy: Math.round(Math.sin(a) * dist),
-          color:
-            CONFETTI_PALETTE[i % CONFETTI_PALETTE.length] ??
-            "rgba(0, 174, 239, 0.55)",
-          delay: i * 0.022,
-          rot: (i % 2 === 0 ? 1 : -1) * (75 + i * 14),
-          round: i % 3 === 0,
-        };
-      }),
-    [],
-  );
-
-  if (reduceMotion) {
-    return (
-      <span
-        className="inline-flex shrink-0 select-none text-[1.05rem] leading-none"
-        aria-hidden
-      >
-        🎉
-      </span>
-    );
-  }
-
-  const pause = Math.max(0.15, LAUNCH_BURST_CYCLE - LAUNCH_BURST_DURATION);
-
-  return (
-    <span
-      className="relative inline-flex h-5 w-[1.85rem] shrink-0 select-none items-center justify-center overflow-visible"
-      aria-hidden
-    >
-      {burst.map((b) => (
-        <motion.span
-          key={b.id}
-          className={`pointer-events-none absolute left-1/2 top-1/2 z-0 block h-[5px] w-[4px] origin-center ${
-            b.round ? "rounded-full" : "rounded-[1px]"
-          }`}
-          style={{
-            marginLeft: -2,
-            marginTop: -2,
-            backgroundColor: b.color,
-          }}
-          animate={{
-            x: [0, b.dx * 0.15, b.dx],
-            y: [0, b.dy * 0.15, b.dy],
-            opacity: [0, 1, 0],
-            rotate: [0, b.rot * 0.4, b.rot],
-            scale: [0.35, 1.05, 0.65],
-          }}
-          transition={{
-            duration: LAUNCH_BURST_DURATION,
-            repeat: Infinity,
-            repeatDelay: pause,
-            delay: b.delay,
-            ease: [0.22, 0.05, 0.22, 1],
-            times: [0, 0.2, 1],
-          }}
-        />
-      ))}
-      <motion.span
-        className="relative z-[1] inline-block text-[1.05rem] leading-none drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)]"
-        style={{ transformOrigin: "55% 85%" }}
-        animate={{
-          scale: [1, 1.2, 0.94, 1],
-          rotate: [0, -16, 12, -5, 0],
-          y: [0, -2, 1, 0],
-        }}
-        transition={{
-          duration: LAUNCH_BURST_DURATION,
-          repeat: Infinity,
-          repeatDelay: pause,
-          ease: [0.34, 1.15, 0.25, 1],
-        }}
-      >
-        🎉
-      </motion.span>
-    </span>
-  );
-}
-
-function ResultsConfetti({
-  active,
-  reducedMotion,
-}: {
-  active: boolean;
-  reducedMotion: boolean | null;
-}) {
-  const pieces = useMemo(
-    () =>
-      Array.from({ length: 28 }, (_, i) => ({
-        id: i,
-        leftPct: 3 + ((i * 17) % 94),
-        delay: i * 0.032,
-        duration: 2.1 + (i % 4) * 0.22,
-        w: 4 + (i % 3),
-        h: 6 + (i % 4),
-        baseRot: i * 37,
-        drift: ((i % 5) - 2) * 16,
-        color: CONFETTI_PALETTE[i % CONFETTI_PALETTE.length] ?? "rgba(0, 174, 239, 0.45)",
-        rounded: i % 3 === 0,
-      })),
-    [],
-  );
-
-  if (reducedMotion || !active) return null;
-
-  return (
-    <div
-      className="pointer-events-none absolute inset-0 z-[1] overflow-hidden rounded-2xl"
-      aria-hidden
-    >
-      {pieces.map((p) => (
-        <motion.div
-          key={p.id}
-          className={`absolute will-change-transform ${p.rounded ? "rounded-full" : "rounded-[1px]"}`}
-          style={{
-            left: `${p.leftPct}%`,
-            width: p.w,
-            height: p.h,
-            backgroundColor: p.color,
-          }}
-          initial={{
-            top: "0%",
-            x: 0,
-            opacity: 0.42,
-            rotate: p.baseRot,
-          }}
-          animate={{
-            top: ["0%", "108%"],
-            x: [0, p.drift],
-            rotate: [p.baseRot, p.baseRot + 200 + p.id * 6],
-            opacity: [0.42, 0.48, 0.4, 0],
-          }}
-          transition={{
-            duration: p.duration,
-            delay: p.delay,
-            times: [0, 0.06, 0.86, 1],
-            ease: "linear",
-            repeat: Infinity,
-            repeatDelay: 0,
-          }}
-        />
-      ))}
-    </div>
-  );
-}
-
 export function CaseStudyPredefinedRoles() {
-  const resultsRef = useRef<HTMLDivElement>(null);
-  const resultsInView = useInView(resultsRef, { once: true, amount: 0.28 });
-  const reduceMotion = useReducedMotion();
+  const [isSectionIndexOpen, setIsSectionIndexOpen] = useState(false);
+
+  const goToSection = (id: string) => {
+    const main = document.getElementById("main-scroll");
+    const target = document.getElementById(id);
+    if (!target) return;
+
+    const offset = 24;
+    if (main) {
+      const mainRect = main.getBoundingClientRect();
+      const targetRect = target.getBoundingClientRect();
+      const windowTop = targetRect.top + window.scrollY - offset;
+      const top =
+        main.scrollTop +
+        (targetRect.top - mainRect.top) -
+        offset;
+      const desiredTop = Math.max(0, top);
+      main.scrollTo({ top: desiredTop, behavior: "smooth" });
+      requestAnimationFrame(() => {
+        const afterRaf = main.scrollTop;
+        if (afterRaf === 0 && desiredTop > 0) {
+          // In some runtimes, window is the real scroller even when #main-scroll exists.
+          window.scrollTo({ top: Math.max(0, windowTop), behavior: "smooth" });
+        }
+      });
+    } else {
+      const top = target.getBoundingClientRect().top + window.scrollY - offset;
+      window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+    }
+    setIsSectionIndexOpen(false);
+  };
 
   return (
     <section className="relative w-full min-w-0 min-h-screen shrink-0 overflow-x-hidden px-6 py-16 md:px-12 lg:px-16">
@@ -359,143 +188,45 @@ export function CaseStudyPredefinedRoles() {
           </div>
         </motion.div>
 
-        <motion.section
-          {...fadeUp}
-          transition={{ duration: 0.4, delay: 0.09 }}
-          aria-labelledby="rbac-results-heading"
-          className="mt-16"
-        >
-          <div
-            ref={resultsRef}
-            className="relative rounded-2xl border border-[#00aeef]/20 bg-slate-950/25 shadow-[0_0_40px_-18px_rgba(0,174,239,0.2)] ring-1 ring-inset ring-white/[0.06]"
-          >
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-slate-900/95 via-slate-950 to-[#050814] px-5 py-8 ring-1 ring-inset ring-white/[0.07] sm:px-8 sm:py-10">
-              {/* Glows sit under confetti so blur layers don’t hide particles */}
-              <div
-                className="pointer-events-none absolute -top-28 left-1/2 z-0 h-52 w-[min(110%,38rem)] -translate-x-1/2 rounded-full bg-[#00aeef]/[0.08] blur-3xl"
-                aria-hidden
-              />
-              <div
-                className="pointer-events-none absolute -bottom-24 right-0 z-0 h-36 w-56 rounded-full bg-slate-400/[0.04] blur-3xl"
-                aria-hidden
-              />
-              <ResultsConfetti
-                active={resultsInView}
-                reducedMotion={reduceMotion}
-              />
-
-              <div className="relative z-[2]">
-                <p className="inline-flex items-center gap-2 overflow-visible rounded-full border border-[#00aeef]/20 bg-[#00aeef]/[0.06] px-3 py-1 text-xs font-semibold uppercase tracking-wide text-accent-readable">
-                  <LaunchImpactPartyPopper />
-                  Launch impact
-                </p>
-                <h2
-                  id="rbac-results-heading"
-                  className="mt-4 text-2xl font-bold tracking-tight text-white md:text-3xl"
-                >
-                  Results
-                </h2>
-                <p className="mt-4 max-w-3xl text-base leading-relaxed text-[#b8c0cc] md:text-lg">
-                  In the first weeks after launch, newly introduced predefined
-                  roles reached broad adoption across teams and API usage, with
-                  strong continued uptake as customers refined how they govern
-                  access.
-                </p>
-
-                <div className="mt-8 grid gap-4 py-1 sm:grid-cols-3">
-                  <motion.div
-                    initial={{ opacity: 0, y: reduceMotion ? 0 : 14 }}
-                    animate={
-                      resultsInView
-                        ? { opacity: 1, y: 0 }
-                        : { opacity: 0, y: reduceMotion ? 0 : 14 }
-                    }
-                    transition={{
-                      duration: reduceMotion ? 0 : 0.45,
-                      delay: reduceMotion ? 0 : 0.05,
-                      ease: [0.22, 1, 0.36, 1],
-                    }}
-                    className="results-metric-glow relative min-h-0 min-w-0"
-                  >
-                    <div className="relative z-[1] flex h-full min-h-0 flex-col rounded-[6px] bg-[#03040A]/40 px-5 py-5 ring-1 ring-inset ring-white/[0.06] backdrop-blur-[2px]">
-                      <AnimatedResultNumber
-                        value={6000}
-                        format="int-plus"
-                        active={resultsInView}
-                        delay={0.08}
-                        className={resultMetricNumberClass}
-                      />
-                      <p className="mt-2 text-sm leading-snug text-slate-200">
-                        team members assigned predefined roles
-                      </p>
-                    </div>
-                  </motion.div>
-                  <motion.div
-                    initial={{ opacity: 0, y: reduceMotion ? 0 : 14 }}
-                    animate={
-                      resultsInView
-                        ? { opacity: 1, y: 0 }
-                        : { opacity: 0, y: reduceMotion ? 0 : 14 }
-                    }
-                    transition={{
-                      duration: reduceMotion ? 0 : 0.45,
-                      delay: reduceMotion ? 0 : 0.14,
-                      ease: [0.22, 1, 0.36, 1],
-                    }}
-                    className="results-metric-glow relative min-h-0 min-w-0"
-                  >
-                    <div className="relative z-[1] flex h-full min-h-0 flex-col rounded-[6px] bg-[#03040A]/40 px-5 py-5 ring-1 ring-inset ring-white/[0.06] backdrop-blur-[2px]">
-                      <AnimatedResultNumber
-                        value={13}
-                        format="percent"
-                        active={resultsInView}
-                        delay={0.2}
-                        className={resultMetricNumberClass}
-                      />
-                      <p className="mt-2 text-sm leading-snug text-slate-200">
-                        of API tokens on the new roles (millions of daily hits)
-                      </p>
-                    </div>
-                  </motion.div>
-                  <motion.div
-                    initial={{ opacity: 0, y: reduceMotion ? 0 : 14 }}
-                    animate={
-                      resultsInView
-                        ? { opacity: 1, y: 0 }
-                        : { opacity: 0, y: reduceMotion ? 0 : 14 }
-                    }
-                    transition={{
-                      duration: reduceMotion ? 0 : 0.45,
-                      delay: reduceMotion ? 0 : 0.23,
-                      ease: [0.22, 1, 0.36, 1],
-                    }}
-                    className="results-metric-glow relative min-h-0 min-w-0"
-                  >
-                    <div className="relative z-[1] flex h-full min-h-0 flex-col rounded-[6px] bg-[#03040A]/40 px-5 py-5 ring-1 ring-inset ring-white/[0.06] backdrop-blur-[2px]">
-                      <AnimatedResultNumber
-                        value={23}
-                        format="approx-percent"
-                        active={resultsInView}
-                        delay={0.32}
-                        className={resultMetricNumberClass}
-                      />
-                      <p className="mt-2 text-sm leading-snug text-slate-200">
-                        month-over-month growth in new role usage
-                      </p>
-                    </div>
-                  </motion.div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </motion.section>
+        <ResultsSection
+          headingId="rbac-results-heading"
+          description={
+            <>
+              In the first weeks after launch, newly introduced predefined
+              roles reached broad adoption across teams and API usage, with
+              strong continued uptake as customers refined how they govern
+              access.
+            </>
+          }
+          stats={[
+            {
+              value: 6000,
+              format: "int-plus",
+              label: "team members assigned predefined roles",
+            },
+            {
+              value: 13,
+              format: "percent",
+              label:
+                "of API tokens on the new roles (millions of daily hits)",
+            },
+            {
+              value: 23,
+              format: "approx-percent",
+              label: "month-over-month growth in new role usage",
+            },
+          ]}
+        />
 
         <motion.section
           {...fadeUp}
           transition={{ duration: 0.4, delay: 0.1 }}
+          aria-labelledby="rbac-scope-heading"
           className="mt-16 rounded-xl border border-slate-600/50 bg-slate-900/30 p-6 md:p-8 ring-1 ring-inset ring-white/5"
         >
-          <h2 className={sectionTitle}>Scope &amp; collaboration</h2>
+          <h2 id="rbac-scope-heading" className={sectionTitle}>
+            Scope &amp; collaboration
+          </h2>
           <p className="mt-4 text-base leading-relaxed text-[#999999] md:text-lg">
             This was one of the largest cross-product efforts at DigitalOcean in
             recent years: permissions touch nearly every surface, so alignment
@@ -536,7 +267,8 @@ export function CaseStudyPredefinedRoles() {
           <h2 id="rbac-research-heading" className={sectionTitle}>
             Research
           </h2>
-          <div className="mt-6 space-y-8">
+
+          <div className="mt-6 grid gap-8 md:grid-cols-2">
             <div>
               <h3 className="text-lg font-semibold text-white">
                 Gathering and organizing feedback
@@ -548,58 +280,54 @@ export function CaseStudyPredefinedRoles() {
                 requested role archetypes, and control over access.
               </p>
             </div>
+
             <div>
               <h3 className="text-lg font-semibold text-white">
                 User interviews
               </h3>
               <p className="mt-3 max-w-3xl text-base leading-relaxed text-[#999999] md:text-lg">
                 With UX research, we validated those themes through{" "}
-                <span className="font-medium text-slate-300">13 interviews</span>
+                <span className="font-semibold text-slate-300">13 interviews</span>
                 , focusing on how teams invite collaborators and govern access
                 day to day. Findings shaped a simpler path to more granular
                 roles.
               </p>
             </div>
           </div>
+
+          <div className="mt-10">
+            <h3 className="text-lg font-semibold text-white">
+              Research findings
+            </h3>
+            <ul className="mt-4 grid gap-x-8 gap-y-3 md:grid-cols-2 text-base leading-relaxed text-[#999999] md:text-lg">
+              <li className="marker:text-accent-readable list-disc list-inside">
+                Assign a role at invite time; don&apos;t force a
+                default-then-reassign loop.
+              </li>
+              <li className="marker:text-accent-readable list-disc list-inside">
+                Users compare us to AWS and GCP IAM; they want less
+                overwhelming granularity and clearer defaults.
+              </li>
+              <li className="marker:text-accent-readable list-disc list-inside">
+                Most wanted broad access{" "}
+                <span className="text-slate-300">except delete</span>; the next
+                most common need was a true read-only role across the platform.
+              </li>
+              <li className="marker:text-accent-readable list-disc list-inside">
+                Teams were comfortable with CRUD as a mental model and wanted
+                future paths to custom permission control.
+              </li>
+              <li className="marker:text-accent-readable list-disc list-inside md:col-span-2">
+                Project-scoped limits on who holds a role mattered for larger
+                orgs.
+              </li>
+            </ul>
+          </div>
         </motion.section>
 
         <motion.section
           {...fadeUp}
           transition={{ duration: 0.4, delay: 0.12 }}
-          aria-labelledby="rbac-findings-heading"
-          className="mt-16"
-        >
-          <h2 id="rbac-findings-heading" className={sectionTitle}>
-            Research findings
-          </h2>
-          <ul className="mt-6 max-w-3xl list-inside list-disc space-y-3 text-base leading-relaxed text-[#999999] md:text-lg marker:text-accent-readable">
-            <li>
-              Assign a role at invite time; don&apos;t force a default-then-reassign
-              loop.
-            </li>
-            <li>
-              Users compare us to AWS and GCP IAM; they want less overwhelming
-              granularity and clearer defaults.
-            </li>
-            <li>
-              Most wanted broad access{" "}
-              <span className="text-slate-300">except delete</span>; the next
-              most common need was a true read-only role across the platform.
-            </li>
-            <li>
-              Teams were comfortable with CRUD as a mental model and wanted
-              future paths to custom permission control.
-            </li>
-            <li>
-              Project-scoped limits on who holds a role mattered for larger
-              orgs.
-            </li>
-          </ul>
-        </motion.section>
-
-        <motion.section
-          {...fadeUp}
-          transition={{ duration: 0.4, delay: 0.13 }}
           aria-labelledby="rbac-strategy-heading"
           className="mt-16"
         >
@@ -652,55 +380,70 @@ export function CaseStudyPredefinedRoles() {
           {...fadeUp}
           transition={{ duration: 0.4, delay: 0.15 }}
           aria-labelledby="rbac-experience-heading"
-          className="mt-16"
+          className="relative mt-16 mx-[-1.5rem] border-y border-sky-700/25 bg-[radial-gradient(130%_160%_at_0%_0%,rgba(204,251,241,0.62)_0%,rgba(224,231,255,0.56)_24%,rgba(254,215,170,0.54)_42%,rgba(251,207,232,0.52)_60%,rgba(219,234,254,0.56)_78%,rgba(248,250,252,0.96)_100%)] px-6 py-10 md:mx-[-3rem] md:px-12 md:py-12 lg:mx-[-4rem] lg:px-16"
         >
-          <h2 id="rbac-experience-heading" className={sectionTitle}>
-            Experience &amp; communication
-          </h2>
+          <div
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(95%_100%_at_100%_100%,rgba(110,231,183,0.30)_0%,rgba(56,189,248,0.14)_42%,transparent_72%)]"
+            aria-hidden
+          />
+          <div
+            className="pointer-events-none absolute inset-0 bg-[linear-gradient(125deg,rgba(255,255,255,0.50)_0%,rgba(244,114,182,0.15)_20%,transparent_48%,rgba(192,132,252,0.14)_72%,rgba(96,165,250,0.10)_100%)]"
+            aria-hidden
+          />
+          <div className="mx-auto w-full max-w-[1200px]">
+            <div className="relative z-[1] p-6 md:p-8">
+              <h2
+                id="rbac-experience-heading"
+                className="text-xl font-bold tracking-tight text-black md:text-2xl"
+              >
+                Experience &amp; communication
+              </h2>
 
-          <h3 className="mt-10 text-lg font-semibold text-white">
-            Invite with a role
-          </h3>
-          <p className="mt-3 max-w-3xl text-base leading-relaxed text-[#999999] md:text-lg">
-            Research showed invites had to carry the right role upfront. Users
-            no longer needed to add someone with a default, then reassign, saving
-            a full step in team onboarding and ongoing admin work.
-          </p>
-          <Figure
-            src={`${base}rbac-invite-members.png`}
-            alt="Invite team members flow with role selection in DigitalOcean"
-          />
+              <h3 className="mt-10 text-lg font-semibold text-black">
+                Invite with a role
+              </h3>
+              <p className="mt-3 max-w-3xl text-base leading-relaxed text-black md:text-lg">
+                Research showed invites had to carry the right role upfront. Users
+                no longer needed to add someone with a default, then reassign,
+                saving a full step in team onboarding and ongoing admin work.
+              </p>
+              <Figure
+                src={`${base}rbac-invite-members.png`}
+                alt="Invite team members flow with role selection in DigitalOcean"
+              imageClassName="w-full max-w-4xl rounded-lg"
+              />
 
-          <h3 className="mt-12 text-lg font-semibold text-white">
-            Assign predefined roles
-          </h3>
-          <p className="mt-3 max-w-3xl text-base leading-relaxed text-[#999999] md:text-lg">
-            Team owners with the right permissions can update roles from team
-            settings through a focused modal that explains scope and impact.
-          </p>
-          <Figure
-            src={`${base}rbac-change-role-modal-full.png`}
-            alt="Change role modal listing predefined DigitalOcean team roles"
-          />
+              <h3 className="mt-12 text-lg font-semibold text-black">
+                Assign predefined roles
+              </h3>
+              <p className="mt-3 max-w-3xl text-base leading-relaxed text-black md:text-lg">
+                Team owners with the right permissions can update roles from team
+                settings through a focused modal that explains scope and impact.
+              </p>
+              <Figure
+                src={`${base}rbac-change-role-modal-full.png`}
+                alt="Change role modal listing predefined DigitalOcean team roles"
+              imageClassName="w-full max-w-4xl rounded-lg"
+              />
 
-          <h3 className="mt-12 text-lg font-semibold text-white">
-            Role communication
-          </h3>
-          <p className="mt-3 max-w-3xl text-base leading-relaxed text-[#999999] md:text-lg">
-            Shipping the UI was only half the story. I added email when a role
-            changes, a reminder in the account menu so users always know their
-            active role per team, and in-product moments, like a welcome
-            banner, that reinforce what access they have.
-          </p>
-          <Figure
-            src={`${base}rbac-role-comms.png`}
-            alt="Email and in-product messaging explaining a user's updated team role"
-            caption="Clear comms reduce surprise and support tickets during large-scale role migrations."
-          />
-          <Figure
-            src={`${base}rbac-success-banner.png`}
-            alt="Success banner welcoming a user to a team and summarizing their role"
-          />
+              <h3 className="mt-12 text-lg font-semibold text-black">
+                Role communication
+              </h3>
+              <p className="mt-3 max-w-3xl text-base leading-relaxed text-black md:text-lg">
+                Shipping the UI was only half the story. I added email when a role
+                changes, a reminder in the account menu so users always know their
+                active role per team, and in-product moments, like a welcome
+                banner, that reinforce what access they have.
+              </p>
+              <Figure
+                src={`${base}rbac-role-comms.png`}
+                alt="Email and in-product messaging explaining a user's updated team role"
+                caption="Clear comms reduce surprise and support tickets during large-scale role migrations."
+              captionClassName="text-slate-700"
+              imageClassName="w-full max-w-4xl rounded-lg"
+              />
+            </div>
+          </div>
         </motion.section>
 
         <section
@@ -804,6 +547,45 @@ export function CaseStudyPredefinedRoles() {
             ← All case studies
           </Link>
         </p>
+      </div>
+
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2 md:bottom-8 md:right-8">
+        {isSectionIndexOpen ? (
+          <div className="w-72 max-w-[calc(100vw-3rem)] rounded-xl border border-slate-600/60 bg-slate-950/90 p-3 shadow-2xl ring-1 ring-inset ring-white/10 backdrop-blur">
+            <p className="px-2 pb-2 text-xs font-semibold uppercase tracking-wide text-accent-readable">
+              Navigate to
+            </p>
+            <div className="max-h-[50vh] space-y-1 overflow-y-auto pr-1">
+              {CASE_STUDY_SECTION_INDEX.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => goToSection(item.id)}
+                  className="w-full rounded-md px-2 py-1.5 text-left text-sm text-slate-200 transition-colors hover:bg-slate-800/80 hover:text-[#00aeef] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00aeef] focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
+        <button
+          type="button"
+          onClick={() => setIsSectionIndexOpen((prev) => !prev)}
+          aria-expanded={isSectionIndexOpen}
+          aria-label={
+            isSectionIndexOpen ? "Close section index" : "Open section index"
+          }
+          className="inline-flex items-center gap-2 rounded-full border border-slate-600/70 bg-slate-900/85 px-4 py-2 text-sm font-medium text-slate-100 shadow-lg backdrop-blur transition-colors hover:border-[#00aeef]/60 hover:text-[#00aeef] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00aeef] focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+        >
+          {isSectionIndexOpen ? (
+            <X className="h-4 w-4" />
+          ) : (
+            <List className="h-4 w-4" />
+          )}
+          Navigate
+        </button>
       </div>
     </section>
   );
