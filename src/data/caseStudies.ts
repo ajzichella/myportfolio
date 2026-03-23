@@ -13,7 +13,7 @@ export const CASE_STUDIES: Study[] = [
       { value: "Simplified", label: "access management" },
       { value: "Granular", label: "role options" },
     ],
-    link: "https://ajzichella.com/",
+    link: "/case-studies/predefined-roles",
     images: [`${base}invite-team-members.png`, `${base}rbac-role-modal.png`],
     imageAlts: [
       "Invite team members screen showing member list and roles",

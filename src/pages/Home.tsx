@@ -349,7 +349,6 @@ export function Home() {
             >
               View all case studies
             </Link>
-            {" — filter by topic on the portfolio page."}
           </p>
         </div>
       </section>

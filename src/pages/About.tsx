@@ -248,7 +248,7 @@ export function About() {
                 </h3>
               </div>
               <p className="mt-4 max-w-2xl text-base leading-relaxed text-[#999999] md:text-lg">
-                Well met traveler! I&apos;m AJ{" "}
+                Well met, traveler! I&apos;m AJ{" "}
                 <motion.span
                   className="relative inline-block top-px text-[1.35em] leading-none will-change-transform"
                   style={{ transformOrigin: "70% 85%" }}
@@ -273,7 +273,7 @@ export function About() {
                   👋
                 </motion.span>
                 . I believe user-centered design is more than just an easy-to-use
-                visual experience that solves complex problems, it&apos;s a form of{" "}
+                visual experience that solves complex problems; it&apos;s a form of{" "}
                 <span className="text-slate-200">storytelling</span>. It creates a
                 functional product that engages users and provides an intuitive
                 experience while accurately representing brands and meeting goals.
@@ -360,8 +360,8 @@ export function About() {
                     ·
                   </span>
                   <span>
-                    Start from real user problems and measurable outcomes. Screens
-                    are how we get there, not the starting point.
+                    Solving real user problems creates real measurable business
+                    outcomes.
                   </span>
                 </li>
                 <li className="flex gap-2">
@@ -369,8 +369,8 @@ export function About() {
                     ·
                   </span>
                   <span>
-                    Favor clarity over cleverness so people can understand, trust,
-                    and act with confidence.
+                    Be concise yet clear. Users should rarely need to go to a chat
+                    or product docs for answers.
                   </span>
                 </li>
                 <li className="flex gap-2">
@@ -378,8 +378,9 @@ export function About() {
                     ·
                   </span>
                   <span>
-                    Treat design as a team sport: partner early with product,
-                    engineering, and research.
+                    Treat peers like a D&amp;D party; creating strong partnerships
+                    with coworkers is vital for a smooth campaign that remains
+                    aligned and moves fast.
                   </span>
                 </li>
                 <li className="flex gap-2">
@@ -387,8 +388,18 @@ export function About() {
                     ·
                   </span>
                   <span>
-                    Ship, learn, and refine: iteration with evidence beats
-                    perfection in a vacuum.
+                    Document. Document. Document. You never know when someone
+                    needs to know what you did or why you did it.
+                  </span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="text-accent-readable" aria-hidden>
+                    ·
+                  </span>
+                  <span>
+                    Processes should be adaptable. I generally use a
+                    double-diamond approach, but not all problems fit that
+                    case.
                   </span>
                 </li>
               </ul>
@@ -435,18 +446,17 @@ export function About() {
               <p className="mt-4 max-w-2xl text-base leading-relaxed text-[#999999] md:text-lg">
                 I work where complex systems meet real people, whether that&apos;s
                 cloud infrastructure, access and security, or retail and
-                eCommerce flows. Recent themes in my case studies include{" "}
-                <span className="text-slate-300">
-                  IAM, networking, both B2B and B2C experiences.
-                </span>{" "}
-                More in my{" "}
+                eCommerce flows. Recent themes in my{" "}
                 <Link
                   to="/case-studies"
                   className="font-medium text-[#00aeef] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00aeef] focus-visible:ring-offset-2 focus-visible:ring-offset-black rounded-sm"
                 >
                   case studies
-                </Link>
-                .
+                </Link>{" "}
+                include{" "}
+                <span className="text-slate-300">
+                  IAM, networking, and both B2B and B2C experiences.
+                </span>
               </p>
             </motion.section>
           </div>
@@ -488,20 +498,14 @@ export function About() {
                     <span className="text-slate-300">
                       Identity and Access Management (IAM)
                     </span>
-                    ; previously{" "}
-                    <span className="text-slate-300">Managed Databases</span>{" "}
-                    and <span className="text-slate-300">Growth</span>. Led a
-                    team of eight designers through a major{" "}
-                    <span className="text-slate-300">RBAC</span> launch (three new
-                    roles), with roughly{" "}
+                    , with emphasis on{" "}
+                    <span className="text-slate-300">RBAC</span>, org-wide
+                    permissions, and audit-friendly access flows. Led a team of
+                    eight designers through a major{" "}
+                    <span className="text-slate-300">RBAC</span> launch (three
+                    new roles), with roughly{" "}
                     <span className="text-slate-300">23% month-over-month</span>{" "}
-                    growth in usage for the security experience.
-                    Shipped end-to-end{" "}
-                    <span className="text-slate-300">Kafka</span> in DBaaS and{" "}
-                    <span className="text-slate-300">DDoS Protection</span> in
-                    Networking. Ran a Growth A/B test that drove{" "}
-                    <span className="text-slate-300">32.8% more clicks</span> to
-                    database creation (and downstream revenue). I mentor
+                    growth in usage for the security experience. I mentor
                     designers, align cross-functionally, and use research and the
                     design system to quickly move from idea (PRD) to GA. More in my{" "}
                     <Link
@@ -534,9 +538,9 @@ export function About() {
                   </p>
                   <p className="mt-3 text-sm leading-relaxed text-[#999999] md:text-base">
                     Designed GUI and web SaaS for tens of thousands of{" "}
-                    <span className="text-slate-300">B2B</span> users; built an{" "}
+                    <span className="text-slate-300">B2B</span> users and built an{" "}
                     <span className="text-slate-300">atomic design system</span>{" "}
-                    and style guide for faster, consistent work. Led UX for
+                    for faster, consistent work. Led UX for
                     client <span className="text-slate-300">B2C eCommerce</span>{" "}
                     sites and internal portals with clean dev handoff. Used
                     personas, empathy maps, and journeys to keep work

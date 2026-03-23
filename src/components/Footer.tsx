@@ -16,7 +16,7 @@ export function Footer() {
             AJ Zichella &middot; Senior Product Designer &amp; Design Engineer
           </span>
           <span>
-            Made with love, open-source React and Shadcn libraries, and Cursor.
+            Made with love 💙, open-source React and Shadcn libraries, and Cursor.
           </span>
         </p>
         <div className="flex w-full min-w-0 flex-wrap items-center justify-start gap-x-2 gap-y-2 sm:flex-1 sm:justify-end sm:gap-x-3">

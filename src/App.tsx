@@ -3,6 +3,7 @@ import { Routes, Route, NavLink, Navigate, useLocation } from "react-router-dom"
 import { Home, FolderKanban, User, Menu, X } from "lucide-react";
 import { Home as HomePage } from "./pages/Home";
 import { Portfolio as PortfolioPage } from "./pages/Portfolio";
+import { CaseStudyPredefinedRoles } from "./pages/CaseStudyPredefinedRoles";
 import { About as AboutPage } from "./pages/About";
 import { Footer } from "./components/Footer";
 
@@ -21,9 +22,17 @@ export function App() {
     const main = document.getElementById("main-scroll");
     if (main) {
       main.scrollTop = 0;
-      main.scrollTo({ top: 0, left: 0, behavior: "instant" });
+      try {
+        main.scrollTo({ top: 0, left: 0, behavior: "instant" as ScrollBehavior });
+      } catch {
+        /* Safari / older engines may reject behavior: "instant" */
+      }
     }
-    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    try {
+      window.scrollTo({ top: 0, left: 0, behavior: "instant" as ScrollBehavior });
+    } catch {
+      window.scrollTo(0, 0);
+    }
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
   }, [location.pathname, location.search, location.key]);
@@ -129,6 +138,10 @@ export function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/case-studies" element={<PortfolioPage />} />
+            <Route
+              path="/case-studies/predefined-roles"
+              element={<CaseStudyPredefinedRoles />}
+            />
             <Route path="/portfolio" element={<Navigate to="/case-studies" replace />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="*" element={<HomePage />} />
