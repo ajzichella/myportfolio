@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { animate, motion, useInView, useReducedMotion } from "motion/react";
 import { ArrowRight, ChevronRight, Heart, List, X } from "lucide-react";
-import { Aurora } from "../components/Aurora";
 import { BlobBackground } from "../components/BlobBackground";
 import { Bubbles } from "../components/Bubbles";
 import { ImageLightbox, LightboxImageButton } from "../components/ImageLightbox";
@@ -682,21 +681,21 @@ export function CaseStudyPredefinedRoles() {
           {...fadeUp}
           transition={{ duration: 0.4, delay: 0.15 }}
           aria-labelledby="rbac-experience-heading"
-          className="relative z-10 mt-16 w-full border-y border-sky-700/35 bg-[#E8E0C8] py-10 md:py-12"
+          className="relative z-10 mt-16 w-full min-w-0 px-6 md:px-12 lg:px-16"
         >
-          <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
-            <Aurora
-              className="inset-0"
-              color1="#afe2e4"
-              color2="#725dc6"
-              color3="#23d180"
+          <div className="relative mx-auto w-full max-w-[1200px] overflow-hidden rounded-xl border border-slate-600/50 bg-slate-900/35 p-6 shadow-lg shadow-black/25 ring-1 ring-inset ring-white/5 md:p-10">
+            <div
+              className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#00aeef]/[0.09] via-transparent to-[#5b4ddb]/[0.08]"
+              aria-hidden
             />
-          </div>
-          <div className="mx-auto w-full max-w-[1200px] px-6 md:px-12 lg:px-16">
-            <div className="relative z-[1] p-6 md:p-8">
+            <div
+              className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#00aeef]/25 to-transparent"
+              aria-hidden
+            />
+            <div className="relative z-[1]">
               <h2
                 id="rbac-experience-heading"
-                className="text-xl font-bold tracking-tight text-black md:text-2xl"
+                className={sectionTitle}
               >
                 Experience &amp; communication
               </h2>
@@ -708,11 +707,11 @@ export function CaseStudyPredefinedRoles() {
                 <div className="min-w-0">
                   <h3
                     id="rbac-invite-role-heading"
-                    className="text-lg font-semibold text-black"
+                    className="text-lg font-semibold text-white"
                   >
                     Invite team members with a role
                   </h3>
-                  <p className="mt-3 max-w-3xl text-base leading-relaxed text-black md:text-lg">
+                  <p className="mt-3 max-w-3xl text-base leading-relaxed text-[#999999] md:text-lg">
                     Uncovered from research, I addressed the need to add the
                     ability to select a role while inviting team members into
                     the DO team. Previously, users needed to invite a team
@@ -725,7 +724,7 @@ export function CaseStudyPredefinedRoles() {
                   <LightboxImageButton
                     src={`${base}rbac-invite-members.png`}
                     alt="Invite team members flow with role selection in DigitalOcean"
-                    wrapperClassName="rounded-lg focus-visible:ring-offset-2 focus-visible:ring-offset-[#E8E0C8]"
+                    wrapperClassName="rounded-lg focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
                     className="w-full rounded-lg"
                     onOpen={setImageLightbox}
                   />
@@ -740,7 +739,7 @@ export function CaseStudyPredefinedRoles() {
                   <LightboxImageButton
                     src={`${base}rbac-change-role-modal-full.png`}
                     alt="Change role modal listing predefined DigitalOcean team roles"
-                    wrapperClassName="rounded-lg focus-visible:ring-offset-2 focus-visible:ring-offset-[#E8E0C8]"
+                    wrapperClassName="rounded-lg focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
                     className="w-full rounded-lg"
                     onOpen={setImageLightbox}
                   />
@@ -748,11 +747,11 @@ export function CaseStudyPredefinedRoles() {
                 <div className="min-w-0">
                   <h3
                     id="rbac-assign-role-heading"
-                    className="text-lg font-semibold text-black"
+                    className="text-lg font-semibold text-white"
                   >
                     Assign predefined roles
                   </h3>
-                  <p className="mt-3 max-w-3xl text-base leading-relaxed text-black md:text-lg">
+                  <p className="mt-3 max-w-3xl text-base leading-relaxed text-[#999999] md:text-lg">
                     Team owners, or users with the correct associated
                     permissions, can update members&apos; roles from team settings
                     through a focused modal that explains scope and impact.
@@ -767,17 +766,17 @@ export function CaseStudyPredefinedRoles() {
                 <div className="min-w-0">
                   <h3
                     id="rbac-role-comms-heading"
-                    className="text-lg font-semibold text-black"
+                    className="text-lg font-semibold text-white"
                   >
                     Role communication
                   </h3>
-                  <p className="mt-3 max-w-3xl text-base leading-relaxed text-black md:text-lg">
+                  <p className="mt-3 max-w-3xl text-base leading-relaxed text-[#999999] md:text-lg">
                     Communicating role changes is as important as the UI itself.
                     I added email notifications that explain when a role changes
                     and what that role can do, plus an account menu reminder so
                     users can quickly confirm their active role per team.
                   </p>
-                  <p className="mt-4 max-w-3xl text-base leading-relaxed text-black md:text-lg">
+                  <p className="mt-4 max-w-3xl text-base leading-relaxed text-[#999999] md:text-lg">
                     It&apos;s also just as vital to celebrate the little moments. I
                     added a banner welcoming new users into their teams and
                     added another line of communication about their role.
@@ -787,11 +786,11 @@ export function CaseStudyPredefinedRoles() {
                   <LightboxImageButton
                     src={`${base}rbac-role-comms.png`}
                     alt="Email and in-product messaging explaining a user's updated team role"
-                    wrapperClassName="rounded-lg focus-visible:ring-offset-2 focus-visible:ring-offset-[#E8E0C8]"
+                    wrapperClassName="rounded-lg focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
                     className="w-full rounded-lg"
                     onOpen={setImageLightbox}
                   />
-                  <figcaption className="mt-2 max-w-3xl text-sm leading-relaxed text-slate-700">
+                  <figcaption className="mt-2 max-w-3xl text-sm leading-relaxed text-[#999999]">
                     Clear comms reduce surprise and support tickets during
                     large-scale role migrations.
                   </figcaption>
