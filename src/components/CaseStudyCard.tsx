@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "motion/react";
 import { ArrowRight } from "lucide-react";
@@ -33,24 +33,9 @@ const lightboxTriggerFocus =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00aeef] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f172a]";
 
 export function CaseStudyCard({ study, index }: CaseStudyCardProps) {
-  const [spotlight, setSpotlight] = useState({ x: 50, y: 50 });
-  const [isHovered, setIsHovered] = useState(false);
   const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(
     null,
   );
-
-  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-    setSpotlight({ x, y });
-  }, []);
-
-  const handleMouseEnter = useCallback(() => setIsHovered(true), []);
-  const handleMouseLeave = useCallback(() => {
-    setIsHovered(false);
-    setSpotlight({ x: 50, y: 50 });
-  }, []);
 
   const images = study.images;
   const imageCount = images?.length ?? 0;
@@ -69,25 +54,12 @@ export function CaseStudyCard({ study, index }: CaseStudyCardProps) {
     <motion.article
       key={study.title}
       data-figma-capture={study.title === "RBAC - Predefined Roles" ? "rbac-card" : undefined}
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={{ y: 24 }}
+      whileInView={{ y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.4, delay: 0.1 * index }}
-      className={`relative rounded-xl case-study-card p-8 transition-all duration-300 lg:min-h-[min(380px,46vh)] ${hasImages && imageCount === 2 ? "overflow-visible" : "overflow-hidden"}`}
-      onMouseMove={handleMouseMove}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      className={`relative rounded-xl case-study-card p-8 lg:min-h-[min(380px,46vh)] ${hasImages && imageCount === 2 ? "overflow-visible" : "overflow-hidden"}`}
     >
-      {/* Cursor-following spotlight overlay - visible when hovered */}
-      <div
-        className="pointer-events-none absolute inset-0 rounded-xl transition-opacity duration-500"
-        style={{
-          background: `radial-gradient(circle 140px at ${spotlight.x}% ${spotlight.y}%, rgba(0, 174, 239, 0.15), transparent 65%)`,
-          transition: "background 0.2s ease-out",
-          opacity: isHovered ? 1 : 0,
-        }}
-        aria-hidden
-      />
       <div
         className={`relative flex h-full gap-8 ${hasImages ? "flex-col lg:flex-row lg:items-stretch" : "flex-row"}`}
       >

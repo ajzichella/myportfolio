@@ -5,3 +5,10 @@
   height: 100%;
   touch-action: none;
 }
+
+.liquid-ether-static-fallback__blobs {
+  position: absolute;
+  inset: 0;
+  background-color: #000000;
+  background-repeat: no-repeat;
+}

@@ -209,11 +209,14 @@ export function BlobBackground({
     const canvas = canvasRef.current;
     if (!wrap || !canvas) return;
 
-    const ctx = canvas.getContext("2d", {
-      alpha: false,
-      desynchronized: true,
-    });
+    // Do not use `desynchronized: true`: it trades vsync for latency and causes
+    // visible tearing/flicker on some GPUs, external monitors, and Windows compositor setups.
+    const ctx = canvas.getContext("2d", { alpha: false });
     if (!ctx) return;
+
+    const reducedMotionMq = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    );
 
     const blobInstanceId = ++__blobPerfInstanceSeq;
     let resizeLogged = false;
@@ -269,12 +272,8 @@ export function BlobBackground({
       }
     };
 
-    const ro = new ResizeObserver(() => resize());
-    ro.observe(wrap);
-    resize();
-
-    const draw = (now: number) => {
-      const t = (now - start) / 1000;
+    const drawFrame = (now: number) => {
+      const t = reducedMotionMq.matches ? 0 : (now - start) / 1000;
       const w = logicalW;
       const h = logicalH;
       const m = Math.min(w, h);
@@ -322,14 +321,43 @@ export function BlobBackground({
       }
 
       ctx.globalCompositeOperation = "source-over";
-      raf = requestAnimationFrame(draw);
     };
 
-    raf = requestAnimationFrame(draw);
+    const loop = (now: number) => {
+      drawFrame(now);
+      if (!reducedMotionMq.matches) {
+        raf = requestAnimationFrame(loop);
+      }
+    };
+
+    const kick = () => {
+      cancelAnimationFrame(raf);
+      raf = 0;
+      if (reducedMotionMq.matches) {
+        drawFrame(performance.now());
+      } else {
+        raf = requestAnimationFrame(loop);
+      }
+    };
+
+    const ro = new ResizeObserver(() => {
+      resize();
+      kick();
+    });
+    ro.observe(wrap);
+    resize();
+    kick();
+
+    const onReducedMotionChange = () => {
+      start = performance.now();
+      kick();
+    };
+    reducedMotionMq.addEventListener("change", onReducedMotionChange);
 
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
+      reducedMotionMq.removeEventListener("change", onReducedMotionChange);
     };
   }, [radiusScale, alphaScale, nxShift]);
 

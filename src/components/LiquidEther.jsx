@@ -1,7 +1,51 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { debugAgentLog } from '../lib/debugAgentLog';
 import './LiquidEther.css';
+
+function hexToRgb(hex) {
+  const m = /^#?([0-9a-f]{6})$/i.exec(String(hex).trim());
+  if (!m) return { r: 128, g: 128, b: 128 };
+  const n = parseInt(m[1], 16);
+  return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+}
+
+function colorToRgba(hex, alpha) {
+  const { r, g, b } = hexToRgb(hex);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+/** Non-WebGL stand-in when `prefers-reduced-motion: reduce` or `forceStaticFallback` — same palette, no sim or rAF. */
+function LiquidEtherStaticFallback({ colors, className, style }) {
+  const arr =
+    Array.isArray(colors) && colors.length > 0
+      ? colors
+      : ['#5227FF', '#FF9FFC', '#B19EEF'];
+  const c0 = arr[0];
+  const c1 = arr[1] ?? arr[0];
+  const c2 = arr[2] ?? arr[1] ?? arr[0];
+  const r0 = colorToRgba(c0, 0.4);
+  const r1 = colorToRgba(c1, 0.32);
+  const r2 = colorToRgba(c2, 0.26);
+  return (
+    <div
+      className={`liquid-ether-container liquid-ether-static-fallback ${className || ''}`}
+      style={style}
+      aria-hidden
+    >
+      <div
+        className="liquid-ether-static-fallback__blobs"
+        style={{
+          backgroundImage: `
+            radial-gradient(ellipse 88% 72% at 16% 44%, ${r0} 0%, transparent 58%),
+            radial-gradient(ellipse 78% 64% at 84% 56%, ${r1} 0%, transparent 54%),
+            radial-gradient(ellipse 58% 52% at 50% 90%, ${r2} 0%, transparent 50%)
+          `,
+        }}
+      />
+    </div>
+  );
+}
 
 export default function LiquidEther({
   mouseForce = 20,
@@ -17,6 +61,14 @@ export default function LiquidEther({
   colors = ['#5227FF', '#FF9FFC', '#B19EEF'],
   style = {},
   className = '',
+  /** When true, renders the static gradient (same as prefers-reduced-motion). For previews / testing. */
+  forceStaticFallback = false,
+  /**
+   * Lighter GPU path: canvas DPR 1, no MSAA, ~30fps sim cap, Poisson/viscous iterations capped at 10, BFECC off,
+   * Sim resolution capped at 0.40 in perf mode (DPR stays 1 — extra sharpness from grid, not supersampling).
+   * Three.js is already code-split via `React.lazy` on Home.
+   */
+  preferPerformance = false,
   autoDemo = true,
   autoSpeed = 0.5,
   autoIntensity = 2.2,
@@ -32,8 +84,42 @@ export default function LiquidEther({
   const isVisibleRef = useRef(true);
   const resizeRafRef = useRef(null);
 
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  });
+
   useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const sync = () => setPrefersReducedMotion(mq.matches);
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
+  }, []);
+
+  const useStaticFallback = forceStaticFallback || prefersReducedMotion;
+
+  useEffect(() => {
+    if (useStaticFallback) return;
     if (!mountRef.current) return;
+
+    const perf = preferPerformance;
+
+    function effectiveSimOptions() {
+      if (!perf) {
+        return {
+          resolution,
+          iterations_poisson: iterationsPoisson,
+          iterations_viscous: iterationsViscous,
+          BFECC,
+        };
+      }
+      return {
+        resolution: Math.min(resolution, 0.4),
+        iterations_poisson: Math.min(iterationsPoisson, 10),
+        iterations_viscous: Math.min(iterationsViscous, 10),
+        BFECC: false,
+      };
+    }
 
     function makePaletteTexture(stops) {
       let arr;
@@ -86,9 +172,17 @@ export default function LiquidEther({
       }
       init(container) {
         this.container = container;
-        this.pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+        const rawDpr = window.devicePixelRatio || 1;
+        // Perf: DPR 1 on the *display* canvas saves the most fill-rate; sim grid stays separate (resolution prop).
+        this.pixelRatio = perf ? 1 : Math.min(rawDpr, 2);
         this.resize();
-        this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        this.renderer = new THREE.WebGLRenderer({
+          alpha: true,
+          antialias: !perf,
+          depth: false,
+          stencil: false,
+          powerPreference: perf ? 'high-performance' : 'default',
+        });
         this.renderer.autoClear = false;
         this.renderer.setClearColor(new THREE.Color(0x000000), 0);
         this.renderer.setPixelRatio(this.pixelRatio);
@@ -927,6 +1021,8 @@ export default function LiquidEther({
     class WebGLManager {
       constructor(props) {
         this.props = props;
+        this.perfMode = !!props.preferPerformance;
+        this._lastPerfFrameAt = 0;
         Common.init(props.$wrapper);
         Mouse.init(props.$wrapper);
         Mouse.autoIntensity = props.autoIntensity;
@@ -985,12 +1081,22 @@ export default function LiquidEther({
       }
       loop() {
         if (!this.running) return; // safety
+        if (this.perfMode) {
+          const now = performance.now();
+          const minMs = 1000 / 30;
+          if (this._lastPerfFrameAt > 0 && now - this._lastPerfFrameAt < minMs) {
+            rafRef.current = requestAnimationFrame(this._loop);
+            return;
+          }
+          this._lastPerfFrameAt = now;
+        }
         this.render();
         rafRef.current = requestAnimationFrame(this._loop);
       }
       start() {
         if (this.running) return;
         this.running = true;
+        this._lastPerfFrameAt = 0;
         this._loop();
       }
       pause() {
@@ -1025,6 +1131,7 @@ export default function LiquidEther({
 
     const webgl = new WebGLManager({
       $wrapper: container,
+      preferPerformance: perf,
       autoDemo,
       autoSpeed,
       autoIntensity,
@@ -1038,26 +1145,59 @@ export default function LiquidEther({
       if (!webglRef.current) return;
       const sim = webglRef.current.output?.simulation;
       if (!sim) return;
+      const eff = effectiveSimOptions();
       const prevRes = sim.options.resolution;
       Object.assign(sim.options, {
         mouse_force: mouseForce,
         cursor_size: cursorSize,
         isViscous,
         viscous,
-        iterations_viscous: iterationsViscous,
-        iterations_poisson: iterationsPoisson,
+        iterations_viscous: eff.iterations_viscous,
+        iterations_poisson: eff.iterations_poisson,
         dt,
-        BFECC,
-        resolution,
+        BFECC: eff.BFECC,
+        resolution: eff.resolution,
         isBounce
       });
-      if (resolution !== prevRes) {
+      if (eff.resolution !== prevRes) {
         sim.resize();
       }
     };
     applyOptionsFromProps();
 
-    webgl.start();
+    let idleCallbackId = null;
+    let rafBootId = 0;
+    let bootFrames = 0;
+
+    const startLoopWhenReady = () => {
+      if (!webglRef.current) return;
+      webglRef.current.start();
+    };
+
+    /** After first paint / idle: less main-thread contention with React hydration and hero layout. */
+    const scheduleDeferredStart = () => {
+      if (typeof requestIdleCallback !== 'undefined') {
+        idleCallbackId = requestIdleCallback(
+          () => {
+            idleCallbackId = null;
+            startLoopWhenReady();
+          },
+          { timeout: 1500 },
+        );
+      } else {
+        const boot = () => {
+          bootFrames += 1;
+          if (bootFrames >= 2) {
+            startLoopWhenReady();
+          } else {
+            rafBootId = requestAnimationFrame(boot);
+          }
+        };
+        rafBootId = requestAnimationFrame(boot);
+      }
+    };
+
+    scheduleDeferredStart();
 
     // #region agent log
     try {
@@ -1078,7 +1218,9 @@ export default function LiquidEther({
           iterationsViscous,
           iterationsPoisson,
           resolution,
-          isViscous
+          isViscous,
+          preferPerformance: perf,
+          eff: effectiveSimOptions(),
         }
       });
     } catch (_) {
@@ -1116,6 +1258,10 @@ export default function LiquidEther({
     resizeObserverRef.current = ro;
 
     return () => {
+      if (idleCallbackId != null && typeof cancelIdleCallback !== 'undefined') {
+        cancelIdleCallback(idleCallbackId);
+      }
+      if (rafBootId) cancelAnimationFrame(rafBootId);
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       if (resizeObserverRef.current) {
         try {
@@ -1137,6 +1283,8 @@ export default function LiquidEther({
       webglRef.current = null;
     };
   }, [
+    useStaticFallback,
+    preferPerformance,
     BFECC,
     cursorSize,
     dt,
@@ -1161,17 +1309,31 @@ export default function LiquidEther({
     if (!webgl) return;
     const sim = webgl.output?.simulation;
     if (!sim) return;
+    const perf = preferPerformance;
+    const eff = perf
+      ? {
+          resolution: Math.min(resolution, 0.4),
+          iterations_poisson: Math.min(iterationsPoisson, 10),
+          iterations_viscous: Math.min(iterationsViscous, 10),
+          BFECC: false,
+        }
+      : {
+          resolution,
+          iterations_poisson: iterationsPoisson,
+          iterations_viscous: iterationsViscous,
+          BFECC,
+        };
     const prevRes = sim.options.resolution;
     Object.assign(sim.options, {
       mouse_force: mouseForce,
       cursor_size: cursorSize,
       isViscous,
       viscous,
-      iterations_viscous: iterationsViscous,
-      iterations_poisson: iterationsPoisson,
+      iterations_viscous: eff.iterations_viscous,
+      iterations_poisson: eff.iterations_poisson,
       dt,
-      BFECC,
-      resolution,
+      BFECC: eff.BFECC,
+      resolution: eff.resolution,
       isBounce
     });
     if (webgl.autoDriver) {
@@ -1184,10 +1346,11 @@ export default function LiquidEther({
         webgl.autoDriver.mouse.takeoverDuration = takeoverDuration;
       }
     }
-    if (resolution !== prevRes) {
+    if (eff.resolution !== prevRes) {
       sim.resize();
     }
   }, [
+    preferPerformance,
     mouseForce,
     cursorSize,
     isViscous,
@@ -1205,6 +1368,16 @@ export default function LiquidEther({
     autoResumeDelay,
     autoRampDuration
   ]);
+
+  if (useStaticFallback) {
+    return (
+      <LiquidEtherStaticFallback
+        colors={colors}
+        className={className}
+        style={style}
+      />
+    );
+  }
 
   return <div ref={mountRef} className={`liquid-ether-container ${className || ''}`} style={style} />;
 }

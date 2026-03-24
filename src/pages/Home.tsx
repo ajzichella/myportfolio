@@ -1,5 +1,5 @@
 import React, { lazy, Suspense, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { motion } from "motion/react";
 import { ChevronDown, ArrowRight } from "lucide-react";
 
@@ -39,6 +39,9 @@ const digitalOceanTooltipCopy = (
 
 export function Home() {
   const sectionRef = useRef<HTMLElement>(null);
+  const [searchParams] = useSearchParams();
+  /** Preview reduced-motion hero: open `/?ether=static` (same static gradient as accessibility “Reduce motion”). */
+  const etherStaticPreview = searchParams.get("ether") === "static";
 
   return (
     <>
@@ -52,6 +55,7 @@ export function Home() {
             fallback={<div className="absolute inset-0 bg-black" aria-hidden />}
           >
             <LiquidEther
+              forceStaticFallback={etherStaticPreview}
               mouseForce={12}
               cursorSize={80}
               isViscous={false}
