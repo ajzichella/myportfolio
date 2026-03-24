@@ -90,7 +90,7 @@ export function Portfolio() {
 
   return (
     <section className="relative w-full min-h-screen shrink-0 overflow-hidden px-6 py-16 md:px-12 lg:px-16">
-      <BlobBackground />
+      <BlobBackground maxFps={24} dprCap={1} />
       <div className="relative z-10 mx-auto max-w-[1200px]">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -112,10 +112,13 @@ export function Portfolio() {
           </p>
         </motion.div>
 
-        <div
+        <motion.div
           className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center"
           role="group"
           aria-label="Filter case studies by topic"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.12 }}
         >
           <button
             type="button"
@@ -149,7 +152,7 @@ export function Portfolio() {
               );
             })}
           </div>
-        </div>
+        </motion.div>
 
         <div className="mt-12 flex flex-col gap-6">
           {showEmpty ? (
@@ -167,7 +170,12 @@ export function Portfolio() {
             </div>
           ) : (
             filteredStudies.map((study, i) => (
-              <CaseStudyCard key={study.title} study={study} index={i} />
+              <CaseStudyCard
+                key={study.title}
+                study={study}
+                index={i}
+                glassIntensity="light"
+              />
             ))
           )}
         </div>

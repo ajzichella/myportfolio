@@ -85,6 +85,12 @@ a {
     inset 0 -1px 0 rgba(0, 0, 0, 0.15);
 }
 
+/* Listing / stacked cards: lighter blur + saturate — cheaper, still see-through. */
+.case-study-card.case-study-card--light-glass {
+  backdrop-filter: blur(12px) saturate(140%);
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+}
+
 /* In-page sections: same glass treatment as case study cards, without the cyan left accent. */
 .case-study-card.case-study-card--no-left-accent {
   border: 1px solid rgba(148, 163, 184, 0.22);

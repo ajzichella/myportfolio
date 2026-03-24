@@ -26,13 +26,19 @@ export interface Study {
 interface CaseStudyCardProps {
   study: Study;
   index: number;
+  /** Lighter backdrop blur on listing pages (cheaper when stacked over motion). */
+  glassIntensity?: "default" | "light";
 }
 
 /** Matches card chrome; opens full-res lightbox like case study pages. */
 const lightboxTriggerFocus =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00aeef] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f172a]";
 
-export function CaseStudyCard({ study, index }: CaseStudyCardProps) {
+export function CaseStudyCard({
+  study,
+  index,
+  glassIntensity = "default",
+}: CaseStudyCardProps) {
   const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(
     null,
   );
@@ -58,7 +64,11 @@ export function CaseStudyCard({ study, index }: CaseStudyCardProps) {
       whileInView={{ y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.4, delay: 0.1 * index }}
-      className={`relative rounded-xl case-study-card p-8 lg:min-h-[min(380px,46vh)] ${hasImages && imageCount === 2 ? "overflow-visible" : "overflow-hidden"}`}
+      className={cn(
+        "relative rounded-xl case-study-card p-8 lg:min-h-[min(380px,46vh)]",
+        glassIntensity === "light" && "case-study-card--light-glass",
+        hasImages && imageCount === 2 ? "overflow-visible" : "overflow-hidden",
+      )}
     >
       <div
         className={`relative flex h-full gap-8 ${hasImages ? "flex-col lg:flex-row lg:items-stretch" : "flex-row"}`}

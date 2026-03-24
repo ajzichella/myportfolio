@@ -250,7 +250,7 @@ export function Home() {
         id="case-studies"
         className="relative z-10 w-full shrink-0 overflow-visible px-6 py-16 md:px-12 lg:px-16"
       >
-        <BlobBackground />
+        <BlobBackground maxFps={24} dprCap={1} />
         <div className="relative z-10 mx-auto max-w-[1200px]">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -348,7 +348,12 @@ export function Home() {
 
           <div className="mt-12 flex flex-col gap-6">
             {getFeaturedCaseStudies().map((study, i) => (
-              <CaseStudyCard key={study.title} study={study} index={i} />
+              <CaseStudyCard
+                key={study.title}
+                study={study}
+                index={i}
+                glassIntensity="light"
+              />
             ))}
           </div>
           <p className="mt-10 text-center text-base text-[#999999]">

@@ -192,6 +192,10 @@ export type BlobBackgroundProps = {
   alphaScale?: number;
   /** Shifts orb anchor positions right (+) or left (-) in normalized canvas space [0,1]. Default 0. */
   nxShift?: number;
+  /** Cap device pixel ratio for the canvas (e.g. `1` on dense listing pages). */
+  dprCap?: number;
+  /** Limit redraw rate; motion stays visible but cheaper (e.g. `24` with glass cards above). */
+  maxFps?: number;
   className?: string;
 };
 
@@ -199,6 +203,8 @@ export function BlobBackground({
   radiusScale = 1,
   alphaScale = 1,
   nxShift = 0,
+  dprCap,
+  maxFps,
   className,
 }: BlobBackgroundProps = {}) {
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -218,6 +224,8 @@ export function BlobBackground({
       "(prefers-reduced-motion: reduce)",
     );
 
+    const isFrozen = () => reducedMotionMq.matches;
+
     const blobInstanceId = ++__blobPerfInstanceSeq;
     let resizeLogged = false;
 
@@ -226,12 +234,18 @@ export function BlobBackground({
     let logicalH = 1;
     let dpr = 1;
     let start = performance.now();
+    const minFrameMs =
+      typeof maxFps === "number" && maxFps > 0 ? 1000 / maxFps : 0;
+    let lastDrawAt = 0;
 
     const resize = () => {
       const rect = wrap.getBoundingClientRect();
       logicalW = Math.max(1, rect.width);
       logicalH = Math.max(1, rect.height);
       let dprLocal = Math.min(window.devicePixelRatio || 1, DPR_CAP);
+      if (typeof dprCap === "number" && dprCap > 0) {
+        dprLocal = Math.min(dprLocal, dprCap);
+      }
       let cw = Math.floor(logicalW * dprLocal);
       let ch = Math.floor(logicalH * dprLocal);
       const px = cw * ch;
@@ -273,7 +287,7 @@ export function BlobBackground({
     };
 
     const drawFrame = (now: number) => {
-      const t = reducedMotionMq.matches ? 0 : (now - start) / 1000;
+      const t = isFrozen() ? 0 : (now - start) / 1000;
       const w = logicalW;
       const h = logicalH;
       const m = Math.min(w, h);
@@ -324,16 +338,21 @@ export function BlobBackground({
     };
 
     const loop = (now: number) => {
-      drawFrame(now);
-      if (!reducedMotionMq.matches) {
+      if (!isFrozen()) {
         raf = requestAnimationFrame(loop);
       }
+      if (minFrameMs > 0 && lastDrawAt > 0 && now - lastDrawAt < minFrameMs) {
+        return;
+      }
+      lastDrawAt = now;
+      drawFrame(now);
     };
 
     const kick = () => {
       cancelAnimationFrame(raf);
       raf = 0;
-      if (reducedMotionMq.matches) {
+      lastDrawAt = 0;
+      if (isFrozen()) {
         drawFrame(performance.now());
       } else {
         raf = requestAnimationFrame(loop);
@@ -359,7 +378,7 @@ export function BlobBackground({
       ro.disconnect();
       reducedMotionMq.removeEventListener("change", onReducedMotionChange);
     };
-  }, [radiusScale, alphaScale, nxShift]);
+  }, [radiusScale, alphaScale, nxShift, dprCap, maxFps]);
 
   return (
     <div
