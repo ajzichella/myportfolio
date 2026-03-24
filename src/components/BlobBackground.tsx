@@ -2,6 +2,8 @@ import { useEffect, useRef } from "react";
 import { cn } from "../lib/utils";
 
 const DPR_CAP = 2;
+/** Cap backing-store size so a tall parent (e.g. long page section) cannot allocate multi–100MB canvases. */
+const MAX_CANVAS_PIXELS = 10_000_000;
 
 /** Keep glow from bleeding into the top band (e.g. section header / area under hero). */
 const TOP_PAD_FRAC = 0.04;
@@ -220,9 +222,19 @@ export function BlobBackground({
       const rect = wrap.getBoundingClientRect();
       logicalW = Math.max(1, rect.width);
       logicalH = Math.max(1, rect.height);
-      dpr = Math.min(window.devicePixelRatio || 1, DPR_CAP);
-      canvas.width = Math.floor(logicalW * dpr);
-      canvas.height = Math.floor(logicalH * dpr);
+      let dprLocal = Math.min(window.devicePixelRatio || 1, DPR_CAP);
+      let cw = Math.floor(logicalW * dprLocal);
+      let ch = Math.floor(logicalH * dprLocal);
+      const px = cw * ch;
+      if (px > MAX_CANVAS_PIXELS) {
+        const scale = Math.sqrt(MAX_CANVAS_PIXELS / px);
+        cw = Math.max(1, Math.floor(cw * scale));
+        ch = Math.max(1, Math.floor(ch * scale));
+        dprLocal = cw / logicalW;
+      }
+      dpr = dprLocal;
+      canvas.width = cw;
+      canvas.height = ch;
       canvas.style.width = `${logicalW}px`;
       canvas.style.height = `${logicalH}px`;
     };

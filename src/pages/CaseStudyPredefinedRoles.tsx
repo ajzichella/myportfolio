@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useRef, useState } from "react";
+import React, { memo, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { animate, motion, useInView, useReducedMotion } from "motion/react";
 import { ArrowRight, ChevronRight, Heart, List, X } from "lucide-react";
@@ -131,7 +131,6 @@ const PAW_PATH_D =
   "M15.3245 5.71107C15.1511 5.29889 14.8629 5.0017 14.4911 4.85201L14.4861 4.85014C14.3168 4.78387 14.1366 4.74995 13.9548 4.75014H13.9348C13.0836 4.76295 12.2145 5.48639 11.7726 6.55045C11.4486 7.32857 11.4114 8.16545 11.6732 8.7892C11.8464 9.2017 12.1351 9.49889 12.5086 9.64857L12.5126 9.65014C12.6819 9.7164 12.8621 9.75032 13.0439 9.75014C13.9032 9.75014 14.7814 9.0267 15.2314 7.94857C15.5514 7.17139 15.5867 6.33514 15.3245 5.71107ZM11.9232 10.3004C11.4323 10.0054 10.9682 9.72639 10.6651 9.22514C9.82887 7.83764 9.32387 7.00014 7.99981 7.00014C6.67574 7.00014 6.16949 7.83764 5.33137 9.22514C5.02762 9.72701 4.56262 10.0064 4.07012 10.3026C3.50543 10.642 2.92199 10.9926 2.67012 11.6826C2.57218 11.9314 2.52285 12.1966 2.52481 12.4639C2.52481 13.5873 3.39981 14.5014 4.47481 14.5014C5.02949 14.5014 5.61981 14.3092 6.24449 14.1058C6.84512 13.9101 7.46606 13.7079 8.00293 13.7079C8.53981 13.7079 9.15918 13.9101 9.75762 14.1058C10.3811 14.3079 10.9686 14.5001 11.5248 14.5001C12.5982 14.5001 13.4717 13.5861 13.4717 12.4626C13.4726 12.1951 13.4222 11.9299 13.3232 11.6814C13.0714 10.9908 12.4876 10.6398 11.9232 10.3004ZM4.68731 5.9017C5.05918 6.36826 5.53106 6.62514 6.01606 6.62514C6.08226 6.62512 6.14838 6.62021 6.21387 6.61045C7.22543 6.4617 7.85574 5.22732 7.64887 3.79795C7.56231 3.19701 7.33106 2.63732 6.99981 2.22232C6.62856 1.7567 6.15606 1.50014 5.67137 1.50014C5.60516 1.50015 5.53904 1.50506 5.47356 1.51482C4.46199 1.66357 3.83168 2.89795 4.03856 4.32732C4.12481 4.92732 4.35606 5.48639 4.68731 5.9017ZM9.78606 6.61045C9.85154 6.62021 9.91766 6.62512 9.98387 6.62514C10.4692 6.62514 10.9407 6.36826 11.3126 5.9017C11.6436 5.48639 11.8736 4.92732 11.9611 4.3267C12.1679 2.89795 11.5376 1.66357 10.5261 1.5142C10.4606 1.50444 10.3945 1.49953 10.3282 1.49951C9.84356 1.50014 9.37106 1.7567 8.99981 2.22232C8.66856 2.63732 8.43731 3.19701 8.35106 3.79857C8.14418 5.22732 8.77449 6.4617 9.78606 6.61045ZM3.48699 9.65014L3.49137 9.64857C3.86418 9.49889 4.15262 9.20201 4.32543 8.78982C4.58731 8.16482 4.55043 7.32889 4.22699 6.55076C3.77918 5.47389 2.90137 4.75014 2.04293 4.75014C1.86114 4.74987 1.68093 4.7838 1.51168 4.85014L1.50731 4.8517C1.13543 5.00014 0.846993 5.29826 0.67418 5.71045C0.412305 6.33545 0.44918 7.17139 0.772618 7.94951C1.22043 9.02639 2.09824 9.75014 2.95668 9.75014C3.13815 9.75028 3.31804 9.71636 3.48699 9.65014Z";
 const PAW_VIEWBOX_WIDTH = 1600;
 const PAW_VIEWBOX_HEIGHT = 2400;
-const PAW_HOVER_PICK_RADIUS = 130;
 
 type RbacExperiencePaw = { x: number; y: number; r: number; o: number };
 
@@ -188,28 +187,7 @@ function buildRbacExperiencePaws(): RbacExperiencePaw[] {
 
 const RBAC_EXPERIENCE_PAWS = buildRbacExperiencePaws();
 
-function pickNearestRbacExperiencePawIndex(vx: number, vy: number): number | null {
-  const paws = RBAC_EXPERIENCE_PAWS;
-  let best = Infinity;
-  let idx: number | null = null;
-  for (let i = 0; i < paws.length; i += 1) {
-    const dx = paws[i].x - vx;
-    const dy = paws[i].y - vy;
-    const dist = Math.hypot(dx, dy);
-    if (dist < best) {
-      best = dist;
-      idx = i;
-    }
-  }
-  if (best > PAW_HOVER_PICK_RADIUS) return null;
-  return idx;
-}
-
-const RbacExperiencePawPaths = memo(function RbacExperiencePawPaths({
-  hoveredPawIndex,
-}: {
-  hoveredPawIndex: number | null;
-}) {
+const RbacExperiencePawPaths = memo(function RbacExperiencePawPaths() {
   return (
     <svg
       className="absolute inset-0 z-0 h-full w-full opacity-75 text-slate-300/40 [mask-image:radial-gradient(ellipse_76%_72%_at_50%_42%,#000_34%,#000_62%,transparent_86%)]"
@@ -221,15 +199,8 @@ const RbacExperiencePawPaths = memo(function RbacExperiencePawPaths({
         <path
           key={i}
           d={PAW_PATH_D}
-          fill={hoveredPawIndex === i ? "#a3e8f7" : "currentColor"}
-          opacity={hoveredPawIndex === i ? Math.min(1, paw.o + 0.45) : paw.o}
-          style={{
-            filter:
-              hoveredPawIndex === i
-                ? "drop-shadow(0 0 10px rgba(163,232,247,0.45))"
-                : undefined,
-            transition: "opacity 180ms ease-out, filter 180ms ease-out, fill 180ms ease-out",
-          }}
+          fill="currentColor"
+          opacity={paw.o}
           transform={`translate(${paw.x} ${paw.y}) rotate(${paw.r}) scale(2) translate(-8 -8)`}
         />
       ))}
@@ -261,43 +232,8 @@ export function CaseStudyPredefinedRoles() {
     src: string;
     alt: string;
   } | null>(null);
-  const [experiencePawHoveredIndex, setExperiencePawHoveredIndex] = useState<number | null>(null);
-  const experiencePawHoveredIndexRef = useRef<number | null>(null);
-  const experiencePawPendingPointerRef = useRef<{ cx: number; cy: number } | null>(null);
-  const experiencePawRafRef = useRef<number | null>(null);
   const pageRef = useRef<HTMLElement>(null);
   const sectionIndexFloatingRef = useRef<HTMLDivElement>(null);
-  const experiencePawLayerRef = useRef<HTMLDivElement>(null);
-
-  const flushExperiencePawHoverPick = useCallback(() => {
-    experiencePawRafRef.current = null;
-    const p = experiencePawPendingPointerRef.current;
-    const layer = experiencePawLayerRef.current;
-    if (!p || !layer) return;
-    const r = layer.getBoundingClientRect();
-    const vw = PAW_VIEWBOX_WIDTH;
-    const vh = PAW_VIEWBOX_HEIGHT;
-    const scale = Math.min(r.width / vw, r.height / vh);
-    const drawnW = vw * scale;
-    const drawnH = vh * scale;
-    const offsetX = r.left + (r.width - drawnW) / 2;
-    const offsetY = r.top + (r.height - drawnH) / 2;
-    const x = (p.cx - offsetX) / scale;
-    const y = (p.cy - offsetY) / scale;
-    const next = pickNearestRbacExperiencePawIndex(x, y);
-    if (next !== experiencePawHoveredIndexRef.current) {
-      experiencePawHoveredIndexRef.current = next;
-      setExperiencePawHoveredIndex(next);
-    }
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      if (experiencePawRafRef.current != null) {
-        cancelAnimationFrame(experiencePawRafRef.current);
-      }
-    };
-  }, []);
 
   useEffect(() => {
     if (!isSectionIndexOpen) return;
@@ -318,6 +254,21 @@ export function CaseStudyPredefinedRoles() {
     const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
     let frame = 0;
 
+    const lastCommittedRef = { current: -1 as number };
+
+    /** Avoid setState on every scroll tick (micro float changes); limits full-page re-renders and improves INP. */
+    const commitReadingProgress = (next: number) => {
+      const prev = lastCommittedRef.current;
+      if (
+        prev >= 0 &&
+        Math.round(next * 100) === Math.round(prev * 100)
+      ) {
+        return;
+      }
+      lastCommittedRef.current = next;
+      setReadingProgress(next);
+    };
+
     const compute = () => {
       const main = document.getElementById("main-scroll");
       const doc = document.documentElement;
@@ -326,24 +277,25 @@ export function CaseStudyPredefinedRoles() {
         const mainScrollable = main.scrollHeight - main.clientHeight;
         if (mainScrollable > 1) {
           const next = clamp01(main.scrollTop / mainScrollable);
-          setReadingProgress(next);
+          commitReadingProgress(next);
           return;
         }
         if (windowScrollable > 1) {
           const next = clamp01(window.scrollY / windowScrollable);
-          setReadingProgress(next);
+          commitReadingProgress(next);
           return;
         }
-        setReadingProgress(1);
+        commitReadingProgress(1);
         return;
       }
 
       const scrollable = windowScrollable;
       if (scrollable <= 1) {
-        setReadingProgress(1);
+        commitReadingProgress(1);
         return;
       }
-      setReadingProgress(clamp01(window.scrollY / scrollable));
+      const next = clamp01(window.scrollY / scrollable);
+      commitReadingProgress(next);
     };
 
     const schedule = () => {
@@ -412,10 +364,10 @@ export function CaseStudyPredefinedRoles() {
       className="relative w-full min-w-0 min-h-screen shrink-0 overflow-x-visible py-16 md:py-16 lg:py-16"
     >
       <div
-        className="pointer-events-none absolute inset-0 z-0 min-h-full w-full"
+        className="pointer-events-none fixed inset-0 z-0 w-full overflow-hidden bg-black"
         aria-hidden
       >
-        <BlobBackground radiusScale={1.58} alphaScale={1.52} />
+        <BlobBackground radiusScale={1.35} alphaScale={0.78} />
       </div>
       <div className="relative z-10 mx-auto w-full min-w-0 max-w-[1200px] overflow-x-visible px-6 md:px-12 lg:px-16">
         <motion.nav
@@ -465,13 +417,13 @@ export function CaseStudyPredefinedRoles() {
           </p>
         </motion.header>
 
-        <motion.div
-          {...fadeUp}
-          transition={{ duration: 0.4, delay: 0.06 }}
-          className="relative z-0 mt-12 grid gap-6 overflow-visible lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-stretch"
-        >
-          <div className="relative z-[2] grid content-start gap-6">
-            <div className="rounded-xl border border-slate-600/50 bg-slate-900/40 p-5 ring-1 ring-inset ring-white/5">
+        <div className="relative z-0 mt-12 grid gap-6 overflow-visible lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-stretch">
+          <motion.div
+            {...fadeUp}
+            transition={{ duration: 0.4, delay: 0.06 }}
+            className="relative z-[2] grid content-start gap-6"
+          >
+            <div className="case-study-card case-study-card--no-left-accent rounded-xl p-5">
               <p className={labelClass}>Problem</p>
               <p className="mt-3 text-sm leading-relaxed text-[#999999] md:text-base">
                 With only 3 available roles at the time, the demand for more
@@ -480,7 +432,7 @@ export function CaseStudyPredefinedRoles() {
                 resources, thus, becoming the number 1 company priority in 2024.
               </p>
             </div>
-            <div className="rounded-xl border border-slate-600/50 bg-slate-900/40 p-5 ring-1 ring-inset ring-white/5">
+            <div className="case-study-card case-study-card--no-left-accent rounded-xl p-5">
               <p className={labelClass}>Solution</p>
               <p className="mt-3 text-sm leading-relaxed text-[#999999] md:text-base">
                 Ship additional roles for users to select from based on the most
@@ -488,7 +440,7 @@ export function CaseStudyPredefinedRoles() {
                 that new access.
               </p>
             </div>
-            <div className="rounded-xl border border-slate-600/50 bg-slate-900/40 p-5 ring-1 ring-inset ring-white/5">
+            <div className="case-study-card case-study-card--no-left-accent rounded-xl p-5">
               <p className={labelClass}>Goals</p>
               <p className="mt-3 text-sm leading-relaxed text-[#999999] md:text-base">
                 Help admin users enforce the principle of least privilege, offer
@@ -496,8 +448,12 @@ export function CaseStudyPredefinedRoles() {
                 the platform up for the next phases of access control.
               </p>
             </div>
-          </div>
-          <div className="relative min-w-0 overflow-visible lg:h-full">
+          </motion.div>
+          <motion.div
+            {...fadeUp}
+            transition={{ duration: 0.4, delay: 0.08 }}
+            className="relative min-w-0 overflow-visible lg:h-full"
+          >
             <div
               className="pointer-events-none absolute left-[-3%] right-[-12%] top-[-7%] bottom-[-7%] z-0 origin-[56%_38%] scale-[1.02] translate-x-[5%] -translate-y-[3%] blur-2xl lg:left-[-2%] lg:right-[-13%] lg:top-[-9%] lg:bottom-[-9%] lg:translate-x-[6%] lg:-translate-y-[4%]"
               aria-hidden
@@ -516,8 +472,8 @@ export function CaseStudyPredefinedRoles() {
               className="h-full w-full rounded-lg object-cover object-top drop-shadow-xl"
               onOpen={setImageLightbox}
             />
-          </div>
-        </motion.div>
+          </motion.div>
+        </div>
 
         <ResultsSection
           headingId="rbac-results-heading"
@@ -586,7 +542,7 @@ export function CaseStudyPredefinedRoles() {
           {...fadeUp}
           transition={{ duration: 0.4, delay: 0.1 }}
           aria-labelledby="rbac-scope-heading"
-          className="mt-16 rounded-xl border border-slate-600/50 bg-slate-900/30 p-6 md:p-8 ring-1 ring-inset ring-white/5"
+          className="case-study-card case-study-card--no-left-accent relative mt-16 rounded-xl p-6 md:p-8"
         >
           <h2 id="rbac-scope-heading" className={sectionTitle}>
             Scope &amp; collaboration
@@ -806,23 +762,6 @@ export function CaseStudyPredefinedRoles() {
         <section
           aria-labelledby="rbac-experience-heading"
           className="relative isolate z-10 mt-16 w-screen max-w-[100vw] shrink-0 left-1/2 min-w-0 -translate-x-1/2"
-          onPointerMove={(e) => {
-            experiencePawPendingPointerRef.current = { cx: e.clientX, cy: e.clientY };
-            if (experiencePawRafRef.current == null) {
-              experiencePawRafRef.current = requestAnimationFrame(flushExperiencePawHoverPick);
-            }
-          }}
-          onPointerLeave={() => {
-            experiencePawPendingPointerRef.current = null;
-            if (experiencePawRafRef.current != null) {
-              cancelAnimationFrame(experiencePawRafRef.current);
-              experiencePawRafRef.current = null;
-            }
-            if (experiencePawHoveredIndexRef.current !== null) {
-              experiencePawHoveredIndexRef.current = null;
-              setExperiencePawHoveredIndex(null);
-            }
-          }}
         >
           <div
             className="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
@@ -833,11 +772,10 @@ export function CaseStudyPredefinedRoles() {
             <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#7c3aed]/20 to-transparent" />
           </div>
           <div
-            ref={experiencePawLayerRef}
             className="pointer-events-none absolute inset-0 z-0"
             aria-hidden
           >
-            <RbacExperiencePawPaths hoveredPawIndex={experiencePawHoveredIndex} />
+            <RbacExperiencePawPaths />
           </div>
           <div className="relative z-10 w-full px-6 py-6 md:px-12 md:py-10 lg:px-16">
             <div className="relative z-10 mx-auto w-full max-w-[1200px]">
@@ -980,7 +918,7 @@ export function CaseStudyPredefinedRoles() {
         <motion.section
           {...fadeUp}
           transition={{ duration: 0.4, delay: 0.17 }}
-          className="mt-16 flex flex-col items-start gap-6 rounded-xl border border-slate-600/50 bg-slate-900/40 p-6 md:flex-row md:items-center md:justify-between md:p-8 ring-1 ring-inset ring-white/5"
+          className="case-study-card case-study-card--no-left-accent mt-16 flex flex-col items-start gap-6 rounded-xl p-6 md:flex-row md:items-center md:justify-between md:p-8"
         >
           <div>
             <h2 className="text-lg font-semibold text-white md:text-xl">
@@ -1043,7 +981,7 @@ export function CaseStudyPredefinedRoles() {
           <p className="mt-4 max-w-3xl text-base text-[#999999] md:text-lg">
             Highlights from internal recognition after the launch.
           </p>
-          <div className="relative mt-8 rounded-xl border border-slate-600/50 bg-slate-900/40 p-6 ring-1 ring-inset ring-white/5 md:p-8">
+          <div className="case-study-card case-study-card--no-left-accent relative mt-8 rounded-xl p-6 md:p-8">
             <div
               className="pointer-events-none absolute inset-0 z-0 overflow-hidden rounded-xl"
               aria-hidden

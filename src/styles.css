@@ -85,6 +85,26 @@ a {
     inset 0 -1px 0 rgba(0, 0, 0, 0.15);
 }
 
+/* In-page sections: same glass treatment as case study cards, without the cyan left accent. */
+.case-study-card.case-study-card--no-left-accent {
+  border: 1px solid rgba(148, 163, 184, 0.22);
+}
+
+.case-study-card.case-study-card--no-left-accent:hover {
+  /* Same as resting state: overrides .case-study-card:hover glow/shadow/background. */
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.07) 0%,
+    rgba(15, 23, 42, 0.38) 42%,
+    rgba(2, 6, 23, 0.42) 100%
+  );
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+}
+
 @keyframes card-blob-float {
   0%, 100% { transform: translate(-50%, -50%) scale(1); }
   25% { transform: translate(calc(-50% + 25px), calc(-50% - 20px)) scale(1.1); }

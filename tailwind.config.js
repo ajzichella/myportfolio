@@ -37,10 +37,15 @@ module.exports = {
         blink: {
           "0%, 100%": { opacity: "1" },
           "50%": { opacity: "0.35" }
+        },
+        float: {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-40px)" }
         }
       },
       animation: {
-        blink: "blink 1.5s ease-in-out infinite"
+        blink: "blink 1.5s ease-in-out infinite",
+        float: "float 3s ease-in-out infinite"
       }
     }
   },

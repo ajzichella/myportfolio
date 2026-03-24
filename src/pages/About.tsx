@@ -14,6 +14,7 @@ import { BlobBackground } from "../components/BlobBackground";
 import GlareHover from "../components/GlareHover";
 import { LinkedInLogoSolid } from "../components/LinkedInLogoSolid";
 import GradientText from "../components/GradientText";
+import OrbitingItems3D from "../components/animata/list/orbiting-items-3-d";
 
 const assetBase = import.meta.env.BASE_URL;
 
@@ -121,7 +122,7 @@ export function About() {
           className="mb-12 border-b border-slate-800/70 pb-12 lg:mb-16 lg:pb-16"
         >
           <p className="text-sm font-medium uppercase tracking-wider text-accent-readable">
-            About
+            About me
           </p>
           <div className="mt-6 flex flex-col items-center gap-8 lg:mt-8 lg:flex-row lg:items-start lg:justify-start lg:gap-12">
             <div className="w-full max-w-[300px] shrink-0 sm:max-w-[320px] lg:max-w-[340px]">
@@ -230,9 +231,24 @@ export function About() {
           </div>
         </motion.header>
 
-        <h2 className="sr-only">Profile</h2>
-        <div className="grid gap-12 lg:grid-cols-2 lg:gap-x-12 xl:gap-x-16">
-          <div className="flex min-w-0 flex-col gap-12">
+        <section
+          aria-labelledby="about-story-section-heading"
+          className="mt-14 md:mt-20"
+        >
+          <p className="text-sm font-medium uppercase tracking-wider text-accent-readable">
+            Profile
+          </p>
+          <h2
+            id="about-story-section-heading"
+            className="mt-2 text-2xl font-bold tracking-tight text-white md:text-3xl"
+          >
+            Story &amp; approach
+          </h2>
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-400 md:text-base">
+            How I think about design, what I care about, and where I aim my craft.
+          </p>
+          <div className="mt-10 grid min-w-0 grid-cols-1 gap-12 md:mt-12 md:grid-cols-2 md:items-start md:gap-x-12 md:gap-y-0">
+            <div className="flex min-w-0 flex-col gap-12">
             <motion.section
               {...fadeUp}
               transition={{ duration: 0.45, delay: 0.08 }}
@@ -247,7 +263,7 @@ export function About() {
                   Who I am
                 </h3>
               </div>
-              <p className="mt-4 max-w-2xl text-base leading-relaxed text-[#999999] md:text-lg">
+              <p className="mt-4 max-w-3xl text-base leading-relaxed text-[#999999] md:text-lg">
                 Well met, traveler! I&apos;m AJ{" "}
                 <motion.span
                   className="relative inline-block top-px text-[1.35em] leading-none will-change-transform"
@@ -278,7 +294,7 @@ export function About() {
                 functional product that engages users and provides an intuitive
                 experience while accurately representing brands and meeting goals.
               </p>
-              <ul className="mt-6 flex list-disc list-inside flex-col gap-2 marker:text-[#00aeef] text-base text-slate-200">
+              <ul className="mt-6 flex max-w-3xl list-disc list-inside flex-col gap-2 marker:text-[#00aeef] text-base text-slate-200">
                 <li>
                   User-centered senior product designer
                 </li>
@@ -334,7 +350,7 @@ export function About() {
                   My design philosophies
                 </h3>
               </div>
-              <ul className="mt-4 flex max-w-2xl list-disc list-inside flex-col gap-3 marker:text-[#00aeef] text-base leading-relaxed text-[#999999] md:text-lg">
+              <ul className="mt-4 flex max-w-3xl list-disc list-inside flex-col gap-3 marker:text-[#00aeef] text-base leading-relaxed text-[#999999] md:text-lg">
                 <li>
                   Solving real user problems creates real measurable business
                   outcomes.
@@ -359,7 +375,9 @@ export function About() {
                 </li>
               </ul>
             </motion.section>
+            </div>
 
+            <div className="flex min-w-0 flex-col gap-12">
             <motion.section
               {...fadeUp}
               transition={{ duration: 0.45, delay: 0.1 }}
@@ -374,7 +392,7 @@ export function About() {
                   8+ years of visually solving complex problems
                 </h3>
               </div>
-              <p className="mt-4 max-w-2xl text-base leading-relaxed text-[#999999] md:text-lg">
+              <p className="mt-4 max-w-3xl text-base leading-relaxed text-[#999999] md:text-lg">
                 Proudly focusing on user needs and building experiences
                 supported by research and data that pushes design further and
                 helps solve real problems.
@@ -398,7 +416,7 @@ export function About() {
                   What I focus on
                 </h3>
               </div>
-              <p className="mt-4 max-w-2xl text-base leading-relaxed text-[#999999] md:text-lg">
+              <p className="mt-4 max-w-3xl text-base leading-relaxed text-[#999999] md:text-lg">
                 I work where complex systems meet real people, whether that&apos;s
                 cloud infrastructure, access and security, or retail and
                 eCommerce flows. Recent themes in my{" "}
@@ -414,24 +432,106 @@ export function About() {
                 </span>
               </p>
             </motion.section>
+
+            <motion.div
+              {...fadeUp}
+              transition={{ duration: 0.45, delay: 0.16 }}
+              className="flex w-full justify-center"
+            >
+              <OrbitingItems3D
+                containerClassName="py-6 md:py-8"
+                backgroundClassName="hidden"
+                className="h-64 w-64 sm:h-[17rem] sm:w-[17rem] md:h-72 md:w-72"
+                radiusX={64}
+                radiusY={24}
+                tiltAngle={330}
+                duration={38}
+                orbitAriaLabel="My tech stack: tools shown in orbit around portrait"
+                tooltip={
+                  <div className="m-0 space-y-2.5">
+                    <p className="m-0 mb-1.5 block text-base font-bold leading-tight text-slate-950 sm:text-lg">
+                      My tech stack
+                    </p>
+                    <ul className="m-0 list-none space-y-1.5 pl-0">
+                      <li>
+                        <span className="font-medium text-slate-950">
+                          Cursor
+                        </span>{" "}
+                        (prototyping experiences)
+                      </li>
+                      <li>
+                        <span className="font-medium text-slate-950">
+                          Figma
+                        </span>{" "}
+                        (building out experiences and planning workflows)
+                      </li>
+                      <li>
+                        <span className="font-medium text-slate-950">
+                          GitHub
+                        </span>{" "}
+                        (creating PRs for review to push to prod)
+                      </li>
+                      <li>
+                        <span className="font-medium text-slate-950">
+                          Atlassian
+                        </span>{" "}
+                        (primarily Jira, Confluence, and Loom for work tracking
+                        and documentation)
+                      </li>
+                      <li>
+                        <span className="font-medium text-slate-950">
+                          Looker
+                        </span>{" "}
+                        (or Snowflake for data analysis)
+                      </li>
+                      <li>
+                        <span className="font-medium text-slate-950">
+                          Slack
+                        </span>{" "}
+                        (for constant alignment and async communication)
+                      </li>
+                    </ul>
+                  </div>
+                }
+              />
+            </motion.div>
+            </div>
+          </div>
+        </section>
+
+        <section
+          aria-labelledby="about-career-section-heading"
+          className="mt-10 md:mt-14"
+        >
+          <div className="flex flex-wrap items-start gap-3">
+            <Briefcase
+              className="mt-0.5 h-6 w-6 shrink-0 text-[#00aeef] md:h-7 md:w-7"
+              aria-hidden
+            />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium uppercase tracking-wider text-accent-readable">
+                Career
+              </p>
+              <h2
+                id="about-career-section-heading"
+                className="mt-2 text-2xl font-bold tracking-tight text-white md:text-3xl"
+              >
+                Experience &amp; certifications
+              </h2>
+              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-400 md:text-base">
+                Roles, impact, and formal training.
+              </p>
+            </div>
           </div>
 
-          <div className="flex min-w-0 flex-col gap-12">
-            <motion.section
+          <div className="mt-10 flex min-w-0 flex-col gap-12 md:mt-12">
+            <motion.div
               {...fadeUp}
               transition={{ duration: 0.45, delay: 0.14 }}
-              aria-labelledby="about-experience-heading"
+              role="region"
+              aria-label="Work experience timeline"
             >
-              <div className="flex items-center gap-2">
-                <Briefcase className="h-5 w-5 shrink-0 text-[#00aeef]" aria-hidden />
-                <h3
-                  id="about-experience-heading"
-                  className="text-xl font-bold tracking-tight text-white"
-                >
-                  Experience
-                </h3>
-              </div>
-              <ul className="mt-6 flex flex-col gap-4">
+              <ul className="flex flex-col gap-4">
                 <li className="rounded-xl border border-slate-600/50 bg-slate-900/40 px-5 py-4 ring-1 ring-inset ring-white/5">
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <h4 className="font-semibold text-white">
@@ -534,7 +634,7 @@ export function About() {
                   </p>
                 </li>
               </ul>
-            </motion.section>
+            </motion.div>
 
             <motion.section
               {...fadeUp}
@@ -574,7 +674,7 @@ export function About() {
               </ul>
             </motion.section>
           </div>
-        </div>
+        </section>
       </div>
     </section>
   );
