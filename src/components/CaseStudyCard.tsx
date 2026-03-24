@@ -2,6 +2,8 @@ import React, { useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "motion/react";
 import { ArrowRight } from "lucide-react";
+import { ImageLightbox } from "./ImageLightbox";
+import { cn } from "../lib/utils";
 
 export interface Study {
   company: string;
@@ -26,9 +28,16 @@ interface CaseStudyCardProps {
   index: number;
 }
 
+/** Matches card chrome; opens full-res lightbox like case study pages. */
+const lightboxTriggerFocus =
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00aeef] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f172a]";
+
 export function CaseStudyCard({ study, index }: CaseStudyCardProps) {
   const [spotlight, setSpotlight] = useState({ x: 50, y: 50 });
   const [isHovered, setIsHovered] = useState(false);
+  const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(
+    null,
+  );
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -174,15 +183,36 @@ export function CaseStudyCard({ study, index }: CaseStudyCardProps) {
             <div
               className={`flex w-full justify-center order-first lg:hidden ${imageChromeSingle}`}
             >
-              <img
-                src={images[0]}
-                alt={altFor(0)}
-                className="max-h-[min(460px,65vh)] w-auto max-w-[min(400px,95%)] object-contain object-center object-top drop-shadow-xl"
-              />
+              <button
+                type="button"
+                onClick={() =>
+                  setLightbox({ src: images[0], alt: altFor(0) })
+                }
+                aria-label={`Open larger view: ${altFor(0)}`}
+                className={cn(
+                  "cursor-zoom-in border-0 bg-transparent p-0",
+                  lightboxTriggerFocus,
+                )}
+              >
+                <img
+                  src={images[0]}
+                  alt={altFor(0)}
+                  className="max-h-[min(460px,65vh)] w-auto max-w-[min(400px,95%)] object-contain object-center object-top drop-shadow-xl"
+                />
+              </button>
             </div>
             <div className="relative hidden min-w-0 shrink-0 flex-col items-end justify-start lg:flex lg:w-1/2 lg:flex-none">
-              <motion.div
-                className={`pointer-events-auto w-full max-w-[min(100%,520px)] origin-bottom lg:mr-6 ${imageChromeSingle}`}
+              <motion.button
+                type="button"
+                onClick={() =>
+                  setLightbox({ src: images[0], alt: altFor(0) })
+                }
+                aria-label={`Open larger view: ${altFor(0)}`}
+                className={cn(
+                  "pointer-events-auto w-full max-w-[min(100%,520px)] origin-bottom border-0 bg-transparent p-0 text-left cursor-zoom-in lg:mr-6",
+                  imageChromeSingle,
+                  lightboxTriggerFocus,
+                )}
                 whileHover={{ y: -14, scale: 1.04 }}
                 transition={{ duration: 0.3, ease: "easeOut" }}
               >
@@ -191,7 +221,7 @@ export function CaseStudyCard({ study, index }: CaseStudyCardProps) {
                   alt={altFor(0)}
                   className="max-h-[min(600px,68vh)] w-full min-h-0 object-contain object-right object-top drop-shadow-xl"
                 />
-              </motion.div>
+              </motion.button>
             </div>
           </>
         )}
@@ -201,45 +231,92 @@ export function CaseStudyCard({ study, index }: CaseStudyCardProps) {
             <div className="w-full lg:hidden order-first">
               <div className="flex items-start gap-2">
                 <div className="flex-1 min-w-0">
-                  <img
-                    src={images[0]}
-                    alt={altFor(0)}
-                    className="w-full rounded-lg"
-                  />
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setLightbox({ src: images[0], alt: altFor(0) })
+                    }
+                    aria-label={`Open larger view: ${altFor(0)}`}
+                    className={cn(
+                      "w-full cursor-zoom-in border-0 bg-transparent p-0 text-left",
+                      lightboxTriggerFocus,
+                    )}
+                  >
+                    <img
+                      src={images[0]}
+                      alt={altFor(0)}
+                      className="w-full rounded-lg"
+                    />
+                  </button>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <img
-                    src={images[1]}
-                    alt={altFor(1)}
-                    className="w-full rounded-lg"
-                  />
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setLightbox({ src: images[1], alt: altFor(1) })
+                    }
+                    aria-label={`Open larger view: ${altFor(1)}`}
+                    className={cn(
+                      "w-full cursor-zoom-in border-0 bg-transparent p-0 text-left",
+                      lightboxTriggerFocus,
+                    )}
+                  >
+                    <img
+                      src={images[1]}
+                      alt={altFor(1)}
+                      className="w-full rounded-lg"
+                    />
+                  </button>
                 </div>
               </div>
             </div>
             <div className="relative z-[2] hidden min-h-[min(320px,40vh)] lg:w-1/2 lg:flex-none lg:block">
-              <motion.img
-                src={images[0]}
-                alt={altFor(0)}
-                className="pointer-events-auto absolute -top-4 left-0 z-[1] w-[55%] rounded-lg"
+              <motion.button
+                type="button"
+                onClick={() =>
+                  setLightbox({ src: images[0], alt: altFor(0) })
+                }
+                aria-label={`Open larger view: ${altFor(0)}`}
+                className={cn(
+                  "pointer-events-auto absolute -top-4 left-0 z-[1] w-[55%] cursor-zoom-in rounded-lg border-0 bg-transparent p-0 text-left",
+                  lightboxTriggerFocus,
+                )}
                 style={{ transformOrigin: "bottom center" }}
                 whileHover={{ y: -12, scale: 1.04 }}
                 transition={{ duration: 0.3, ease: "easeOut" }}
-              />
-              <motion.img
-                src={images[1]}
-                alt={altFor(1)}
-                className="pointer-events-auto absolute -top-[54px] left-[calc(55%-32px)] z-10 w-[55%] rounded-lg"
+              >
+                <img
+                  src={images[0]}
+                  alt={altFor(0)}
+                  className="w-full rounded-lg"
+                />
+              </motion.button>
+              <motion.button
+                type="button"
+                onClick={() =>
+                  setLightbox({ src: images[1], alt: altFor(1) })
+                }
+                aria-label={`Open larger view: ${altFor(1)}`}
+                className={cn(
+                  "pointer-events-auto absolute -top-[54px] z-10 w-[55%] cursor-zoom-in rounded-lg border-0 bg-transparent p-0 text-left",
+                  lightboxTriggerFocus,
+                )}
                 style={{
                   transformOrigin: "bottom center",
-                  ...(study.sideOverlapSecondLeftExtraPx != null
-                    ? {
-                        left: `calc(55% - ${32 + study.sideOverlapSecondLeftExtraPx}px)`,
-                      }
-                    : {}),
+                  left:
+                    study.sideOverlapSecondLeftExtraPx != null
+                      ? `calc(55% - ${32 + study.sideOverlapSecondLeftExtraPx}px)`
+                      : "calc(55% - 32px)",
                 }}
                 whileHover={{ y: -16, scale: 1.05 }}
                 transition={{ duration: 0.3, ease: "easeOut" }}
-              />
+              >
+                <img
+                  src={images[1]}
+                  alt={altFor(1)}
+                  className="w-full rounded-lg"
+                />
+              </motion.button>
             </div>
           </>
         )}
@@ -249,43 +326,97 @@ export function CaseStudyCard({ study, index }: CaseStudyCardProps) {
             <div className="w-full lg:hidden order-first">
               <div className="flex items-start justify-center gap-3">
                 <div className="flex min-h-0 min-w-0 flex-1 justify-center">
-                  <img
-                    src={images[0]}
-                    alt={altFor(0)}
-                    className="max-h-[min(300px,46vh)] w-full rounded-lg object-contain object-top"
-                  />
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setLightbox({ src: images[0], alt: altFor(0) })
+                    }
+                    aria-label={`Open larger view: ${altFor(0)}`}
+                    className={cn(
+                      "max-w-full cursor-zoom-in border-0 bg-transparent p-0",
+                      lightboxTriggerFocus,
+                    )}
+                  >
+                    <img
+                      src={images[0]}
+                      alt={altFor(0)}
+                      className="max-h-[min(300px,46vh)] w-full rounded-lg object-contain object-top"
+                    />
+                  </button>
                 </div>
                 <div className="flex min-h-0 min-w-0 flex-1 justify-center">
-                  <img
-                    src={images[1]}
-                    alt={altFor(1)}
-                    className="max-h-[min(300px,46vh)] w-full rounded-lg object-contain object-top"
-                  />
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setLightbox({ src: images[1], alt: altFor(1) })
+                    }
+                    aria-label={`Open larger view: ${altFor(1)}`}
+                    className={cn(
+                      "max-w-full cursor-zoom-in border-0 bg-transparent p-0",
+                      lightboxTriggerFocus,
+                    )}
+                  >
+                    <img
+                      src={images[1]}
+                      alt={altFor(1)}
+                      className="max-h-[min(300px,46vh)] w-full object-contain object-top"
+                    />
+                  </button>
                 </div>
               </div>
             </div>
             <div className="relative z-[2] hidden min-h-[min(320px,40vh)] lg:w-1/2 lg:flex-none lg:block">
-              <motion.img
-                src={images[0]}
-                alt={altFor(0)}
-                className="pointer-events-auto absolute -top-3 left-[-12px] z-[1] max-h-[min(400px,44vh)] max-w-[74%] w-auto rounded-lg object-contain object-left object-top"
+              <motion.button
+                type="button"
+                onClick={() =>
+                  setLightbox({ src: images[0], alt: altFor(0) })
+                }
+                aria-label={`Open larger view: ${altFor(0)}`}
+                className={cn(
+                  "pointer-events-auto absolute -top-3 left-[-12px] z-[1] max-h-[min(400px,44vh)] max-w-[74%] w-auto cursor-zoom-in rounded-lg border-0 bg-transparent p-0 text-left",
+                  lightboxTriggerFocus,
+                )}
                 style={{ transformOrigin: "bottom left" }}
                 whileHover={{ y: -10, scale: 1.03 }}
                 transition={{ duration: 0.3, ease: "easeOut" }}
-              />
-              <motion.img
-                src={images[1]}
-                alt={altFor(1)}
-                className="pointer-events-auto absolute -top-[26px] right-5 z-10 w-[32%] max-w-[200px]"
+              >
+                <img
+                  src={images[0]}
+                  alt={altFor(0)}
+                  className="max-h-[min(400px,44vh)] max-w-full rounded-lg object-contain object-left object-top"
+                />
+              </motion.button>
+              <motion.button
+                type="button"
+                onClick={() =>
+                  setLightbox({ src: images[1], alt: altFor(1) })
+                }
+                aria-label={`Open larger view: ${altFor(1)}`}
+                className={cn(
+                  "pointer-events-auto absolute -top-[26px] right-5 z-10 w-[32%] max-w-[200px] cursor-zoom-in border-0 bg-transparent p-0 text-left",
+                  lightboxTriggerFocus,
+                )}
                 style={{ transformOrigin: "bottom center" }}
                 whileHover={{ y: -14, scale: 1.05 }}
                 transition={{ duration: 0.3, ease: "easeOut" }}
-              />
+              >
+                <img
+                  src={images[1]}
+                  alt={altFor(1)}
+                  className="w-full"
+                />
+              </motion.button>
             </div>
           </>
         )}
         {!hasImages && <div className="hidden lg:block lg:w-1/2 lg:flex-none" aria-hidden />}
       </div>
+      <ImageLightbox
+        open={lightbox != null}
+        onClose={() => setLightbox(null)}
+        src={lightbox?.src ?? ""}
+        alt={lightbox?.alt ?? ""}
+      />
     </motion.article>
   );
 }

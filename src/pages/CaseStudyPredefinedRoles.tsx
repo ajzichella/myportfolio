@@ -1,8 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "motion/react";
-import { ArrowRight, ChevronRight, List, X } from "lucide-react";
+import { animate, motion, useInView, useReducedMotion } from "motion/react";
+import { ArrowRight, ChevronRight, Heart, List, X } from "lucide-react";
+import { Aurora } from "../components/Aurora";
 import { BlobBackground } from "../components/BlobBackground";
+import { Bubbles } from "../components/Bubbles";
+import { ImageLightbox, LightboxImageButton } from "../components/ImageLightbox";
+import GradientText from "../components/GradientText";
+import { LaunchImpactImageCarousel } from "../components/LaunchImpactImageCarousel";
 import { ResultsSection } from "../components/ResultsSection";
 
 const base = import.meta.env.BASE_URL;
@@ -20,6 +25,10 @@ const sectionTitle =
 
 const labelClass = "text-xs font-semibold uppercase tracking-wide text-accent-readable";
 
+/** Hero meta pills: flat matte chips (reference), not card-style bordered panels. */
+const heroTagClass =
+  "inline-flex items-center rounded-full bg-slate-800 px-3 py-0.5 text-xs font-semibold text-slate-200";
+
 const CASE_STUDY_SECTION_INDEX = [
   { id: "rbac-results-heading", label: "Results" },
   { id: "rbac-scope-heading", label: "Scope & collaboration" },
@@ -34,6 +43,162 @@ const CASE_STUDY_SECTION_INDEX = [
 
 const WALKTHROUGH_EMBED_SRC =
   "https://www.youtube.com/embed/MKSNUTt3PuQ?si=uEFqLt-00ti7sGjA";
+
+const SCOPE_COLLAB_STATS = [
+  { value: 34, label: "products affected" },
+  { value: 8, label: "product designers" },
+  { value: 15, label: "front-end engineers" },
+  { value: 124, label: "total contributors" },
+] as const;
+
+function ScopeStatValue({
+  value,
+  active,
+  delay,
+}: {
+  value: number;
+  active: boolean;
+  delay: number;
+}) {
+  const reduceMotion = useReducedMotion();
+  const [display, setDisplay] = useState(0);
+
+  useEffect(() => {
+    if (!active) return;
+    if (reduceMotion) {
+      setDisplay(value);
+      return;
+    }
+    const controls = animate(0, value, {
+      duration: 1.65,
+      delay,
+      ease: [0.22, 1, 0.36, 1],
+      onUpdate: (latest) => setDisplay(latest),
+    });
+    return () => controls.stop();
+  }, [active, value, delay, reduceMotion]);
+
+  return (
+    <span className="tabular-nums">{Math.round(display).toLocaleString("en-US")}</span>
+  );
+}
+
+function ScopeCollaborationStats() {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, amount: 0.35 });
+
+  return (
+    <div
+      ref={ref}
+      className="mt-8 border-b border-slate-600/50 pb-8"
+      aria-label="Collaboration scale"
+    >
+      <div className="grid grid-cols-2 gap-8 lg:grid-cols-4 lg:gap-6">
+        {SCOPE_COLLAB_STATS.map((stat, i) => (
+          <div
+            key={stat.label}
+            className="flex flex-col items-center text-center"
+          >
+            <p className="text-3xl font-bold tabular-nums text-white md:text-4xl">
+              <ScopeStatValue value={stat.value} active={inView} delay={i * 0.1} />
+            </p>
+            <p className="mt-2 text-sm leading-snug text-[#999999] md:text-base">
+              {stat.label}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+const RBAC_SHEET_TYPING_HEADING = "One spreadsheet to rule them all";
+
+function TypingLoopHeading({
+  text,
+  className,
+}: {
+  text: string;
+  className?: string;
+}) {
+  const reduceMotion = useReducedMotion();
+  const [display, setDisplay] = useState("");
+
+  useEffect(() => {
+    if (reduceMotion) {
+      setDisplay(text);
+      return;
+    }
+
+    let cancelled = false;
+    let timeoutId: ReturnType<typeof setTimeout>;
+
+    const typeMs = 52;
+    const deleteMs = 34;
+    const pauseFullMs = 2400;
+    const pauseEmptyMs = 700;
+
+    const runType = (len: number) => {
+      if (cancelled) return;
+      if (len < text.length) {
+        setDisplay(text.slice(0, len + 1));
+        timeoutId = setTimeout(() => runType(len + 1), typeMs);
+      } else {
+        timeoutId = setTimeout(() => runDelete(text.length), pauseFullMs);
+      }
+    };
+
+    const runDelete = (len: number) => {
+      if (cancelled) return;
+      if (len > 0) {
+        setDisplay(text.slice(0, len - 1));
+        timeoutId = setTimeout(() => runDelete(len - 1), deleteMs);
+      } else {
+        timeoutId = setTimeout(() => runType(0), pauseEmptyMs);
+      }
+    };
+
+    runType(0);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timeoutId);
+    };
+  }, [text, reduceMotion]);
+
+  const pClass = `text-accent-readable ${className ?? ""}`;
+
+  if (reduceMotion) {
+    return <p className={pClass}>{text}</p>;
+  }
+
+  return (
+    <p className={pClass}>
+      <span className="sr-only">{text}</span>
+      <span aria-hidden className="relative block w-full">
+        {/* Ghost line reserves full width/height so the figure below doesn’t shift */}
+        <span className="invisible block select-none">{text}</span>
+        <span className="absolute left-0 top-0 inline-flex max-w-full items-end gap-1 leading-tight">
+          <span>{display}</span>
+          <span className="mb-[0.12em] inline-block h-[0.85em] w-[2px] shrink-0 bg-current/80 animate-pulse" />
+        </span>
+      </span>
+    </p>
+  );
+}
+
+const PEER_FEEDBACK_HEARTS = [
+  { left: "5%", top: "12%", size: 18, delay: 0, duration: 8, color: "rgba(0, 174, 239, 0.52)" },
+  { left: "18%", top: "58%", size: 14, delay: 1.1, duration: 10, color: "rgba(163, 232, 247, 0.48)" },
+  { left: "42%", top: "8%", size: 12, delay: 2.4, duration: 9, color: "rgba(14, 165, 233, 0.44)" },
+  { left: "55%", top: "72%", size: 16, delay: 0.6, duration: 11, color: "rgba(56, 189, 248, 0.42)" },
+  { left: "72%", top: "18%", size: 13, delay: 3.2, duration: 8.5, color: "rgba(0, 107, 143, 0.5)" },
+  { left: "88%", top: "45%", size: 15, delay: 1.8, duration: 9.5, color: "rgba(126, 232, 255, 0.4)" },
+  { left: "28%", top: "82%", size: 11, delay: 4, duration: 12, color: "rgba(34, 211, 238, 0.45)" },
+  { left: "78%", top: "78%", size: 12, delay: 2, duration: 10.5, color: "rgba(2, 132, 199, 0.46)" },
+  { left: "12%", top: "38%", size: 10, delay: 5.5, duration: 13, color: "rgba(103, 232, 249, 0.38)" },
+  { left: "92%", top: "12%", size: 14, delay: 0.3, duration: 9, color: "rgba(0, 180, 216, 0.48)" },
+] as const;
 
 /** In-flow responsive embed (no portal / fixed tracking; player stays in normal document scroll). */
 function WalkthroughYoutubeEmbed() {
@@ -52,39 +217,92 @@ function WalkthroughYoutubeEmbed() {
   );
 }
 
-function Figure({
-  src,
-  alt,
-  caption,
-  captionClassName,
-  imageClassName,
-}: {
-  src: string;
-  alt: string;
-  caption?: string;
-  captionClassName?: string;
-  imageClassName?: string;
-}) {
-  return (
-    <figure className="mt-6">
-      <img
-        src={src}
-        alt={alt}
-        className={imageClassName ?? "w-full max-w-4xl rounded-lg border border-slate-600/40 bg-slate-950/50 drop-shadow-xl"}
-      />
-      {caption ? (
-        <figcaption
-          className={`mt-2 max-w-3xl text-sm leading-relaxed ${captionClassName ?? "text-[#999999]"}`}
-        >
-          {caption}
-        </figcaption>
-      ) : null}
-    </figure>
-  );
-}
-
 export function CaseStudyPredefinedRoles() {
   const [isSectionIndexOpen, setIsSectionIndexOpen] = useState(false);
+  const [readingProgress, setReadingProgress] = useState(0);
+  const [imageLightbox, setImageLightbox] = useState<{
+    src: string;
+    alt: string;
+  } | null>(null);
+  const pageRef = useRef<HTMLElement>(null);
+  const sectionIndexFloatingRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isSectionIndexOpen) return;
+    const onPointerDown = (e: PointerEvent) => {
+      const root = sectionIndexFloatingRef.current;
+      if (!root) return;
+      const t = e.target;
+      if (t instanceof Node && !root.contains(t)) {
+        setIsSectionIndexOpen(false);
+      }
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, [isSectionIndexOpen]);
+
+  useEffect(() => {
+    const page = pageRef.current;
+    const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
+    let frame = 0;
+
+    const compute = () => {
+      const main = document.getElementById("main-scroll");
+      const doc = document.documentElement;
+      const windowScrollable = doc.scrollHeight - window.innerHeight;
+      if (main) {
+        const mainScrollable = main.scrollHeight - main.clientHeight;
+        if (mainScrollable > 1) {
+          const next = clamp01(main.scrollTop / mainScrollable);
+          setReadingProgress(next);
+          return;
+        }
+        if (windowScrollable > 1) {
+          const next = clamp01(window.scrollY / windowScrollable);
+          setReadingProgress(next);
+          return;
+        }
+        setReadingProgress(1);
+        return;
+      }
+
+      const scrollable = windowScrollable;
+      if (scrollable <= 1) {
+        setReadingProgress(1);
+        return;
+      }
+      setReadingProgress(clamp01(window.scrollY / scrollable));
+    };
+
+    const schedule = () => {
+      if (frame) cancelAnimationFrame(frame);
+      frame = window.requestAnimationFrame(() => {
+        frame = 0;
+        compute();
+      });
+    };
+
+    compute();
+
+    const main = document.getElementById("main-scroll");
+    main?.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+
+    const ro =
+      typeof ResizeObserver !== "undefined" && page
+        ? new ResizeObserver(() => schedule())
+        : null;
+    if (page && ro) ro.observe(page);
+
+    return () => {
+      if (frame) cancelAnimationFrame(frame);
+      main?.removeEventListener("scroll", schedule);
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+      ro?.disconnect();
+    };
+  }, []);
 
   const goToSection = (id: string) => {
     const main = document.getElementById("main-scroll");
@@ -117,14 +335,22 @@ export function CaseStudyPredefinedRoles() {
   };
 
   return (
-    <section className="relative w-full min-w-0 min-h-screen shrink-0 overflow-x-hidden px-6 py-16 md:px-12 lg:px-16">
-      <BlobBackground />
-      <div className="relative z-10 mx-auto w-full min-w-0 max-w-[1200px]">
+    <section
+      ref={pageRef}
+      className="relative w-full min-w-0 min-h-screen shrink-0 overflow-x-visible py-16 md:py-16 lg:py-16"
+    >
+      <div
+        className="pointer-events-none absolute inset-0 z-0 min-h-full w-full"
+        aria-hidden
+      >
+        <BlobBackground radiusScale={1.58} alphaScale={1.52} />
+      </div>
+      <div className="relative z-10 mx-auto w-full min-w-0 max-w-[1200px] overflow-x-visible px-6 md:px-12 lg:px-16">
         <motion.nav
           {...fadeUp}
           transition={{ duration: 0.35 }}
           aria-label="Breadcrumb"
-          className="mb-8 flex flex-wrap items-center gap-1 text-sm text-[#999999]"
+          className="relative z-20 mb-8 flex flex-wrap items-center gap-1 text-sm text-[#999999]"
         >
           <Link to="/case-studies" className={linkClass}>
             Case studies
@@ -136,7 +362,7 @@ export function CaseStudyPredefinedRoles() {
         <motion.header
           {...fadeUp}
           transition={{ duration: 0.4, delay: 0.03 }}
-          className="max-w-3xl"
+          className="relative z-20 max-w-3xl"
         >
           <p className="flex items-center gap-2 text-sm font-medium text-accent-readable">
             <img
@@ -145,46 +371,79 @@ export function CaseStudyPredefinedRoles() {
               className="h-4 w-4 shrink-0 object-contain"
               aria-hidden
             />
-            <span>DigitalOcean · IAM &amp; access control</span>
+            <span className="text-sm font-medium text-accent-readable">
+              DigitalOcean
+            </span>
+            <span className={`${heroTagClass} uppercase tracking-wide`}>IAM</span>
+            <span className={heroTagClass}>Access control</span>
           </p>
-          <h1 className="mt-3 text-3xl font-bold tracking-tight text-white md:text-4xl">
-            RBAC - Predefined Roles
+          <h1 className="mt-3 pt-4">
+            <GradientText
+              colors={["#7ee8ff", "#00aeef", "#006b8f"]}
+              direction="diagonal"
+              animationSpeed={3}
+              className="text-3xl font-bold tracking-tight md:text-4xl"
+            >
+              RBAC - Predefined Roles
+            </GradientText>
           </h1>
           <p className="mt-4 text-lg leading-relaxed text-[#999999]">
             Expanding role options so teams can enforce least privilege without
-            the complexity users see from hyperscaler IAM, delivered in the
-            &quot;DO Simple&quot; way.
+            complexity, delivered in the &quot;DO Simple&quot; way.
           </p>
         </motion.header>
 
         <motion.div
           {...fadeUp}
           transition={{ duration: 0.4, delay: 0.06 }}
-          className="mt-12 grid gap-6 md:grid-cols-3"
+          className="relative z-0 mt-12 grid gap-6 overflow-visible lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-stretch"
         >
-          <div className="rounded-xl border border-slate-600/50 bg-slate-900/40 p-5 ring-1 ring-inset ring-white/5">
-            <p className={labelClass}>Problem</p>
-            <p className="mt-3 text-sm leading-relaxed text-[#999999] md:text-base">
-              With only three roles available, customers needed finer-grained
-              ways to isolate who could manage infrastructure. Demand for safer,
-              clearer access became a top company priority in 2024.
-            </p>
+          <div className="relative z-[2] grid content-start gap-6">
+            <div className="rounded-xl border border-slate-600/50 bg-slate-900/40 p-5 ring-1 ring-inset ring-white/5">
+              <p className={labelClass}>Problem</p>
+              <p className="mt-3 text-sm leading-relaxed text-[#999999] md:text-base">
+                With only 3 available roles at the time, the demand for more
+                granular access to secure users&apos; infrastructure was loud.
+                Users needed a way to further isolate access to managing
+                resources, thus, becoming the number 1 company priority in 2024.
+              </p>
+            </div>
+            <div className="rounded-xl border border-slate-600/50 bg-slate-900/40 p-5 ring-1 ring-inset ring-white/5">
+              <p className={labelClass}>Solution</p>
+              <p className="mt-3 text-sm leading-relaxed text-[#999999] md:text-base">
+                Ship additional roles for users to select from based on the most
+                common use cases and user requests and help them easily assign
+                that new access.
+              </p>
+            </div>
+            <div className="rounded-xl border border-slate-600/50 bg-slate-900/40 p-5 ring-1 ring-inset ring-white/5">
+              <p className={labelClass}>Goals</p>
+              <p className="mt-3 text-sm leading-relaxed text-[#999999] md:text-base">
+                Help admin users enforce the principle of least privilege, offer
+                more restrictive RBAC solutions that still feel simple, and set
+                the platform up for the next phases of access control.
+              </p>
+            </div>
           </div>
-          <div className="rounded-xl border border-slate-600/50 bg-slate-900/40 p-5 ring-1 ring-inset ring-white/5">
-            <p className={labelClass}>Solution</p>
-            <p className="mt-3 text-sm leading-relaxed text-[#999999] md:text-base">
-              Ship additional predefined roles grounded in common use cases and
-              customer requests, so teams can assign the right access quickly,
-              without a bespoke build for every scenario.
-            </p>
-          </div>
-          <div className="rounded-xl border border-slate-600/50 bg-slate-900/40 p-5 ring-1 ring-inset ring-white/5">
-            <p className={labelClass}>Goals</p>
-            <p className="mt-3 text-sm leading-relaxed text-[#999999] md:text-base">
-              Help users apply least privilege, offer more restrictive RBAC that
-              still feels simple, and set the platform up for the next phases of
-              access control.
-            </p>
+          <div className="relative min-w-0 overflow-visible lg:h-full">
+            <div
+              className="pointer-events-none absolute left-[-3%] right-[-12%] top-[-7%] bottom-[-7%] z-0 origin-[56%_38%] scale-[1.02] translate-x-[5%] -translate-y-[3%] blur-2xl lg:left-[-2%] lg:right-[-13%] lg:top-[-9%] lg:bottom-[-9%] lg:translate-x-[6%] lg:-translate-y-[4%]"
+              aria-hidden
+            >
+              <BlobBackground
+                radiusScale={1.28}
+                alphaScale={1.52}
+                nxShift={0.06}
+              />
+            </div>
+            <Bubbles className="inset-y-[-10%] left-[-20%] right-[-4%] z-[1]" />
+            <LightboxImageButton
+              src={`${base}rbac-role-modal.png`}
+              alt="Change role modal listing predefined team roles and permissions"
+              wrapperClassName="relative z-[2] h-full w-full rounded-lg"
+              className="h-full w-full rounded-lg object-cover object-top drop-shadow-xl"
+              onOpen={setImageLightbox}
+            />
           </div>
         </motion.div>
 
@@ -218,6 +477,11 @@ export function CaseStudyPredefinedRoles() {
           ]}
         />
 
+        <LaunchImpactImageCarousel
+          baseUrl={base}
+          onOpenImage={setImageLightbox}
+        />
+
         <motion.section
           {...fadeUp}
           transition={{ duration: 0.4, delay: 0.1 }}
@@ -227,12 +491,15 @@ export function CaseStudyPredefinedRoles() {
           <h2 id="rbac-scope-heading" className={sectionTitle}>
             Scope &amp; collaboration
           </h2>
-          <p className="mt-4 text-base leading-relaxed text-[#999999] md:text-lg">
-            This was one of the largest cross-product efforts at DigitalOcean in
-            recent years: permissions touch nearly every surface, so alignment
-            across design, product, engineering, insights, GTM, docs, research,
-            support, and API teams was essential to ship coherently.
+          <p className="mt-2 text-base font-medium leading-snug text-accent-readable md:text-lg">
+            The largest collaboration DO has seen in years
           </p>
+          <p className="mt-4 text-base leading-relaxed text-[#999999] md:text-lg">
+            Permissions touch nearly every surface of the product, so alignment
+            across the entire product org was crucial to ship coherently and
+            quickly.
+          </p>
+          <ScopeCollaborationStats />
           <dl className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             <div>
               <dt className={labelClass}>My role</dt>
@@ -268,8 +535,9 @@ export function CaseStudyPredefinedRoles() {
             Research
           </h2>
 
-          <div className="mt-6 grid gap-8 md:grid-cols-2">
-            <div>
+          <div className="mt-6 grid gap-8 md:grid-cols-2 md:items-start">
+            <div className="space-y-8">
+              <div>
               <h3 className="text-lg font-semibold text-white">
                 Gathering and organizing feedback
               </h3>
@@ -279,118 +547,152 @@ export function CaseStudyPredefinedRoles() {
                 conversations, then grouped themes into simpler UX needs,
                 requested role archetypes, and control over access.
               </p>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold text-white">
+                  User interviews
+                </h3>
+                <p className="mt-3 max-w-3xl text-base leading-relaxed text-[#999999] md:text-lg">
+                  With UX research, we validated those themes through{" "}
+                  <span className="font-semibold text-slate-300">13 interviews</span>
+                  , focusing on how teams invite collaborators and govern access
+                  day to day. Findings shaped a simpler path to more granular
+                  prebuilt roles.
+                </p>
+              </div>
             </div>
 
             <div>
               <h3 className="text-lg font-semibold text-white">
-                User interviews
+                Research findings
               </h3>
-              <p className="mt-3 max-w-3xl text-base leading-relaxed text-[#999999] md:text-lg">
-                With UX research, we validated those themes through{" "}
-                <span className="font-semibold text-slate-300">13 interviews</span>
-                , focusing on how teams invite collaborators and govern access
-                day to day. Findings shaped a simpler path to more granular
-                roles.
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-10">
-            <h3 className="text-lg font-semibold text-white">
-              Research findings
-            </h3>
-            <ul className="mt-4 grid gap-x-8 gap-y-3 md:grid-cols-2 text-base leading-relaxed text-[#999999] md:text-lg">
-              <li className="marker:text-accent-readable list-disc list-inside">
+              <ul className="mt-4 grid gap-y-3 marker:text-[#00aeef] text-base leading-relaxed text-[#999999] md:text-lg">
+              <li className="list-disc list-inside">
                 Assign a role at invite time; don&apos;t force a
                 default-then-reassign loop.
               </li>
-              <li className="marker:text-accent-readable list-disc list-inside">
+              <li className="list-disc list-inside">
                 Users compare us to AWS and GCP IAM; they want less
                 overwhelming granularity and clearer defaults.
               </li>
-              <li className="marker:text-accent-readable list-disc list-inside">
+              <li className="list-disc list-inside">
                 Most wanted broad access{" "}
                 <span className="text-slate-300">except delete</span>; the next
                 most common need was a true read-only role across the platform.
               </li>
-              <li className="marker:text-accent-readable list-disc list-inside">
-                Teams were comfortable with CRUD as a mental model and wanted
-                future paths to custom permission control.
+              <li className="list-disc list-inside">
+                Users want custom control of certain permissions and were mostly
+                satisfied with the CRUD actions (create, read, update, delete).
               </li>
-              <li className="marker:text-accent-readable list-disc list-inside md:col-span-2">
+              <li className="list-disc list-inside">
                 Project-scoped limits on who holds a role mattered for larger
                 orgs.
               </li>
-            </ul>
+              </ul>
+            </div>
           </div>
         </motion.section>
 
         <motion.section
           {...fadeUp}
           transition={{ duration: 0.4, delay: 0.12 }}
-          aria-labelledby="rbac-strategy-heading"
+          aria-labelledby="rbac-strategy-heading rbac-docs-heading"
           className="mt-16"
         >
           <h2 id="rbac-strategy-heading" className={sectionTitle}>
             Strategy, process, and vision
           </h2>
-          <h3 className="mt-6 text-lg font-semibold text-white">UX roadmap</h3>
-          <p className="mt-3 max-w-3xl text-base leading-relaxed text-[#999999] md:text-lg">
-            Research pointed to one north star: granular RBAC that still feels
-            DO-simple. I framed the roadmap in three slices by need and effort:{" "}
-            <span className="font-medium text-slate-300">predefined roles</span>{" "}
-            (this launch), then{" "}
-            <span className="font-medium text-slate-300">custom roles</span>, and
-            later <span className="font-medium text-slate-300">conditions</span>{" "}
-            for even finer control.
-          </p>
-        </motion.section>
-
-        <motion.section
-          {...fadeUp}
-          transition={{ duration: 0.4, delay: 0.14 }}
-          aria-labelledby="rbac-docs-heading"
-          className="mt-16"
-        >
-          <h2 id="rbac-docs-heading" className={sectionTitle}>
-            Documentation &amp; system rules
-          </h2>
-          <p className="mt-4 max-w-3xl text-base leading-relaxed text-[#999999] md:text-lg">
-            I led a broad documentation effort so permission behavior stays
-            consistent as the platform grows: when to hide vs disable, how we
-            describe CRUD to users vs engineers, how errors surface, and patterns
-            that increase role awareness across surfaces.
-          </p>
-          <p className="mt-4 max-w-3xl text-base leading-relaxed text-[#999999] md:text-lg">
-            The spreadsheet below became the single source of truth about{" "}
+          <div className="mt-6 grid gap-8 lg:grid-cols-2 lg:items-start">
+            <div className="min-w-0">
+              <h3 className="text-lg font-semibold text-white">UX roadmap</h3>
+              <p className="mt-3 max-w-3xl text-base leading-relaxed text-[#999999] md:text-lg">
+                Research pointed to one north star: granular RBAC that still feels
+                DO simple. I framed the roadmap in 3 distinct parts by need and effort:
+              </p>
+              <ul className="mt-4 max-w-3xl grid gap-y-3 marker:text-[#00aeef] text-base leading-relaxed text-[#999999] md:text-lg">
+                <li className="list-disc list-inside">
+                  <span className="font-medium text-slate-300">
+                    Predefined roles
+                  </span>{" "}
+                  (this launch)
+                </li>
+                <li className="list-disc list-inside">
+                  <span className="font-medium text-slate-300">Custom roles</span>
+                </li>
+                <li className="list-disc list-inside">
+                  <span className="font-medium text-slate-300">Conditions</span>{" "}
+                  for even finer control
+                </li>
+              </ul>
+            </div>
+            <div className="min-w-0">
+              <h3
+                id="rbac-docs-heading"
+                className="text-lg font-semibold text-white"
+              >
+                Documentation &amp; system rules
+              </h3>
+              <p className="mt-3 max-w-3xl text-base leading-relaxed text-[#999999] md:text-lg">
+                I executed a vast documentation effort in order to establish UX
+                rules to be used across the entire platform for current and future
+                permission and role needs. I laid out guidelines touching on: when
+                to hide content from users who don&apos;t have permission to
+                interact with it, how we define CRUD actions (what is technically
+                happening vs what is happening from the perspective of users), how
+                to display permission-related errors, and created experiences
+                around the platform to increase role awareness and communication.
+              </p>
+            </div>
+          </div>
+          <TypingLoopHeading
+            text={RBAC_SHEET_TYPING_HEADING}
+            className="mt-10 text-2xl font-bold tracking-tight md:mt-12 md:text-3xl lg:text-4xl"
+          />
+          <figure className="mt-6 w-full min-w-0 md:mt-8">
+            <LightboxImageButton
+              src={`${base}rbac_sheet.png`}
+              alt="Spreadsheet matrix: UX Design IAM controlpanel roles and permissions—product areas, pages, elements, roles, and show or hidden states"
+              wrapperClassName="rounded-lg"
+              className="w-full max-w-none rounded-lg"
+              onOpen={setImageLightbox}
+            />
+          </figure>
+          <p className="mt-6 max-w-3xl text-base leading-relaxed text-[#999999] md:text-lg md:mt-8">
+            While not interesting to show, this spreadsheet became the single
+            source of truth and about{" "}
             <span className="font-medium text-slate-300">80% of the launch</span>{" "}
             effort, after we moved off an unscalable &quot;screenshot every
-            screen&quot; approach. I coordinated ~10% of every product
-            designer&apos;s time to complete rows for their domains, using an
-            existing engineering inventory as the foundation.
+            screen&quot; approach.
           </p>
-          <Figure
-            src={`${base}rbac-permissions-spreadsheet.png`}
-            alt="Spreadsheet matrix of DigitalOcean products, permissions, and CRUD actions used as the RBAC source of truth"
-            caption="Cross-functional permission matrix: the operational backbone for predefined roles and future RBAC work."
-          />
+          <p className="mt-4 max-w-3xl text-base leading-relaxed text-[#999999] md:text-lg">
+            I coordinated ~10% of every product designer&apos;s time to complete
+            rows for their domains, using an existing engineering inventory as the
+            foundation. I assigned sections of the products that I knew that the
+            designers would be most successful in handling.
+          </p>
+          <p className="mt-4 max-w-3xl text-base leading-relaxed text-[#999999] md:text-lg">
+            This approach was well-received, and enabled fast cross-functional
+            collaboration to keep the initiative momentum going.
+          </p>
         </motion.section>
+      </div>
 
         <motion.section
           {...fadeUp}
           transition={{ duration: 0.4, delay: 0.15 }}
           aria-labelledby="rbac-experience-heading"
-          className="relative mt-16 mx-[-1.5rem] border-y border-sky-700/25 bg-[radial-gradient(130%_160%_at_0%_0%,rgba(204,251,241,0.62)_0%,rgba(224,231,255,0.56)_24%,rgba(254,215,170,0.54)_42%,rgba(251,207,232,0.52)_60%,rgba(219,234,254,0.56)_78%,rgba(248,250,252,0.96)_100%)] px-6 py-10 md:mx-[-3rem] md:px-12 md:py-12 lg:mx-[-4rem] lg:px-16"
+          className="relative z-10 mt-16 w-full border-y border-sky-700/35 bg-[#E8E0C8] py-10 md:py-12"
         >
-          <div
-            className="pointer-events-none absolute inset-0 bg-[radial-gradient(95%_100%_at_100%_100%,rgba(110,231,183,0.30)_0%,rgba(56,189,248,0.14)_42%,transparent_72%)]"
-            aria-hidden
-          />
-          <div
-            className="pointer-events-none absolute inset-0 bg-[linear-gradient(125deg,rgba(255,255,255,0.50)_0%,rgba(244,114,182,0.15)_20%,transparent_48%,rgba(192,132,252,0.14)_72%,rgba(96,165,250,0.10)_100%)]"
-            aria-hidden
-          />
-          <div className="mx-auto w-full max-w-[1200px]">
+          <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
+            <Aurora
+              className="inset-0"
+              color1="#afe2e4"
+              color2="#725dc6"
+              color3="#23d180"
+            />
+          </div>
+          <div className="mx-auto w-full max-w-[1200px] px-6 md:px-12 lg:px-16">
             <div className="relative z-[1] p-6 md:p-8">
               <h2
                 id="rbac-experience-heading"
@@ -399,59 +701,113 @@ export function CaseStudyPredefinedRoles() {
                 Experience &amp; communication
               </h2>
 
-              <h3 className="mt-10 text-lg font-semibold text-black">
-                Invite with a role
-              </h3>
-              <p className="mt-3 max-w-3xl text-base leading-relaxed text-black md:text-lg">
-                Research showed invites had to carry the right role upfront. Users
-                no longer needed to add someone with a default, then reassign,
-                saving a full step in team onboarding and ongoing admin work.
-              </p>
-              <Figure
-                src={`${base}rbac-invite-members.png`}
-                alt="Invite team members flow with role selection in DigitalOcean"
-              imageClassName="w-full max-w-4xl rounded-lg"
-              />
+              <section
+                aria-labelledby="rbac-invite-role-heading"
+                className="mt-10 grid gap-6 lg:grid-cols-[minmax(0,0.78fr)_minmax(0,1.45fr)] lg:items-start"
+              >
+                <div className="min-w-0">
+                  <h3
+                    id="rbac-invite-role-heading"
+                    className="text-lg font-semibold text-black"
+                  >
+                    Invite team members with a role
+                  </h3>
+                  <p className="mt-3 max-w-3xl text-base leading-relaxed text-black md:text-lg">
+                    Uncovered from research, I addressed the need to add the
+                    ability to select a role while inviting team members into
+                    the DO team. Previously, users needed to invite a team
+                    member with a default role and then reassign that role
+                    after they have joined. This saves a giant step for users
+                    and saves time with role management duties.
+                  </p>
+                </div>
+                <figure className="min-w-0">
+                  <LightboxImageButton
+                    src={`${base}rbac-invite-members.png`}
+                    alt="Invite team members flow with role selection in DigitalOcean"
+                    wrapperClassName="rounded-lg focus-visible:ring-offset-2 focus-visible:ring-offset-[#E8E0C8]"
+                    className="w-full rounded-lg"
+                    onOpen={setImageLightbox}
+                  />
+                </figure>
+              </section>
 
-              <h3 className="mt-12 text-lg font-semibold text-black">
-                Assign predefined roles
-              </h3>
-              <p className="mt-3 max-w-3xl text-base leading-relaxed text-black md:text-lg">
-                Team owners with the right permissions can update roles from team
-                settings through a focused modal that explains scope and impact.
-              </p>
-              <Figure
-                src={`${base}rbac-change-role-modal-full.png`}
-                alt="Change role modal listing predefined DigitalOcean team roles"
-              imageClassName="w-full max-w-4xl rounded-lg"
-              />
+              <section
+                aria-labelledby="rbac-assign-role-heading"
+                className="mt-12 grid gap-6 lg:grid-cols-[minmax(0,1.45fr)_minmax(0,0.78fr)] lg:items-start"
+              >
+                <figure className="min-w-0">
+                  <LightboxImageButton
+                    src={`${base}rbac-change-role-modal-full.png`}
+                    alt="Change role modal listing predefined DigitalOcean team roles"
+                    wrapperClassName="rounded-lg focus-visible:ring-offset-2 focus-visible:ring-offset-[#E8E0C8]"
+                    className="w-full rounded-lg"
+                    onOpen={setImageLightbox}
+                  />
+                </figure>
+                <div className="min-w-0">
+                  <h3
+                    id="rbac-assign-role-heading"
+                    className="text-lg font-semibold text-black"
+                  >
+                    Assign predefined roles
+                  </h3>
+                  <p className="mt-3 max-w-3xl text-base leading-relaxed text-black md:text-lg">
+                    Team owners, or users with the correct associated
+                    permissions, can update members&apos; roles from team settings
+                    through a focused modal that explains scope and impact.
+                  </p>
+                </div>
+              </section>
 
-              <h3 className="mt-12 text-lg font-semibold text-black">
-                Role communication
-              </h3>
-              <p className="mt-3 max-w-3xl text-base leading-relaxed text-black md:text-lg">
-                Shipping the UI was only half the story. I added email when a role
-                changes, a reminder in the account menu so users always know their
-                active role per team, and in-product moments, like a welcome
-                banner, that reinforce what access they have.
-              </p>
-              <Figure
-                src={`${base}rbac-role-comms.png`}
-                alt="Email and in-product messaging explaining a user's updated team role"
-                caption="Clear comms reduce surprise and support tickets during large-scale role migrations."
-              captionClassName="text-slate-700"
-              imageClassName="w-full max-w-4xl rounded-lg"
-              />
+              <section
+                aria-labelledby="rbac-role-comms-heading"
+                className="mt-12 grid gap-6 lg:grid-cols-[minmax(0,0.78fr)_minmax(0,1.45fr)] lg:items-start"
+              >
+                <div className="min-w-0">
+                  <h3
+                    id="rbac-role-comms-heading"
+                    className="text-lg font-semibold text-black"
+                  >
+                    Role communication
+                  </h3>
+                  <p className="mt-3 max-w-3xl text-base leading-relaxed text-black md:text-lg">
+                    Communicating role changes is as important as the UI itself.
+                    I added email notifications that explain when a role changes
+                    and what that role can do, plus an account menu reminder so
+                    users can quickly confirm their active role per team.
+                  </p>
+                  <p className="mt-4 max-w-3xl text-base leading-relaxed text-black md:text-lg">
+                    It&apos;s also just as vital to celebrate the little moments. I
+                    added a banner welcoming new users into their teams and
+                    added another line of communication about their role.
+                  </p>
+                </div>
+                <figure className="min-w-0">
+                  <LightboxImageButton
+                    src={`${base}rbac-role-comms.png`}
+                    alt="Email and in-product messaging explaining a user's updated team role"
+                    wrapperClassName="rounded-lg focus-visible:ring-offset-2 focus-visible:ring-offset-[#E8E0C8]"
+                    className="w-full rounded-lg"
+                    onOpen={setImageLightbox}
+                  />
+                  <figcaption className="mt-2 max-w-3xl text-sm leading-relaxed text-slate-700">
+                    Clear comms reduce surprise and support tickets during
+                    large-scale role migrations.
+                  </figcaption>
+                </figure>
+              </section>
             </div>
           </div>
         </motion.section>
 
+      <div className="relative z-10 mx-auto w-full min-w-0 max-w-[1200px] overflow-x-visible px-6 md:px-12 lg:px-16">
         <section
           aria-labelledby="rbac-video-heading"
           className="relative z-[1] mt-16 w-full"
         >
           <h2 id="rbac-video-heading" className={sectionTitle}>
-            Walkthrough
+            Check out predefined roles - created by me!
           </h2>
           <div className="mt-6 w-full min-w-0 overflow-hidden rounded-xl border border-slate-600/50 bg-black ring-1 ring-inset ring-white/5">
             <WalkthroughYoutubeEmbed />
@@ -468,7 +824,7 @@ export function CaseStudyPredefinedRoles() {
               See it on DigitalOcean
             </h2>
             <p className="mt-2 max-w-xl text-sm text-[#999999] md:text-base">
-              Official launch write-up with product context and customer impact.
+              Official launch post with product context and user impact.
             </p>
           </div>
           <a
@@ -495,7 +851,7 @@ export function CaseStudyPredefinedRoles() {
           className="mt-16"
         >
           <h2 id="rbac-quote-heading" className={sectionTitle}>
-            Customer voice
+            🧑‍💻 User feedback
           </h2>
           <blockquote className="mt-6 border-l-4 border-[#00aeef]/60 pl-6 text-base italic leading-relaxed text-slate-200 md:text-lg">
             <p>
@@ -519,26 +875,54 @@ export function CaseStudyPredefinedRoles() {
           className="mt-16 pb-8"
         >
           <h2 id="rbac-peer-heading" className={sectionTitle}>
-            Peer feedback
+            ✍️ Peer feedback
           </h2>
           <p className="mt-4 max-w-3xl text-base text-[#999999] md:text-lg">
             Highlights from internal recognition after the launch.
           </p>
-          <div className="mt-8 grid gap-6 lg:grid-cols-2">
-            <figure>
-              <img
-                src={`${base}rbac-peer-feedback-ben.png`}
-                alt="Peer feedback comment on predefined roles work"
-                className="w-full rounded-lg border border-slate-600/40 bg-slate-950/50 drop-shadow-xl"
-              />
-            </figure>
-            <figure>
-              <img
-                src={`${base}rbac-peer-feedback-impact.png`}
-                alt="Peer feedback on business impact of the RBAC launch"
-                className="w-full rounded-lg border border-slate-600/40 bg-slate-950/50 drop-shadow-xl"
-              />
-            </figure>
+          <div className="relative mt-8 rounded-xl border border-slate-600/50 bg-slate-900/40 p-6 ring-1 ring-inset ring-white/5 md:p-8">
+            <div
+              className="pointer-events-none absolute inset-0 z-0 overflow-hidden rounded-xl"
+              aria-hidden
+            >
+              {PEER_FEEDBACK_HEARTS.map((h, i) => (
+                <Heart
+                  key={i}
+                  className="peer-feedback-heart"
+                  style={{
+                    left: h.left,
+                    top: h.top,
+                    width: h.size,
+                    height: h.size,
+                    color: h.color,
+                    animationDelay: `${h.delay}s`,
+                    animationDuration: `${h.duration}s`,
+                  }}
+                  fill="currentColor"
+                  strokeWidth={0}
+                />
+              ))}
+            </div>
+            <div className="relative z-[1] grid gap-6 lg:grid-cols-2">
+              <figure className="min-w-0">
+                <LightboxImageButton
+                  src={`${base}rbac-peer-feedback-ben.png`}
+                  alt="Peer feedback comment on predefined roles work"
+                  wrapperClassName="rounded-lg"
+                  className="w-full rounded-lg drop-shadow-xl"
+                  onOpen={setImageLightbox}
+                />
+              </figure>
+              <figure className="min-w-0">
+                <LightboxImageButton
+                  src={`${base}rbac-peer-feedback-impact.png`}
+                  alt="Peer feedback on business impact of the RBAC launch"
+                  wrapperClassName="rounded-lg"
+                  className="w-full rounded-lg drop-shadow-xl"
+                  onOpen={setImageLightbox}
+                />
+              </figure>
+            </div>
           </div>
         </motion.section>
 
@@ -549,7 +933,17 @@ export function CaseStudyPredefinedRoles() {
         </p>
       </div>
 
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2 md:bottom-8 md:right-8">
+      <ImageLightbox
+        open={imageLightbox !== null}
+        onClose={() => setImageLightbox(null)}
+        src={imageLightbox?.src ?? ""}
+        alt={imageLightbox?.alt ?? ""}
+      />
+
+      <div
+        ref={sectionIndexFloatingRef}
+        className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2 md:bottom-8 md:right-8"
+      >
         {isSectionIndexOpen ? (
           <div className="w-72 max-w-[calc(100vw-3rem)] rounded-xl border border-slate-600/60 bg-slate-950/90 p-3 shadow-2xl ring-1 ring-inset ring-white/10 backdrop-blur">
             <p className="px-2 pb-2 text-xs font-semibold uppercase tracking-wide text-accent-readable">
@@ -577,14 +971,28 @@ export function CaseStudyPredefinedRoles() {
           aria-label={
             isSectionIndexOpen ? "Close section index" : "Open section index"
           }
-          className="inline-flex items-center gap-2 rounded-full border border-slate-600/70 bg-slate-900/85 px-4 py-2 text-sm font-medium text-slate-100 shadow-lg backdrop-blur transition-colors hover:border-[#00aeef]/60 hover:text-[#00aeef] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00aeef] focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+          className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full border border-slate-600/70 bg-slate-900/85 px-4 py-2 text-sm font-medium shadow-lg backdrop-blur transition-colors hover:border-[#00aeef]/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00aeef] focus-visible:ring-offset-2 focus-visible:ring-offset-black"
         >
-          {isSectionIndexOpen ? (
-            <X className="h-4 w-4" />
-          ) : (
-            <List className="h-4 w-4" />
-          )}
-          Navigate
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-[2px] bg-[#00aeef]/20"
+          />
+          <span
+            aria-hidden
+            className="pointer-events-none absolute bottom-0 left-0 h-[2px] bg-[#00aeef] transition-[width] duration-200"
+            style={{ width: `${Math.round(readingProgress * 100)}%` }}
+          />
+          <span className="inline-flex items-center gap-2 text-[#00aeef] group-hover:text-[#7ee8ff]">
+            {isSectionIndexOpen ? (
+              <X className="h-4 w-4 shrink-0" aria-hidden />
+            ) : (
+              <List className="h-4 w-4 shrink-0" aria-hidden />
+            )}
+            Navigate
+          </span>
+          <span className="tabular-nums text-[11px] text-[#999999]">
+            {Math.round(readingProgress * 100)}%
+          </span>
         </button>
       </div>
     </section>

@@ -71,6 +71,12 @@ When adding new links, ensure they use `#00aeef` unless overridden for a specifi
 
 For labels, bullets, badges, metrics, and other **non-link** emphasis on dark UI, use the utility class **`text-accent-readable`** (`#a3e8f7` in `src/styles.css`) instead of `text-[#00aeef]` so copy stays legible while still reading as cyan. **Links, `NavLink` items, and Lucide / decorative icons stay `#00aeef` (or `#00aeef`/opacity where used before).**
 
+### Bullet marker color
+
+Use the **main blue** for list markers in case-study body content:
+
+- Prefer `marker:text-[#00aeef]` on the parent `<ul>` so all child bullets inherit consistently.
+
 ---
 
 ## Transparent PNG Images

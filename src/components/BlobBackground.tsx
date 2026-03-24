@@ -1,64 +1,308 @@
-import { motion } from "motion/react";
+import { useEffect, useRef } from "react";
+import { cn } from "../lib/utils";
 
-export function BlobBackground() {
+const DPR_CAP = 2;
+
+/** Keep glow from bleeding into the top band (e.g. section header / area under hero). */
+const TOP_PAD_FRAC = 0.04;
+const BOTTOM_PAD_FRAC = 0.006;
+/** Minimal — glow can reach very close to left/right edges (still clears by R). */
+const SIDE_PAD_FRAC = 0.001;
+
+type BokehOrb = {
+  nx: number;
+  ny: number;
+  /** Radius as fraction of min(width, height); softness comes from `stops`, not radius. */
+  radiusMin: number;
+  r: number;
+  g: number;
+  b: number;
+  /** createRadialGradient stops: t in [0,1], alpha (same rgb) */
+  stops: readonly [number, number][];
+  /** Drift amplitude as fraction of width / height */
+  ampX: number;
+  ampY: number;
+  periodSec: number;
+  phase: number;
+  /** Alpha pulse period (seconds); desync across orbs for organic shimmer. */
+  pulsePeriodSec: number;
+  /** How strongly alpha breathes around 1 (e.g. 0.28 → multiplier roughly 0.72–1.28 before final clamp). */
+  pulseAmp: number;
+};
+
+/**
+ * Single canvas @ devicePixelRatio (capped). Fewer, larger bokeh orbs; motion is
+ * clamped so discs (including radial falloff) stay out of the top of the panel.
+ * Anchors skew toward the bottom of the panel so the field reads stronger at the page end.
+ */
+const ORBS: readonly BokehOrb[] = [
+  {
+    nx: 0.014,
+    ny: 0.56,
+    radiusMin: 0.44,
+    r: 82,
+    g: 39,
+    b: 255,
+    stops: [
+      [0, 0.34],
+      [0.15, 0.2],
+      [0.3, 0.12],
+      [0.45, 0.065],
+      [0.58, 0.032],
+      [0.72, 0.014],
+      [0.85, 0.005],
+      [1, 0],
+    ],
+    ampX: 0.072,
+    ampY: 0.036,
+    periodSec: 15,
+    phase: 0,
+    pulsePeriodSec: 6.2,
+    pulseAmp: 0.28,
+  },
+  {
+    nx: 0.986,
+    ny: 0.57,
+    radiusMin: 0.5,
+    r: 0,
+    g: 174,
+    b: 239,
+    stops: [
+      [0, 0.28],
+      [0.18, 0.16],
+      [0.34, 0.09],
+      [0.5, 0.045],
+      [0.65, 0.02],
+      [0.8, 0.007],
+      [1, 0],
+    ],
+    ampX: 0.082,
+    ampY: 0.032,
+    periodSec: 18,
+    phase: 1.4,
+    pulsePeriodSec: 7.8,
+    pulseAmp: 0.24,
+  },
+  {
+    nx: 0.5,
+    ny: 0.76,
+    radiusMin: 0.26,
+    r: 75,
+    g: 166,
+    b: 179,
+    stops: [
+      [0, 0.28],
+      [0.2, 0.14],
+      [0.38, 0.075],
+      [0.55, 0.035],
+      [0.72, 0.014],
+      [0.88, 0.004],
+      [1, 0],
+    ],
+    ampX: 0.056,
+    ampY: 0.03,
+    periodSec: 12,
+    phase: 2.2,
+    pulsePeriodSec: 5.4,
+    pulseAmp: 0.32,
+  },
+  {
+    nx: 0.012,
+    ny: 0.965,
+    radiusMin: 0.38,
+    r: 82,
+    g: 39,
+    b: 255,
+    stops: [
+      [0, 0.24],
+      [0.17, 0.14],
+      [0.34, 0.075],
+      [0.52, 0.034],
+      [0.68, 0.014],
+      [0.84, 0.005],
+      [1, 0],
+    ],
+    ampX: 0.065,
+    ampY: 0.034,
+    periodSec: 14,
+    phase: 0.6,
+    pulsePeriodSec: 8.5,
+    pulseAmp: 0.26,
+  },
+  {
+    nx: 0.988,
+    ny: 0.96,
+    radiusMin: 0.32,
+    r: 0,
+    g: 174,
+    b: 239,
+    stops: [
+      [0, 0.26],
+      [0.2, 0.13],
+      [0.4, 0.065],
+      [0.58, 0.028],
+      [0.76, 0.01],
+      [1, 0],
+    ],
+    ampX: 0.062,
+    ampY: 0.027,
+    periodSec: 13,
+    phase: 3.1,
+    pulsePeriodSec: 6.9,
+    pulseAmp: 0.25,
+  },
+];
+
+function clampOrbCenter(
+  cx: number,
+  cy: number,
+  R: number,
+  w: number,
+  h: number,
+): { cx: number; cy: number } {
+  const minCx = R + w * SIDE_PAD_FRAC;
+  const maxCx = w - R - w * SIDE_PAD_FRAC;
+  const minCy = R + h * TOP_PAD_FRAC;
+  const maxCy = h - R - h * BOTTOM_PAD_FRAC;
+
+  let nx = cx;
+  let ny = cy;
+  if (maxCx >= minCx) {
+    nx = Math.min(maxCx, Math.max(minCx, cx));
+  } else {
+    nx = w / 2;
+  }
+  if (maxCy >= minCy) {
+    ny = Math.min(maxCy, Math.max(minCy, cy));
+  } else {
+    ny = h / 2;
+  }
+  return { cx: nx, cy: ny };
+}
+
+export type BlobBackgroundProps = {
+  /** Multiplies orb radii (same gradient quality, larger discs). Default 1. */
+  radiusScale?: number;
+  /** Multiplies each gradient stop alpha (clamped to 1). Default 1. */
+  alphaScale?: number;
+  /** Shifts orb anchor positions right (+) or left (-) in normalized canvas space [0,1]. Default 0. */
+  nxShift?: number;
+  className?: string;
+};
+
+export function BlobBackground({
+  radiusScale = 1,
+  alphaScale = 1,
+  nxShift = 0,
+  className,
+}: BlobBackgroundProps = {}) {
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const wrap = wrapRef.current;
+    const canvas = canvasRef.current;
+    if (!wrap || !canvas) return;
+
+    const ctx = canvas.getContext("2d", {
+      alpha: false,
+      desynchronized: true,
+    });
+    if (!ctx) return;
+
+    let raf = 0;
+    let logicalW = 1;
+    let logicalH = 1;
+    let dpr = 1;
+    let start = performance.now();
+
+    const resize = () => {
+      const rect = wrap.getBoundingClientRect();
+      logicalW = Math.max(1, rect.width);
+      logicalH = Math.max(1, rect.height);
+      dpr = Math.min(window.devicePixelRatio || 1, DPR_CAP);
+      canvas.width = Math.floor(logicalW * dpr);
+      canvas.height = Math.floor(logicalH * dpr);
+      canvas.style.width = `${logicalW}px`;
+      canvas.style.height = `${logicalH}px`;
+    };
+
+    const ro = new ResizeObserver(() => resize());
+    ro.observe(wrap);
+    resize();
+
+    const draw = (now: number) => {
+      const t = (now - start) / 1000;
+      const w = logicalW;
+      const h = logicalH;
+      const m = Math.min(w, h);
+
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.fillStyle = "#000000";
+      ctx.fillRect(0, 0, w, h);
+
+      ctx.globalCompositeOperation = "lighter";
+
+      for (const o of ORBS) {
+        const ang = t * ((2 * Math.PI) / o.periodSec) + o.phase;
+        const nx = Math.min(1, Math.max(0, o.nx + nxShift));
+        const rawCx =
+          nx * w +
+          Math.sin(ang) * o.ampX * w +
+          Math.sin(ang * 2.17 + o.phase * 1.3) * o.ampX * 0.22 * w;
+        const rawCy =
+          o.ny * h +
+          Math.cos(ang * 0.87) * o.ampY * h +
+          Math.cos(ang * 1.93 + o.phase) * o.ampY * 0.2 * h;
+        const pulseRaw =
+          1 +
+          o.pulseAmp *
+            Math.sin(
+              (t * 2 * Math.PI) / o.pulsePeriodSec + o.phase * 1.7,
+            );
+        const pulseMul = Math.max(0.68, Math.min(1.34, pulseRaw));
+        const R =
+          o.radiusMin *
+          m *
+          radiusScale *
+          (1 + 0.045 * Math.sin((t * 2 * Math.PI) / (o.pulsePeriodSec * 1.4) + o.phase));
+        const { cx, cy } = clampOrbCenter(rawCx, rawCy, R, w, h);
+
+        const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
+        for (const [pos, a] of o.stops) {
+          const alpha = Math.min(1, a * alphaScale * pulseMul);
+          g.addColorStop(pos, `rgba(${o.r},${o.g},${o.b},${alpha})`);
+        }
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(cx, cy, R, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.globalCompositeOperation = "source-over";
+      raf = requestAnimationFrame(draw);
+    };
+
+    raf = requestAnimationFrame(draw);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+    };
+  }, [radiusScale, alphaScale, nxShift]);
+
   return (
-    <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden" aria-hidden>
-      <motion.div
-        className="absolute rounded-full blur-[120px] opacity-[0.15]"
-        style={{
-          width: 600,
-          height: 600,
-          left: "15%",
-          top: "18%",
-          background: "#5227FF",
-        }}
-        animate={{
-          x: [0, 80, -60, 40, 0],
-          y: [0, -30, 70, -20, 0],
-        }}
-        transition={{
-          duration: 18,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-      />
-      <motion.div
-        className="absolute rounded-full blur-[120px] opacity-[0.15]"
-        style={{
-          width: 500,
-          height: 500,
-          left: "55%",
-          top: "35%",
-          background: "#00aeef",
-        }}
-        animate={{
-          x: [0, -70, 55, -45, 0],
-          y: [0, 65, -50, 40, 0],
-        }}
-        transition={{
-          duration: 22,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-      />
-      <motion.div
-        className="absolute rounded-full blur-[120px] opacity-[0.12]"
-        style={{
-          width: 550,
-          height: 550,
-          left: "72%",
-          top: "68%",
-          background: "#4ba6b3",
-        }}
-        animate={{
-          x: [0, 50, -75, 35, 0],
-          y: [0, -45, 55, -40, 0],
-        }}
-        transition={{
-          duration: 20,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
+    <div
+      ref={wrapRef}
+      className={cn(
+        "pointer-events-none absolute inset-0 z-0 overflow-hidden bg-black",
+        className,
+      )}
+      aria-hidden
+    >
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0 block h-full w-full"
       />
     </div>
   );
