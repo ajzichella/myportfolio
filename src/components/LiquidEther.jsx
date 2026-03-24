@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
+import { debugAgentLog } from '../lib/debugAgentLog';
 import './LiquidEther.css';
 
 export default function LiquidEther({
@@ -1057,6 +1058,33 @@ export default function LiquidEther({
     applyOptionsFromProps();
 
     webgl.start();
+
+    // #region agent log
+    try {
+      const sim = webgl.output?.simulation;
+      const fw = sim?.fboSize?.x;
+      const fh = sim?.fboSize?.y;
+      debugAgentLog({
+        hypothesisId: 'H_webgl_fluid',
+        location: 'LiquidEther.jsx:post_start',
+        message: 'liquid_sim_active',
+        data: {
+          pathname: window.location.pathname,
+          cssW: Common.width,
+          cssH: Common.height,
+          fboW: fw,
+          fboH: fh,
+          fboPixels: fw && fh ? fw * fh : null,
+          iterationsViscous,
+          iterationsPoisson,
+          resolution,
+          isViscous
+        }
+      });
+    } catch (_) {
+      void 0;
+    }
+    // #endregion
 
     // IntersectionObserver to pause rendering when not visible
     const io = new IntersectionObserver(

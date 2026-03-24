@@ -1,7 +1,7 @@
 import {
   useEffect,
   useId,
-  useState,
+  useRef,
   type CSSProperties,
   type ReactNode,
 } from "react";
@@ -12,6 +12,7 @@ import {
   siLooker,
   type SimpleIcon,
 } from "simple-icons";
+import { debugAgentLog } from "../../../lib/debugAgentLog";
 import { cn } from "../../../lib/utils";
 
 const assetBase = import.meta.env.BASE_URL;
@@ -252,6 +253,37 @@ function orbitGlassStyleForOffset(xTilted: number, yTilted: number): CSSProperti
   };
 }
 
+function applyOrbitItemDomStyle(
+  el: HTMLDivElement,
+  index: number,
+  orbitAngleDeg: number,
+  radiusX: number,
+  radiusY: number,
+  totalItems: number,
+  tiltAngle: number,
+) {
+  const { xTilted, yTilted, zIndex, scale } = getOrbitItemVectors({
+    orbitAngleDeg,
+    index,
+    radiusX,
+    radiusY,
+    totalItems,
+    tiltAngle,
+  });
+  const glass = orbitGlassStyleForOffset(xTilted, yTilted);
+  el.style.left = `${50 + xTilted}%`;
+  el.style.top = `${50 + yTilted}%`;
+  el.style.transform = `translate(-50%, -50%) scale(${scale})`;
+  el.style.zIndex = String(zIndex);
+  el.style.background = glass.background ?? "";
+  el.style.backdropFilter = glass.backdropFilter ?? "";
+  el.style.webkitBackdropFilter =
+    glass.WebkitBackdropFilter ?? glass.backdropFilter ?? "";
+  el.style.border = glass.border ?? "";
+  el.style.boxShadow = glass.boxShadow ?? "";
+  el.style.transition = "none";
+}
+
 export default function OrbitingItems3D({
   radiusX = 120,
   radiusY = 30,
@@ -265,24 +297,61 @@ export default function OrbitingItems3D({
   tooltipId: tooltipIdProp,
   orbitAriaLabel = "Portrait with product logos orbiting around it",
 }: OrbitingItems3DProps) {
-  const [orbitAngleDeg, setOrbitAngleDeg] = useState(0);
   const reactId = useId();
   const tooltipDomId = tooltipIdProp ?? `orbit-tooltip-${reactId}`;
+  const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const renderCountRef = useRef(0);
+  renderCountRef.current += 1;
+
+  useEffect(() => {
+    if (!import.meta.env.DEV) return;
+    const t0 = performance.now();
+    const tid = window.setTimeout(() => {
+      // #region agent log
+      debugAgentLog({
+        hypothesisId: "H_orbit_rerenders",
+        location: "orbiting-items-3-d.tsx:2s_sample",
+        message: "orbit_react_renders",
+        data: {
+          pathname: window.location.pathname,
+          renderCount: renderCountRef.current,
+          windowMs: Math.round(performance.now() - t0),
+          durationMsPerDegree: duration,
+        },
+      });
+      // #endregion
+    }, 2000);
+    return () => clearTimeout(tid);
+  }, [duration]);
 
   useEffect(() => {
     const msPerDegree = Math.max(1, duration);
     let raf = 0;
     const start = performance.now();
+    const n = items.length;
 
     const loop = (now: number) => {
       const elapsed = now - start;
-      setOrbitAngleDeg((elapsed / msPerDegree) % 360);
+      const orbitAngleDeg = (elapsed / msPerDegree) % 360;
+      for (let index = 0; index < n; index++) {
+        const el = itemRefs.current[index];
+        if (!el) continue;
+        applyOrbitItemDomStyle(
+          el,
+          index,
+          orbitAngleDeg,
+          radiusX,
+          radiusY,
+          n,
+          tiltAngle,
+        );
+      }
       raf = requestAnimationFrame(loop);
     };
 
     raf = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(raf);
-  }, [duration]);
+  }, [duration, items.length, radiusX, radiusY, tiltAngle]);
 
   return (
     <div
@@ -321,7 +390,7 @@ export default function OrbitingItems3D({
         {CenterIcon}
         {items.map((item, index) => {
           const { xTilted, yTilted, zIndex, scale } = getOrbitItemVectors({
-            orbitAngleDeg,
+            orbitAngleDeg: 0,
             index,
             radiusX,
             radiusY,
@@ -331,6 +400,9 @@ export default function OrbitingItems3D({
           return (
             <div
               key={index}
+              ref={(el) => {
+                itemRefs.current[index] = el;
+              }}
               className="absolute flex h-20 w-20 items-center justify-center overflow-hidden rounded-full will-change-[backdrop-filter]"
               style={{
                 left: `${50 + xTilted}%`,
@@ -338,8 +410,7 @@ export default function OrbitingItems3D({
                 transform: `translate(-50%, -50%) scale(${scale})`,
                 zIndex,
                 ...orbitGlassStyleForOffset(xTilted, yTilted),
-                transition:
-                  "transform 0.8s ease-in-out, backdrop-filter 0.55s ease-out, -webkit-backdrop-filter 0.55s ease-out, background 0.55s ease-out, box-shadow 0.55s ease-out, border-color 0.55s ease-out",
+                transition: "none",
               }}
             >
               {item}

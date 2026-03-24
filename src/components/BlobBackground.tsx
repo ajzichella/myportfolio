@@ -1,5 +1,8 @@
 import { useEffect, useRef } from "react";
+import { debugAgentLog } from "../lib/debugAgentLog";
 import { cn } from "../lib/utils";
+
+let __blobPerfInstanceSeq = 0;
 
 const DPR_CAP = 2;
 /** Cap backing-store size so a tall parent (e.g. long page section) cannot allocate multi–100MB canvases. */
@@ -212,6 +215,9 @@ export function BlobBackground({
     });
     if (!ctx) return;
 
+    const blobInstanceId = ++__blobPerfInstanceSeq;
+    let resizeLogged = false;
+
     let raf = 0;
     let logicalW = 1;
     let logicalH = 1;
@@ -237,6 +243,30 @@ export function BlobBackground({
       canvas.height = ch;
       canvas.style.width = `${logicalW}px`;
       canvas.style.height = `${logicalH}px`;
+
+      if (import.meta.env.DEV && !resizeLogged) {
+        resizeLogged = true;
+        const backingPixels = cw * ch;
+        // #region agent log
+        debugAgentLog({
+          hypothesisId: "H_blob_canvas",
+          location: "BlobBackground.tsx:resize",
+          message: "blob_canvas_started",
+          data: {
+            blobInstanceId,
+            pathname: window.location.pathname,
+            logicalW,
+            logicalH,
+            cw,
+            ch,
+            backingPixels,
+            orbCount: ORBS.length,
+            radiusScale,
+            alphaScale,
+          },
+        });
+        // #endregion
+      }
     };
 
     const ro = new ResizeObserver(() => resize());

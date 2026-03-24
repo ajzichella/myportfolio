@@ -2,6 +2,7 @@ import React, { lazy, Suspense, useState, useEffect, useLayoutEffect } from "rea
 import { Routes, Route, NavLink, Navigate, useLocation } from "react-router-dom";
 import { Home, FolderKanban, User, Menu, X } from "lucide-react";
 import { Footer } from "./components/Footer";
+import { PerfDebugProbe } from "./components/PerfDebugProbe";
 
 const HomePage = lazy(() =>
   import("./pages/Home").then((m) => ({ default: m.Home })),
@@ -116,6 +117,9 @@ export function App() {
 
   return (
     <div className="flex min-h-screen bg-black text-slate-50">
+      {import.meta.env.DEV ? (
+        <PerfDebugProbe pathname={location.pathname} />
+      ) : null}
       {/* Hamburger / X button - mobile only, top right, always above content */}
       <button
         type="button"

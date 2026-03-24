@@ -17,6 +17,13 @@ const fadeUp = {
   viewport: { once: true, amount: 0.2 },
 };
 
+/** Y-only: fading `opacity` on a `motion` ancestor breaks `backdrop-filter` on `.case-study-card` (dull flat layer → vibrant glass once opacity finishes). */
+const fadeUpGlass = {
+  initial: { y: 20 },
+  whileInView: { y: 0 },
+  viewport: { once: true, amount: 0.2 },
+};
+
 const linkClass =
   "font-medium text-[#00aeef] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00aeef] focus-visible:ring-offset-2 focus-visible:ring-offset-black rounded-sm";
 
@@ -419,7 +426,7 @@ export function CaseStudyPredefinedRoles() {
 
         <div className="relative z-0 mt-12 grid gap-6 overflow-visible lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-stretch">
           <motion.div
-            {...fadeUp}
+            {...fadeUpGlass}
             transition={{ duration: 0.4, delay: 0.06 }}
             className="relative z-[2] grid content-start gap-6"
           >
@@ -450,7 +457,7 @@ export function CaseStudyPredefinedRoles() {
             </div>
           </motion.div>
           <motion.div
-            {...fadeUp}
+            {...fadeUpGlass}
             transition={{ duration: 0.4, delay: 0.08 }}
             className="relative min-w-0 overflow-visible lg:h-full"
           >
@@ -458,11 +465,8 @@ export function CaseStudyPredefinedRoles() {
               className="pointer-events-none absolute left-[-3%] right-[-12%] top-[-7%] bottom-[-7%] z-0 origin-[56%_38%] scale-[1.02] translate-x-[5%] -translate-y-[3%] blur-2xl lg:left-[-2%] lg:right-[-13%] lg:top-[-9%] lg:bottom-[-9%] lg:translate-x-[6%] lg:-translate-y-[4%]"
               aria-hidden
             >
-              <BlobBackground
-                radiusScale={1.28}
-                alphaScale={1.52}
-                nxShift={0.06}
-              />
+              {/* CSS wash only: avoids a second full-time BlobBackground canvas + rAF on this page */}
+              <div className="absolute inset-0 rounded-[40%] bg-gradient-to-br from-[#00aeef]/35 via-violet-600/25 to-[#5227FF]/30 opacity-95" />
             </div>
             <Bubbles className="inset-y-[-10%] left-[-20%] right-[-4%] z-[1]" />
             <LightboxImageButton
@@ -504,45 +508,47 @@ export function CaseStudyPredefinedRoles() {
             },
           ]}
         />
+      </div>
 
-        <section
-          className="mt-12 w-screen max-w-[100vw] shrink-0 -translate-x-1/2 relative left-1/2 py-8 md:py-10"
-          aria-label="Launch screenshots: success state, invite flow, and change role"
-        >
-          <motion.div
-            {...fadeUp}
-            transition={{ duration: 0.4, delay: 0.09 }}
-            className="mx-auto grid w-full max-w-[1600px] grid-cols-1 gap-4 px-4 md:grid-cols-3 md:gap-6 md:px-6"
-          >
-            <LightboxImageButton
-              src={`${base}rbac-success-banner.png`}
-              alt="Success banner after joining a team as Modifier: create, read, and update access without delete, with link to team admin"
-              wrapperClassName="w-full"
-              className="h-[min(680px,74vh)] w-full rounded-lg object-contain"
-              onOpen={setImageLightbox}
-            />
-            <LightboxImageButton
-              src={`${base}rbac-invite-members.png`}
-              alt="Invite team members flow: Modifier role selected, multiple email chips, secure sign-in option, and send invites"
-              wrapperClassName="w-full"
-              className="h-[min(680px,74vh)] w-full rounded-lg object-contain"
-              onOpen={setImageLightbox}
-            />
-            <LightboxImageButton
-              src={`${base}rbac-change-role-modal-full.png`}
-              alt="Change role modal listing Owner, Member, Modifier, Biller, Billing Viewer, and Resource Viewer with permission summaries"
-              wrapperClassName="w-full"
-              className="h-[min(680px,74vh)] w-full rounded-lg object-contain"
-              onOpen={setImageLightbox}
-            />
-          </motion.div>
-        </section>
-
-        <motion.section
+      <section
+        className="relative z-10 mt-4 w-full min-w-0 py-1 md:py-2"
+        aria-label="Launch screenshots: success state, invite flow, and change role"
+      >
+        <motion.div
           {...fadeUp}
+          transition={{ duration: 0.4, delay: 0.09 }}
+          className="grid w-full grid-cols-1 gap-2 px-0 sm:gap-3 md:grid-cols-3 md:gap-4 lg:gap-5"
+        >
+          <LightboxImageButton
+            src={`${base}rbac-success-banner.png`}
+            alt="Success banner after joining a team as Modifier: create, read, and update access without delete, with link to team admin"
+            wrapperClassName="w-full"
+            className="h-[min(920px,88vh)] w-full rounded-lg object-contain"
+            onOpen={setImageLightbox}
+          />
+          <LightboxImageButton
+            src={`${base}rbac-invite-members.png`}
+            alt="Invite team members flow: Modifier role selected, multiple email chips, secure sign-in option, and send invites"
+            wrapperClassName="w-full"
+            className="h-[min(920px,88vh)] w-full rounded-lg object-contain"
+            onOpen={setImageLightbox}
+          />
+          <LightboxImageButton
+            src={`${base}rbac-change-role-modal-full.png`}
+            alt="Change role modal listing Owner, Member, Modifier, Biller, Billing Viewer, and Resource Viewer with permission summaries"
+            wrapperClassName="w-full"
+            className="h-[min(920px,88vh)] w-full rounded-lg object-contain"
+            onOpen={setImageLightbox}
+          />
+        </motion.div>
+      </section>
+
+      <div className="relative z-10 mx-auto w-full min-w-0 max-w-[1200px] overflow-x-visible px-6 md:px-12 lg:px-16">
+        <motion.section
+          {...fadeUpGlass}
           transition={{ duration: 0.4, delay: 0.1 }}
           aria-labelledby="rbac-scope-heading"
-          className="case-study-card case-study-card--no-left-accent relative mt-16 rounded-xl p-6 md:p-8"
+          className="case-study-card case-study-card--no-left-accent relative mt-5 rounded-xl p-6 md:mt-6 md:p-8"
         >
           <h2 id="rbac-scope-heading" className={sectionTitle}>
             Scope &amp; collaboration
@@ -761,7 +767,7 @@ export function CaseStudyPredefinedRoles() {
 
         <section
           aria-labelledby="rbac-experience-heading"
-          className="relative isolate z-10 mt-16 w-screen max-w-[100vw] shrink-0 left-1/2 min-w-0 -translate-x-1/2"
+          className="relative isolate z-10 mt-16 w-full min-w-0 overflow-x-clip"
         >
           <div
             className="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
@@ -777,8 +783,7 @@ export function CaseStudyPredefinedRoles() {
           >
             <RbacExperiencePawPaths />
           </div>
-          <div className="relative z-10 w-full px-6 py-6 md:px-12 md:py-10 lg:px-16">
-            <div className="relative z-10 mx-auto w-full max-w-[1200px]">
+          <div className="relative z-10 mx-auto w-full min-w-0 max-w-[1200px] overflow-x-visible px-6 py-6 md:px-12 md:py-10 lg:px-16">
               <h2 id="rbac-experience-heading" className="sr-only">
                 Experience &amp; communication
               </h2>
@@ -898,7 +903,6 @@ export function CaseStudyPredefinedRoles() {
                   </figcaption>
                 </figure>
               </motion.section>
-            </div>
           </div>
         </section>
 
@@ -916,7 +920,7 @@ export function CaseStudyPredefinedRoles() {
         </section>
 
         <motion.section
-          {...fadeUp}
+          {...fadeUpGlass}
           transition={{ duration: 0.4, delay: 0.17 }}
           className="case-study-card case-study-card--no-left-accent mt-16 flex flex-col items-start gap-6 rounded-xl p-6 md:flex-row md:items-center md:justify-between md:p-8"
         >
@@ -970,7 +974,7 @@ export function CaseStudyPredefinedRoles() {
         </motion.section>
 
         <motion.section
-          {...fadeUp}
+          {...fadeUpGlass}
           transition={{ duration: 0.4, delay: 0.19 }}
           aria-labelledby="rbac-peer-heading"
           className="mt-16 pb-8"
