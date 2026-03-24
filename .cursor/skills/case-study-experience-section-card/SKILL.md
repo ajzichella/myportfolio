@@ -10,9 +10,10 @@ description: Saved “Experience & communication” band for CaseStudyPredefined
 - You changed the **Experience & communication** block on the predefined-roles case study and want to **restore this exact treatment**.
 - Ask the agent to **apply the case-study experience card variant** or **follow `.cursor/skills/case-study-experience-section-card/SKILL.md`**.
 
-## Related variant
+## Related variants
 
 - For the **minimal** layout (no card, no extra band — page background only), see `.cursor/skills/case-study-experience-section-minimal/SKILL.md`.
+- For **full-bleed paw trails + BlurText** (“paw experience”), see `.cursor/skills/case-study-paw-experience/SKILL.md`.
 
 ## Location in code
 

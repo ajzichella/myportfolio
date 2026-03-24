@@ -37,50 +37,6 @@ a {
 
 /* RBAC results: metric tiles — same border + cyan glow + inset ring as parent results card. */
 
-/* RBAC launch: full-bleed marquee; padding on wrapper only so -50% track width loops seamlessly. */
-@keyframes launch-impact-carousel-scroll {
-  0% {
-    transform: translate3d(0, 0, 0);
-  }
-  100% {
-    transform: translate3d(-50%, 0, 0);
-  }
-}
-
-.launch-impact-carousel {
-  overflow-x: hidden;
-  overflow-y: visible;
-  padding-inline: max(1rem, env(safe-area-inset-left))
-    max(1rem, env(safe-area-inset-right));
-}
-
-.launch-impact-carousel__track {
-  display: flex;
-  width: max-content;
-  gap: clamp(1rem, 2.5vw, 2rem);
-  animation: launch-impact-carousel-scroll 40s linear infinite;
-  will-change: transform;
-}
-
-.launch-impact-carousel:hover .launch-impact-carousel__track,
-.launch-impact-carousel:focus-within .launch-impact-carousel__track {
-  animation-play-state: paused;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .launch-impact-carousel {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .launch-impact-carousel__track {
-    animation: none;
-    flex-wrap: nowrap;
-    width: max-content;
-    padding-bottom: 0.25rem;
-  }
-}
-
 .results-metric-glow {
   position: relative;
   border-radius: 8px;
