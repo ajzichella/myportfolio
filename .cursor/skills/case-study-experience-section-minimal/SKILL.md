@@ -10,9 +10,10 @@ description: Default “Experience & communication” block for CaseStudyPredefi
 - You want **Experience & communication** to **match the rest of the case study** with **no extra background** (no tinted strip, no glass card, no `BlobBackground` / Aurora on this band).
 - After experimenting with variants, **restore the minimal layout** by following this skill or asking to apply **`case-study-experience-section-minimal`**.
 
-## Related variant
+## Related variants
 
 - For the **saved card + gradient wash** treatment instead, see `.cursor/skills/case-study-experience-section-card/SKILL.md`.
+- For **full-bleed paw trails + BlurText** (“paw experience”), see `.cursor/skills/case-study-paw-experience/SKILL.md`.
 
 ## Location in code
 

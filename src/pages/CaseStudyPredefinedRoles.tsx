@@ -1,19 +1,20 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { animate, motion, useInView, useReducedMotion } from "motion/react";
 import { ArrowRight, ChevronRight, Heart, List, X } from "lucide-react";
 import { BlobBackground } from "../components/BlobBackground";
 import { Bubbles } from "../components/Bubbles";
+import BlurText from "../components/BlurText";
 import { ImageLightbox, LightboxImageButton } from "../components/ImageLightbox";
 import GradientText from "../components/GradientText";
-import { LaunchImpactImageCarousel } from "../components/LaunchImpactImageCarousel";
 import { ResultsSection } from "../components/ResultsSection";
 
 const base = import.meta.env.BASE_URL;
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, amount: 0.2 },
 };
 
 const linkClass =
@@ -113,79 +114,6 @@ function ScopeCollaborationStats() {
 
 const RBAC_SHEET_TYPING_HEADING = "One spreadsheet to rule them all";
 
-function TypingLoopHeading({
-  text,
-  className,
-}: {
-  text: string;
-  className?: string;
-}) {
-  const reduceMotion = useReducedMotion();
-  const [display, setDisplay] = useState("");
-
-  useEffect(() => {
-    if (reduceMotion) {
-      setDisplay(text);
-      return;
-    }
-
-    let cancelled = false;
-    let timeoutId: ReturnType<typeof setTimeout>;
-
-    const typeMs = 52;
-    const deleteMs = 34;
-    const pauseFullMs = 2400;
-    const pauseEmptyMs = 700;
-
-    const runType = (len: number) => {
-      if (cancelled) return;
-      if (len < text.length) {
-        setDisplay(text.slice(0, len + 1));
-        timeoutId = setTimeout(() => runType(len + 1), typeMs);
-      } else {
-        timeoutId = setTimeout(() => runDelete(text.length), pauseFullMs);
-      }
-    };
-
-    const runDelete = (len: number) => {
-      if (cancelled) return;
-      if (len > 0) {
-        setDisplay(text.slice(0, len - 1));
-        timeoutId = setTimeout(() => runDelete(len - 1), deleteMs);
-      } else {
-        timeoutId = setTimeout(() => runType(0), pauseEmptyMs);
-      }
-    };
-
-    runType(0);
-
-    return () => {
-      cancelled = true;
-      clearTimeout(timeoutId);
-    };
-  }, [text, reduceMotion]);
-
-  const pClass = `text-accent-readable ${className ?? ""}`;
-
-  if (reduceMotion) {
-    return <p className={pClass}>{text}</p>;
-  }
-
-  return (
-    <p className={pClass}>
-      <span className="sr-only">{text}</span>
-      <span aria-hidden className="relative block w-full">
-        {/* Ghost line reserves full width/height so the figure below doesn’t shift */}
-        <span className="invisible block select-none">{text}</span>
-        <span className="absolute left-0 top-0 inline-flex max-w-full items-end gap-1 leading-tight">
-          <span>{display}</span>
-          <span className="mb-[0.12em] inline-block h-[0.85em] w-[2px] shrink-0 bg-current/80 animate-pulse" />
-        </span>
-      </span>
-    </p>
-  );
-}
-
 const PEER_FEEDBACK_HEARTS = [
   { left: "5%", top: "12%", size: 18, delay: 0, duration: 8, color: "rgba(0, 174, 239, 0.52)" },
   { left: "18%", top: "58%", size: 14, delay: 1.1, duration: 10, color: "rgba(163, 232, 247, 0.48)" },
@@ -198,6 +126,116 @@ const PEER_FEEDBACK_HEARTS = [
   { left: "12%", top: "38%", size: 10, delay: 5.5, duration: 13, color: "rgba(103, 232, 249, 0.38)" },
   { left: "92%", top: "12%", size: 14, delay: 0.3, duration: 9, color: "rgba(0, 180, 216, 0.48)" },
 ] as const;
+
+const PAW_PATH_D =
+  "M15.3245 5.71107C15.1511 5.29889 14.8629 5.0017 14.4911 4.85201L14.4861 4.85014C14.3168 4.78387 14.1366 4.74995 13.9548 4.75014H13.9348C13.0836 4.76295 12.2145 5.48639 11.7726 6.55045C11.4486 7.32857 11.4114 8.16545 11.6732 8.7892C11.8464 9.2017 12.1351 9.49889 12.5086 9.64857L12.5126 9.65014C12.6819 9.7164 12.8621 9.75032 13.0439 9.75014C13.9032 9.75014 14.7814 9.0267 15.2314 7.94857C15.5514 7.17139 15.5867 6.33514 15.3245 5.71107ZM11.9232 10.3004C11.4323 10.0054 10.9682 9.72639 10.6651 9.22514C9.82887 7.83764 9.32387 7.00014 7.99981 7.00014C6.67574 7.00014 6.16949 7.83764 5.33137 9.22514C5.02762 9.72701 4.56262 10.0064 4.07012 10.3026C3.50543 10.642 2.92199 10.9926 2.67012 11.6826C2.57218 11.9314 2.52285 12.1966 2.52481 12.4639C2.52481 13.5873 3.39981 14.5014 4.47481 14.5014C5.02949 14.5014 5.61981 14.3092 6.24449 14.1058C6.84512 13.9101 7.46606 13.7079 8.00293 13.7079C8.53981 13.7079 9.15918 13.9101 9.75762 14.1058C10.3811 14.3079 10.9686 14.5001 11.5248 14.5001C12.5982 14.5001 13.4717 13.5861 13.4717 12.4626C13.4726 12.1951 13.4222 11.9299 13.3232 11.6814C13.0714 10.9908 12.4876 10.6398 11.9232 10.3004ZM4.68731 5.9017C5.05918 6.36826 5.53106 6.62514 6.01606 6.62514C6.08226 6.62512 6.14838 6.62021 6.21387 6.61045C7.22543 6.4617 7.85574 5.22732 7.64887 3.79795C7.56231 3.19701 7.33106 2.63732 6.99981 2.22232C6.62856 1.7567 6.15606 1.50014 5.67137 1.50014C5.60516 1.50015 5.53904 1.50506 5.47356 1.51482C4.46199 1.66357 3.83168 2.89795 4.03856 4.32732C4.12481 4.92732 4.35606 5.48639 4.68731 5.9017ZM9.78606 6.61045C9.85154 6.62021 9.91766 6.62512 9.98387 6.62514C10.4692 6.62514 10.9407 6.36826 11.3126 5.9017C11.6436 5.48639 11.8736 4.92732 11.9611 4.3267C12.1679 2.89795 11.5376 1.66357 10.5261 1.5142C10.4606 1.50444 10.3945 1.49953 10.3282 1.49951C9.84356 1.50014 9.37106 1.7567 8.99981 2.22232C8.66856 2.63732 8.43731 3.19701 8.35106 3.79857C8.14418 5.22732 8.77449 6.4617 9.78606 6.61045ZM3.48699 9.65014L3.49137 9.64857C3.86418 9.49889 4.15262 9.20201 4.32543 8.78982C4.58731 8.16482 4.55043 7.32889 4.22699 6.55076C3.77918 5.47389 2.90137 4.75014 2.04293 4.75014C1.86114 4.74987 1.68093 4.7838 1.51168 4.85014L1.50731 4.8517C1.13543 5.00014 0.846993 5.29826 0.67418 5.71045C0.412305 6.33545 0.44918 7.17139 0.772618 7.94951C1.22043 9.02639 2.09824 9.75014 2.95668 9.75014C3.13815 9.75028 3.31804 9.71636 3.48699 9.65014Z";
+const PAW_VIEWBOX_WIDTH = 1600;
+const PAW_VIEWBOX_HEIGHT = 2400;
+const PAW_HOVER_PICK_RADIUS = 130;
+
+type RbacExperiencePaw = { x: number; y: number; r: number; o: number };
+
+function buildRbacExperiencePaws(): RbacExperiencePaw[] {
+  const yScale = PAW_VIEWBOX_HEIGHT / 900;
+  const makeTrail = (
+    startX: number,
+    endX: number,
+    baseY: number,
+    amplitude: number,
+    phase: number,
+    count: number,
+    rotateBias: number,
+  ) => {
+    const n = Math.max(1, count - 1);
+    const stepX = (endX - startX) / n;
+    const freq = Math.PI * 1.35;
+    return Array.from({ length: count }, (_, i) => {
+      const t = i / n;
+      const x = startX + (endX - startX) * t;
+      const wave = t * freq + phase;
+      const y = baseY * yScale + Math.sin(wave) * (amplitude * yScale);
+      const slopeY = amplitude * yScale * Math.cos(wave) * freq;
+      const tangentDeg = (Math.atan2(slopeY, stepX) * 180) / Math.PI;
+      const headingDeg = tangentDeg + 90;
+      const stepSwing = i % 2 === 0 ? -6 : 6;
+      return {
+        x,
+        y,
+        r: headingDeg + rotateBias + stepSwing,
+        o: 0.06 + t * 0.06,
+      };
+    });
+  };
+
+  return [
+    ...makeTrail(30, 360, 90, 42, 0.05, 9, -26),
+    ...makeTrail(70, 430, 120, 48, 0.15, 10, -24),
+    ...makeTrail(120, 520, 155, 46, 0.28, 10, -20),
+    ...makeTrail(220, 700, 220, 56, 0.6, 11, -14),
+    ...makeTrail(290, 820, 255, 58, 0.82, 11, -8),
+    ...makeTrail(420, 980, 300, 60, 1.0, 12, 4),
+    ...makeTrail(560, 1120, 350, 64, 1.2, 12, 8),
+    ...makeTrail(660, 1260, 400, 66, 1.4, 13, 12),
+    ...makeTrail(780, 1380, 455, 62, 1.62, 12, 2),
+    ...makeTrail(900, 1500, 500, 62, 1.8, 12, -6),
+    ...makeTrail(980, 1560, 545, 58, 2.0, 11, -10),
+    ...makeTrail(1060, 1590, 620, 54, 2.25, 10, -16),
+    ...makeTrail(760, 1360, 675, 46, 2.48, 10, -4),
+    ...makeTrail(180, 820, 700, 44, 2.7, 10, 18),
+    ...makeTrail(60, 640, 760, 40, 2.95, 9, 24),
+  ];
+}
+
+const RBAC_EXPERIENCE_PAWS = buildRbacExperiencePaws();
+
+function pickNearestRbacExperiencePawIndex(vx: number, vy: number): number | null {
+  const paws = RBAC_EXPERIENCE_PAWS;
+  let best = Infinity;
+  let idx: number | null = null;
+  for (let i = 0; i < paws.length; i += 1) {
+    const dx = paws[i].x - vx;
+    const dy = paws[i].y - vy;
+    const dist = Math.hypot(dx, dy);
+    if (dist < best) {
+      best = dist;
+      idx = i;
+    }
+  }
+  if (best > PAW_HOVER_PICK_RADIUS) return null;
+  return idx;
+}
+
+const RbacExperiencePawPaths = memo(function RbacExperiencePawPaths({
+  hoveredPawIndex,
+}: {
+  hoveredPawIndex: number | null;
+}) {
+  return (
+    <svg
+      className="absolute inset-0 z-0 h-full w-full opacity-75 text-slate-300/40 [mask-image:radial-gradient(ellipse_76%_72%_at_50%_42%,#000_34%,#000_62%,transparent_86%)]"
+      viewBox={`0 0 ${PAW_VIEWBOX_WIDTH} ${PAW_VIEWBOX_HEIGHT}`}
+      preserveAspectRatio="xMidYMid meet"
+      aria-hidden
+    >
+      {RBAC_EXPERIENCE_PAWS.map((paw, i) => (
+        <path
+          key={i}
+          d={PAW_PATH_D}
+          fill={hoveredPawIndex === i ? "#a3e8f7" : "currentColor"}
+          opacity={hoveredPawIndex === i ? Math.min(1, paw.o + 0.45) : paw.o}
+          style={{
+            filter:
+              hoveredPawIndex === i
+                ? "drop-shadow(0 0 10px rgba(163,232,247,0.45))"
+                : undefined,
+            transition: "opacity 180ms ease-out, filter 180ms ease-out, fill 180ms ease-out",
+          }}
+          transform={`translate(${paw.x} ${paw.y}) rotate(${paw.r}) scale(2) translate(-8 -8)`}
+        />
+      ))}
+    </svg>
+  );
+});
 
 /** In-flow responsive embed (no portal / fixed tracking; player stays in normal document scroll). */
 function WalkthroughYoutubeEmbed() {
@@ -223,8 +261,43 @@ export function CaseStudyPredefinedRoles() {
     src: string;
     alt: string;
   } | null>(null);
+  const [experiencePawHoveredIndex, setExperiencePawHoveredIndex] = useState<number | null>(null);
+  const experiencePawHoveredIndexRef = useRef<number | null>(null);
+  const experiencePawPendingPointerRef = useRef<{ cx: number; cy: number } | null>(null);
+  const experiencePawRafRef = useRef<number | null>(null);
   const pageRef = useRef<HTMLElement>(null);
   const sectionIndexFloatingRef = useRef<HTMLDivElement>(null);
+  const experiencePawLayerRef = useRef<HTMLDivElement>(null);
+
+  const flushExperiencePawHoverPick = useCallback(() => {
+    experiencePawRafRef.current = null;
+    const p = experiencePawPendingPointerRef.current;
+    const layer = experiencePawLayerRef.current;
+    if (!p || !layer) return;
+    const r = layer.getBoundingClientRect();
+    const vw = PAW_VIEWBOX_WIDTH;
+    const vh = PAW_VIEWBOX_HEIGHT;
+    const scale = Math.min(r.width / vw, r.height / vh);
+    const drawnW = vw * scale;
+    const drawnH = vh * scale;
+    const offsetX = r.left + (r.width - drawnW) / 2;
+    const offsetY = r.top + (r.height - drawnH) / 2;
+    const x = (p.cx - offsetX) / scale;
+    const y = (p.cy - offsetY) / scale;
+    const next = pickNearestRbacExperiencePawIndex(x, y);
+    if (next !== experiencePawHoveredIndexRef.current) {
+      experiencePawHoveredIndexRef.current = next;
+      setExperiencePawHoveredIndex(next);
+    }
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (experiencePawRafRef.current != null) {
+        cancelAnimationFrame(experiencePawRafRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (!isSectionIndexOpen) return;
@@ -476,10 +549,38 @@ export function CaseStudyPredefinedRoles() {
           ]}
         />
 
-        <LaunchImpactImageCarousel
-          baseUrl={base}
-          onOpenImage={setImageLightbox}
-        />
+        <section
+          className="mt-12 w-screen max-w-[100vw] shrink-0 -translate-x-1/2 relative left-1/2 py-8 md:py-10"
+          aria-label="Launch screenshots: success state, invite flow, and change role"
+        >
+          <motion.div
+            {...fadeUp}
+            transition={{ duration: 0.4, delay: 0.09 }}
+            className="mx-auto grid w-full max-w-[1600px] grid-cols-1 gap-4 px-4 md:grid-cols-3 md:gap-6 md:px-6"
+          >
+            <LightboxImageButton
+              src={`${base}rbac-success-banner.png`}
+              alt="Success banner after joining a team as Modifier: create, read, and update access without delete, with link to team admin"
+              wrapperClassName="w-full"
+              className="h-[min(680px,74vh)] w-full rounded-lg object-contain"
+              onOpen={setImageLightbox}
+            />
+            <LightboxImageButton
+              src={`${base}rbac-invite-members.png`}
+              alt="Invite team members flow: Modifier role selected, multiple email chips, secure sign-in option, and send invites"
+              wrapperClassName="w-full"
+              className="h-[min(680px,74vh)] w-full rounded-lg object-contain"
+              onOpen={setImageLightbox}
+            />
+            <LightboxImageButton
+              src={`${base}rbac-change-role-modal-full.png`}
+              alt="Change role modal listing Owner, Member, Modifier, Biller, Billing Viewer, and Resource Viewer with permission summaries"
+              wrapperClassName="w-full"
+              className="h-[min(680px,74vh)] w-full rounded-lg object-contain"
+              onOpen={setImageLightbox}
+            />
+          </motion.div>
+        </section>
 
         <motion.section
           {...fadeUp}
@@ -644,11 +745,24 @@ export function CaseStudyPredefinedRoles() {
               </p>
             </div>
           </div>
-          <TypingLoopHeading
+          <BlurText
             text={RBAC_SHEET_TYPING_HEADING}
-            className="mt-10 text-2xl font-bold tracking-tight md:mt-12 md:text-3xl lg:text-4xl"
+            className="mt-10 md:mt-12 text-accent-readable text-2xl font-bold tracking-tight md:text-3xl lg:text-4xl"
+            delay={20}
+            animateBy="words"
+            direction="top"
+            stepDuration={0.2}
+            threshold={0.2}
+            animationFrom={undefined}
+            animationTo={undefined}
+            onAnimationComplete={undefined}
+            getWordClassName={undefined}
           />
-          <figure className="mt-6 w-full min-w-0 md:mt-8">
+          <motion.figure
+            {...fadeUp}
+            transition={{ duration: 0.4, delay: 0.02 }}
+            className="mt-6 w-full min-w-0 md:mt-8"
+          >
             <LightboxImageButton
               src={`${base}rbac_sheet.png`}
               alt="Spreadsheet matrix: UX Design IAM controlpanel roles and permissions—product areas, pages, elements, roles, and show or hidden states"
@@ -656,51 +770,97 @@ export function CaseStudyPredefinedRoles() {
               className="w-full max-w-none rounded-lg"
               onOpen={setImageLightbox}
             />
-          </figure>
-          <p className="mt-6 max-w-3xl text-base leading-relaxed text-[#999999] md:text-lg md:mt-8">
+          </motion.figure>
+          <motion.p
+            {...fadeUp}
+            transition={{ duration: 0.35, delay: 0.03 }}
+            className="mt-6 max-w-3xl text-base leading-relaxed text-[#999999] md:text-lg md:mt-8"
+          >
             While not interesting to show, this spreadsheet became the single
             source of truth and about{" "}
             <span className="font-medium text-slate-300">80% of the launch</span>{" "}
             effort, after we moved off an unscalable &quot;screenshot every
             screen&quot; approach.
-          </p>
-          <p className="mt-4 max-w-3xl text-base leading-relaxed text-[#999999] md:text-lg">
+          </motion.p>
+          <motion.p
+            {...fadeUp}
+            transition={{ duration: 0.35, delay: 0.07 }}
+            className="mt-4 max-w-3xl text-base leading-relaxed text-[#999999] md:text-lg"
+          >
             I coordinated ~10% of every product designer&apos;s time to complete
             rows for their domains, using an existing engineering inventory as the
             foundation. I assigned sections of the products that I knew that the
             designers would be most successful in handling.
-          </p>
-          <p className="mt-4 max-w-3xl text-base leading-relaxed text-[#999999] md:text-lg">
+          </motion.p>
+          <motion.p
+            {...fadeUp}
+            transition={{ duration: 0.35, delay: 0.11 }}
+            className="mt-4 max-w-3xl text-base leading-relaxed text-[#999999] md:text-lg"
+          >
             This approach was well-received, and enabled fast cross-functional
             collaboration to keep the initiative momentum going.
-          </p>
+          </motion.p>
         </motion.section>
       </div>
 
-        <motion.section
-          {...fadeUp}
-          transition={{ duration: 0.4, delay: 0.15 }}
+        <section
           aria-labelledby="rbac-experience-heading"
-          className="relative z-10 mt-16 w-full min-w-0 px-6 md:px-12 lg:px-16"
+          className="relative isolate z-10 mt-16 w-screen max-w-[100vw] shrink-0 left-1/2 min-w-0 -translate-x-1/2"
+          onPointerMove={(e) => {
+            experiencePawPendingPointerRef.current = { cx: e.clientX, cy: e.clientY };
+            if (experiencePawRafRef.current == null) {
+              experiencePawRafRef.current = requestAnimationFrame(flushExperiencePawHoverPick);
+            }
+          }}
+          onPointerLeave={() => {
+            experiencePawPendingPointerRef.current = null;
+            if (experiencePawRafRef.current != null) {
+              cancelAnimationFrame(experiencePawRafRef.current);
+              experiencePawRafRef.current = null;
+            }
+            if (experiencePawHoveredIndexRef.current !== null) {
+              experiencePawHoveredIndexRef.current = null;
+              setExperiencePawHoveredIndex(null);
+            }
+          }}
         >
-          <div className="relative mx-auto w-full max-w-[1200px] overflow-hidden rounded-xl border border-slate-600/50 bg-slate-900/35 p-6 shadow-lg shadow-black/25 ring-1 ring-inset ring-white/5 md:p-10">
-            <div
-              className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#00aeef]/[0.09] via-transparent to-[#5b4ddb]/[0.08]"
-              aria-hidden
-            />
-            <div
-              className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#00aeef]/25 to-transparent"
-              aria-hidden
-            />
-            <div className="relative z-[1]">
-              <h2
-                id="rbac-experience-heading"
-                className={sectionTitle}
-              >
+          <div
+            className="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
+            aria-hidden
+          >
+            <div className="absolute inset-x-[-6%] inset-y-0 rounded-[32px] bg-gradient-to-br from-[#00aeef]/[0.12] via-[#0f172a]/[0.03] to-[#7c3aed]/[0.1] [mask-image:radial-gradient(ellipse_86%_74%_at_50%_50%,#000_32%,transparent_100%)]" />
+            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#00aeef]/30 to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#7c3aed]/20 to-transparent" />
+          </div>
+          <div
+            ref={experiencePawLayerRef}
+            className="pointer-events-none absolute inset-0 z-0"
+            aria-hidden
+          >
+            <RbacExperiencePawPaths hoveredPawIndex={experiencePawHoveredIndex} />
+          </div>
+          <div className="relative z-10 w-full px-6 py-6 md:px-12 md:py-10 lg:px-16">
+            <div className="relative z-10 mx-auto w-full max-w-[1200px]">
+              <h2 id="rbac-experience-heading" className="sr-only">
                 Experience &amp; communication
               </h2>
+              <BlurText
+                text="Experience & communication"
+                className="text-accent-readable text-2xl font-bold tracking-tight md:text-3xl lg:text-4xl"
+                delay={20}
+                animateBy="words"
+                direction="top"
+                stepDuration={0.2}
+                threshold={0.2}
+                animationFrom={undefined}
+                animationTo={undefined}
+                onAnimationComplete={undefined}
+                getWordClassName={undefined}
+              />
 
-              <section
+              <motion.section
+                {...fadeUp}
+                transition={{ duration: 0.4, delay: 0.02 }}
                 aria-labelledby="rbac-invite-role-heading"
                 className="mt-10 grid gap-6 lg:grid-cols-[minmax(0,0.78fr)_minmax(0,1.45fr)] lg:items-start"
               >
@@ -729,9 +889,11 @@ export function CaseStudyPredefinedRoles() {
                     onOpen={setImageLightbox}
                   />
                 </figure>
-              </section>
+              </motion.section>
 
-              <section
+              <motion.section
+                {...fadeUp}
+                transition={{ duration: 0.4, delay: 0.06 }}
                 aria-labelledby="rbac-assign-role-heading"
                 className="mt-12 grid gap-6 lg:grid-cols-[minmax(0,1.45fr)_minmax(0,0.78fr)] lg:items-start"
               >
@@ -757,9 +919,11 @@ export function CaseStudyPredefinedRoles() {
                     through a focused modal that explains scope and impact.
                   </p>
                 </div>
-              </section>
+              </motion.section>
 
-              <section
+              <motion.section
+                {...fadeUp}
+                transition={{ duration: 0.4, delay: 0.1 }}
                 aria-labelledby="rbac-role-comms-heading"
                 className="mt-12 grid gap-6 lg:grid-cols-[minmax(0,0.78fr)_minmax(0,1.45fr)] lg:items-start"
               >
@@ -795,10 +959,10 @@ export function CaseStudyPredefinedRoles() {
                     large-scale role migrations.
                   </figcaption>
                 </figure>
-              </section>
+              </motion.section>
             </div>
           </div>
-        </motion.section>
+        </section>
 
       <div className="relative z-10 mx-auto w-full min-w-0 max-w-[1200px] overflow-x-visible px-6 md:px-12 lg:px-16">
         <section
