@@ -48,7 +48,7 @@ function AnimatedResultNumber({
   return <p className={className}>{text}</p>;
 }
 
-/** Subtle palette; pieces spawn at the top edge and fall through the card (seamless loop). */
+/** Subtle palette; pieces fall through the card on a loop, starting at varied heights (no “row at the top”). */
 const CONFETTI_PALETTE = [
   "rgba(0, 174, 239, 0.5)",
   "rgba(103, 232, 249, 0.42)",
@@ -66,20 +66,24 @@ function ResultsConfetti({
 }) {
   const pieces = useMemo(
     () =>
-      Array.from({ length: 28 }, (_, i) => ({
-        id: i,
-        leftPct: 3 + ((i * 17) % 94),
-        delay: i * 0.032,
-        duration: 2.1 + (i % 4) * 0.22,
-        w: 4 + (i % 3),
-        h: 6 + (i % 4),
-        baseRot: i * 37,
-        drift: ((i % 5) - 2) * 16,
-        color:
-          CONFETTI_PALETTE[i % CONFETTI_PALETTE.length] ??
-          "rgba(0, 174, 239, 0.45)",
-        rounded: i % 3 === 0,
-      })),
+      Array.from({ length: 28 }, (_, i) => {
+        // Golden-ratio spread so phases aren’t aligned with the horizontal grid
+        const phase = (i * 0.618033988749895) % 1;
+        return {
+          id: i,
+          leftPct: 3 + ((i * 17) % 94),
+          phase,
+          duration: 2.1 + (i % 4) * 0.22,
+          w: 4 + (i % 3),
+          h: 6 + (i % 4),
+          baseRot: i * 37,
+          drift: ((i % 5) - 2) * 16,
+          color:
+            CONFETTI_PALETTE[i % CONFETTI_PALETTE.length] ??
+            "rgba(0, 174, 239, 0.45)",
+          rounded: i % 3 === 0,
+        };
+      }),
     [],
   );
 
@@ -90,40 +94,63 @@ function ResultsConfetti({
       className="pointer-events-none absolute inset-0 z-[1] overflow-hidden rounded-2xl"
       aria-hidden
     >
-      {pieces.map((p) => (
-        <motion.div
-          key={p.id}
-          className={`absolute will-change-transform ${
-            p.rounded ? "rounded-full" : "rounded-[1px]"
-          }`}
-          style={{
-            left: `${p.leftPct}%`,
-            width: p.w,
-            height: p.h,
-            backgroundColor: p.color,
-          }}
-          initial={{
-            top: "0%",
-            x: 0,
-            opacity: 0.42,
-            rotate: p.baseRot,
-          }}
-          animate={{
-            top: ["0%", "108%"],
-            x: [0, p.drift],
-            rotate: [p.baseRot, p.baseRot + 200 + p.id * 6],
-            opacity: [0.42, 0.48, 0.4, 0],
-          }}
-          transition={{
-            duration: p.duration,
-            delay: p.delay,
-            times: [0, 0.06, 0.86, 1],
-            ease: "linear",
-            repeat: Infinity,
-            repeatDelay: 0,
-          }}
-        />
-      ))}
+      {pieces.map((p) => {
+        const startTop = p.phase * 108;
+        const travel = 108;
+        const endTop = startTop + travel;
+        const rotEnd = p.baseRot + 200 + p.id * 6;
+        const rotStart = p.baseRot + p.phase * (rotEnd - p.baseRot) * 0.15;
+        const atFall = (t: number) => startTop + travel * t;
+        const xStart = p.phase * p.drift;
+        return (
+          <motion.div
+            key={p.id}
+            className={`absolute will-change-transform ${
+              p.rounded ? "rounded-full" : "rounded-[1px]"
+            }`}
+            style={{
+              left: `${p.leftPct}%`,
+              width: p.w,
+              height: p.h,
+              backgroundColor: p.color,
+            }}
+            initial={{
+              top: `${startTop}%`,
+              x: xStart,
+              opacity: 0.42,
+              rotate: rotStart,
+            }}
+            animate={{
+              top: [
+                `${atFall(0)}%`,
+                `${atFall(0.06)}%`,
+                `${atFall(0.86)}%`,
+                `${atFall(1)}%`,
+              ],
+              x: [
+                xStart,
+                xStart + (p.drift - xStart) * 0.06,
+                xStart + (p.drift - xStart) * 0.86,
+                p.drift,
+              ],
+              rotate: [
+                rotStart,
+                rotStart + (rotEnd - rotStart) * 0.06,
+                rotStart + (rotEnd - rotStart) * 0.86,
+                rotEnd,
+              ],
+              opacity: [0.42, 0.48, 0.4, 0],
+            }}
+            transition={{
+              duration: p.duration,
+              times: [0, 0.06, 0.86, 1],
+              ease: "linear",
+              repeat: Infinity,
+              repeatDelay: 0,
+            }}
+          />
+        );
+      })}
     </div>
   );
 }

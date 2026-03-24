@@ -36,6 +36,51 @@ a {
 }
 
 /* RBAC results: metric tiles — same border + cyan glow + inset ring as parent results card. */
+
+/* RBAC launch: full-bleed marquee; padding on wrapper only so -50% track width loops seamlessly. */
+@keyframes launch-impact-carousel-scroll {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.launch-impact-carousel {
+  overflow-x: hidden;
+  overflow-y: visible;
+  padding-inline: max(1rem, env(safe-area-inset-left))
+    max(1rem, env(safe-area-inset-right));
+}
+
+.launch-impact-carousel__track {
+  display: flex;
+  width: max-content;
+  gap: clamp(1rem, 2.5vw, 2rem);
+  animation: launch-impact-carousel-scroll 40s linear infinite;
+  will-change: transform;
+}
+
+.launch-impact-carousel:hover .launch-impact-carousel__track,
+.launch-impact-carousel:focus-within .launch-impact-carousel__track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .launch-impact-carousel {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .launch-impact-carousel__track {
+    animation: none;
+    flex-wrap: nowrap;
+    width: max-content;
+    padding-bottom: 0.25rem;
+  }
+}
+
 .results-metric-glow {
   position: relative;
   border-radius: 8px;
@@ -96,6 +141,153 @@ a {
   will-change: transform;
 }
 
+@keyframes rbac-experience-roll {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.rbac-experience-roll {
+  background-size: 220% 100%;
+  animation: rbac-experience-roll 36s ease-in-out infinite;
+  will-change: background-position;
+}
+
+@keyframes bubbles-orb-float {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.96;
+  }
+  50% {
+    transform: translate3d(10px, -12px, 0) scale(1.05);
+    opacity: 1;
+  }
+}
+
+.bubbles-orb {
+  animation: bubbles-orb-float 24s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+@keyframes aurora-drift-a {
+  0%, 100% { transform: translate3d(-8%, -4%, 0) rotate(0deg) scale(1.04); }
+  50% { transform: translate3d(8%, 5%, 0) rotate(10deg) scale(1.12); }
+}
+
+@keyframes aurora-drift-b {
+  0%, 100% { transform: translate3d(9%, -6%, 0) rotate(0deg) scale(1.05); }
+  50% { transform: translate3d(-7%, 7%, 0) rotate(-9deg) scale(1.13); }
+}
+
+@keyframes aurora-drift-c {
+  0%, 100% { transform: translate3d(0%, 10%, 0) rotate(0deg) scale(1.05); }
+  50% { transform: translate3d(0%, -10%, 0) rotate(8deg) scale(1.1); }
+}
+
+.aurora {
+  overflow: hidden;
+  border-radius: inherit;
+  isolation: isolate;
+}
+
+.aurora-layer {
+  position: absolute;
+  inset: -22%;
+  filter: blur(58px) saturate(130%);
+  opacity: 0.72;
+  mix-blend-mode: screen;
+  will-change: transform;
+  background:
+    radial-gradient(50% 46% at 26% 34%, color-mix(in srgb, var(--aurora-color) 82%, transparent), transparent 72%),
+    radial-gradient(48% 42% at 76% 64%, color-mix(in srgb, var(--aurora-color) 62%, transparent), transparent 76%),
+    radial-gradient(38% 34% at 52% 50%, color-mix(in srgb, var(--aurora-color) 42%, transparent), transparent 80%);
+}
+
+.aurora-layer-a { animation: aurora-drift-a 18s ease-in-out infinite; }
+.aurora-layer-b { animation: aurora-drift-b 22s ease-in-out infinite; }
+.aurora-layer-c { animation: aurora-drift-c 26s ease-in-out infinite; }
+
+@keyframes grainient-shift {
+  0% { background-position: 0% 0%, 100% 0%, 50% 100%, 0% 0%; }
+  50% { background-position: 100% 20%, 0% 30%, 60% 0%, 0% 0%; }
+  100% { background-position: 0% 0%, 100% 0%, 50% 100%, 0% 0%; }
+}
+
+@keyframes grainient-rotate {
+  0% { transform: rotate(0deg) scale(var(--grainient-zoom, 1)); }
+  50% { transform: rotate(calc(var(--grainient-rot, 500deg) * 0.5)) scale(calc(var(--grainient-zoom, 1) * 1.02)); }
+  100% { transform: rotate(var(--grainient-rot, 500deg)) scale(var(--grainient-zoom, 1)); }
+}
+
+@keyframes grainient-warp {
+  0%, 100% { translate: 0 0; }
+  50% {
+    translate:
+      calc(var(--grainient-warp-amp, 50px) * 0.12 * var(--grainient-warp-strength, 1))
+      calc(var(--grainient-warp-amp, 50px) * -0.1 * var(--grainient-warp-strength, 1));
+  }
+}
+
+@keyframes grainient-noise {
+  0% { background-position: 0 0; }
+  25% { background-position: 15% 25%; }
+  50% { background-position: 45% 55%; }
+  75% { background-position: 65% 30%; }
+  100% { background-position: 100% 100%; }
+}
+
+.grainient {
+  position: absolute;
+  inset: 0;
+  transform-origin: var(--grainient-cx, 50%) var(--grainient-cy, 50%);
+  border-radius: inherit;
+  filter:
+    saturate(var(--grainient-saturation, 1))
+    contrast(var(--grainient-contrast, 1.2))
+    brightness(var(--grainient-gamma, 1));
+  animation:
+    grainient-shift var(--grainient-speed, 26s) ease-in-out infinite,
+    grainient-rotate var(--grainient-rot-speed, 60s) linear infinite,
+    grainient-warp calc(var(--grainient-warp-speed, 2s) * var(--grainient-warp-freq, 5)) ease-in-out infinite;
+  background-image:
+    radial-gradient(
+      circle at 18% 24%,
+      var(--grainient-c1, #afe2e4) 0%,
+      color-mix(in srgb, var(--grainient-c1, #afe2e4) 42%, transparent) var(--grainient-c1-stop, 36%),
+      transparent 76%
+    ),
+    radial-gradient(
+      circle at 82% 22%,
+      var(--grainient-c2, #725dc6) 0%,
+      color-mix(in srgb, var(--grainient-c2, #725dc6) 40%, transparent) var(--grainient-c2-stop, 44%),
+      transparent 76%
+    ),
+    radial-gradient(
+      circle at 58% 82%,
+      var(--grainient-c3, #23d180) 0%,
+      color-mix(in srgb, var(--grainient-c3, #23d180) 40%, transparent) var(--grainient-c3-stop, 50%),
+      transparent 78%
+    ),
+    linear-gradient(var(--grainient-angle, 0deg), rgba(255, 255, 255, calc(var(--grainient-softness, 0.05) * 0.45)), transparent 48%);
+  background-size:
+    150% 150%,
+    150% 150%,
+    150% 150%,
+    100% 100%;
+  overflow: hidden;
+}
+
+.grainient::after {
+  content: "";
+  position: absolute;
+  inset: -30%;
+  background-image: radial-gradient(rgba(255, 255, 255, var(--grainient-grain-alpha, 0.09)) 1px, transparent 1px);
+  background-size: calc(4px * var(--grainient-grain-size, 2.3)) calc(4px * var(--grainient-grain-size, 2.3));
+  mix-blend-mode: soft-light;
+  opacity: 0.45;
+  animation: var(--grainient-grain-anim, none);
+}
+
 /* Hero overlay: on mobile, fully transparent at top so liquid ether reaches edge */
 .hero-overlay {
   background: linear-gradient(
@@ -116,5 +308,36 @@ a {
       rgba(0, 0, 0, 0.5) 55%,
       rgba(0, 0, 0, 0.9) 100%
     );
+  }
+}
+
+/* Peer feedback card: soft floating hearts (decorative only). */
+@keyframes peer-feedback-heart-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1) rotate(-4deg);
+    opacity: 0.14;
+  }
+  33% {
+    transform: translate3d(14px, -22px, 0) scale(1.12) rotate(3deg);
+    opacity: 0.32;
+  }
+  66% {
+    transform: translate3d(-12px, 10px, 0) scale(0.94) rotate(-2deg);
+    opacity: 0.22;
+  }
+}
+
+.peer-feedback-heart {
+  position: absolute;
+  animation: peer-feedback-heart-drift ease-in-out infinite;
+  will-change: transform, opacity;
+  filter: drop-shadow(0 0 10px rgba(0, 174, 239, 0.14));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .peer-feedback-heart {
+    animation: none;
+    opacity: 0.18;
   }
 }

@@ -1,8 +1,9 @@
-import React, { useRef } from "react";
+import React, { lazy, Suspense, useRef } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "motion/react";
 import { ChevronDown, ArrowRight } from "lucide-react";
-import LiquidEther from "../components/LiquidEther";
+
+const LiquidEther = lazy(() => import("../components/LiquidEther"));
 import GradientText from "../components/GradientText";
 import BlurText from "../components/BlurText";
 import GlareHover from "../components/GlareHover";
@@ -47,21 +48,25 @@ export function Home() {
         className="relative z-0 w-full shrink-0 min-h-[calc(100vh+5rem)] lg:min-h-0 lg:h-screen -mt-[max(env(safe-area-inset-top),5rem)] lg:mt-0"
       >
         <div className="absolute inset-0 w-full h-full">
-          <LiquidEther
-            mouseForce={12}
-            cursorSize={80}
-            isViscous={false}
-            colors={["#5227FF", "#00aeef", "#4ba6b3"]}
-            autoDemo
-            autoSpeed={0.5}
-            autoIntensity={2.2}
-            autoResumeDelay={0}
-            isBounce
-            resolution={0.4}
-            iterationsViscous={20}
-            iterationsPoisson={20}
-            preferPerformance
-          />
+          <Suspense
+            fallback={<div className="absolute inset-0 bg-black" aria-hidden />}
+          >
+            <LiquidEther
+              mouseForce={12}
+              cursorSize={80}
+              isViscous={false}
+              colors={["#5227FF", "#00aeef", "#4ba6b3"]}
+              autoDemo
+              autoSpeed={0.5}
+              autoIntensity={2.2}
+              autoResumeDelay={0}
+              isBounce
+              resolution={0.4}
+              iterationsViscous={20}
+              iterationsPoisson={20}
+              preferPerformance
+            />
+          </Suspense>
         </div>
         {/* Dark overlay: transparent gradient with smooth transition to 90% black at bottom */}
         <div

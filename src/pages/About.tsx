@@ -278,26 +278,12 @@ export function About() {
                 functional product that engages users and provides an intuitive
                 experience while accurately representing brands and meeting goals.
               </p>
-              <ul className="mt-6 flex flex-col gap-2 text-base text-slate-200">
-                <li className="flex gap-2">
-                  <span className="text-accent-readable" aria-hidden>
-                    ·
-                  </span>
-                  <span>
-                    User-centered senior product designer
-                  </span>
+              <ul className="mt-6 flex list-disc list-inside flex-col gap-2 marker:text-[#00aeef] text-base text-slate-200">
+                <li>
+                  User-centered senior product designer
                 </li>
-                <li className="flex gap-2">
-                  <span className="text-accent-readable" aria-hidden>
-                    ·
-                  </span>
-                  <span>IAM and eCommerce specialist</span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-accent-readable" aria-hidden>
-                    ·
-                  </span>
-                  <span>
+                <li>IAM and eCommerce specialist</li>
+                <li>
                     New tech dabbler (always curious){" "}
                     <motion.span
                       className="inline-block cursor-default text-[1.15em] leading-none will-change-transform"
@@ -319,20 +305,14 @@ export function About() {
                     >
                       😸
                     </motion.span>
-                  </span>
                 </li>
-                <li className="flex gap-2">
-                  <span className="text-accent-readable" aria-hidden>
-                    ·
-                  </span>
-                  <span>
+                <li>
                     Grammy winner and two-time Oscar nominee
                     <span className="text-[#999999]">
                       {" "}
                       (kidding, but I did win &ldquo;Rookie of the Year&rdquo; and
                       &ldquo;Dream Team&rdquo; for Growth.)
                     </span>
-                  </span>
                 </li>
               </ul>
             </motion.section>
@@ -354,53 +334,28 @@ export function About() {
                   My design philosophies
                 </h3>
               </div>
-              <ul className="mt-4 flex max-w-2xl flex-col gap-3 text-base leading-relaxed text-[#999999] md:text-lg">
-                <li className="flex gap-2">
-                  <span className="text-accent-readable" aria-hidden>
-                    ·
-                  </span>
-                  <span>
-                    Solving real user problems creates real measurable business
-                    outcomes.
-                  </span>
+              <ul className="mt-4 flex max-w-2xl list-disc list-inside flex-col gap-3 marker:text-[#00aeef] text-base leading-relaxed text-[#999999] md:text-lg">
+                <li>
+                  Solving real user problems creates real measurable business
+                  outcomes.
                 </li>
-                <li className="flex gap-2">
-                  <span className="text-accent-readable" aria-hidden>
-                    ·
-                  </span>
-                  <span>
-                    Be concise yet clear. Users should rarely need to go to a chat
-                    or product docs for answers.
-                  </span>
+                <li>
+                  Be concise yet clear. Users should rarely need to go to a chat
+                  or product docs for answers.
                 </li>
-                <li className="flex gap-2">
-                  <span className="text-accent-readable" aria-hidden>
-                    ·
-                  </span>
-                  <span>
-                    Treat peers like a D&amp;D party; creating strong partnerships
-                    with coworkers is vital for a smooth campaign that remains
-                    aligned and moves fast.
-                  </span>
+                <li>
+                  Treat peers like a 🐲 D&amp;D party; creating strong partnerships
+                  with coworkers is vital for a smooth campaign that remains
+                  aligned and moves fast.
                 </li>
-                <li className="flex gap-2">
-                  <span className="text-accent-readable" aria-hidden>
-                    ·
-                  </span>
-                  <span>
-                    Document. Document. Document. You never know when someone
-                    needs to know what you did or why you did it.
-                  </span>
+                <li>
+                  Document. Document. Document. You never know when someone
+                  needs to know what you did or why you did it.
                 </li>
-                <li className="flex gap-2">
-                  <span className="text-accent-readable" aria-hidden>
-                    ·
-                  </span>
-                  <span>
-                    Processes should be adaptable. I generally use a
-                    double-diamond approach, but not all problems fit that
-                    case.
-                  </span>
+                <li>
+                  Processes should be adaptable. I generally use a
+                  double-diamond approach, but not all problems fit that
+                  case.
                 </li>
               </ul>
             </motion.section>

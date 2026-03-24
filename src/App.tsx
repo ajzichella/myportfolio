@@ -1,11 +1,34 @@
-import React, { useState, useEffect, useLayoutEffect } from "react";
+import React, { lazy, Suspense, useState, useEffect, useLayoutEffect } from "react";
 import { Routes, Route, NavLink, Navigate, useLocation } from "react-router-dom";
 import { Home, FolderKanban, User, Menu, X } from "lucide-react";
-import { Home as HomePage } from "./pages/Home";
-import { Portfolio as PortfolioPage } from "./pages/Portfolio";
-import { CaseStudyPredefinedRoles } from "./pages/CaseStudyPredefinedRoles";
-import { About as AboutPage } from "./pages/About";
 import { Footer } from "./components/Footer";
+
+const HomePage = lazy(() =>
+  import("./pages/Home").then((m) => ({ default: m.Home })),
+);
+const PortfolioPage = lazy(() =>
+  import("./pages/Portfolio").then((m) => ({ default: m.Portfolio })),
+);
+const CaseStudyPredefinedRoles = lazy(() =>
+  import("./pages/CaseStudyPredefinedRoles").then((m) => ({
+    default: m.CaseStudyPredefinedRoles,
+  })),
+);
+const AboutPage = lazy(() =>
+  import("./pages/About").then((m) => ({ default: m.About })),
+);
+
+function RouteFallback() {
+  return (
+    <div
+      className="flex min-h-[50vh] items-center justify-center bg-black text-sm text-slate-500"
+      role="status"
+      aria-live="polite"
+    >
+      Loading…
+    </div>
+  );
+}
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   `flex items-center gap-2 rounded-md px-4 py-6 lg:py-4 text-left hover:bg-slate-800 text-lg lg:text-sm ${
@@ -56,6 +79,8 @@ export function App() {
             src={`${import.meta.env.BASE_URL}logo-aj.png`}
             alt="AJ Zichella monogram"
             className="h-auto w-full"
+            decoding="async"
+            fetchPriority="low"
           />
         </div>
       </div>
@@ -130,22 +155,24 @@ export function App() {
         <NavContent />
       </aside>
 
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col lg:ml-52">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-x-visible lg:ml-52">
         <main
           id="main-scroll"
-          className="min-h-0 min-w-0 flex-1 overflow-y-auto pt-[max(env(safe-area-inset-top),5rem)] lg:pt-0"
+          className="min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto pt-[max(env(safe-area-inset-top),5rem)] lg:pt-0"
         >
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/case-studies" element={<PortfolioPage />} />
-            <Route
-              path="/case-studies/predefined-roles"
-              element={<CaseStudyPredefinedRoles />}
-            />
-            <Route path="/portfolio" element={<Navigate to="/case-studies" replace />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="*" element={<HomePage />} />
-          </Routes>
+          <Suspense fallback={<RouteFallback />}>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/case-studies" element={<PortfolioPage />} />
+              <Route
+                path="/case-studies/predefined-roles"
+                element={<CaseStudyPredefinedRoles />}
+              />
+              <Route path="/portfolio" element={<Navigate to="/case-studies" replace />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="*" element={<HomePage />} />
+            </Routes>
+          </Suspense>
         </main>
         <Footer />
       </div>
