@@ -154,7 +154,7 @@ export function Portfolio() {
           </div>
         </motion.div>
 
-        <div className="mt-12 flex flex-col gap-6">
+        <div className="mt-12 flex flex-col gap-10 md:gap-12">
           {showEmpty ? (
             <div className="rounded-xl border border-slate-600/60 bg-slate-900/40 px-6 py-10 text-center">
               <p className="text-slate-200">

@@ -19,15 +19,16 @@ const assetBase = import.meta.env.BASE_URL;
 
 /** Match Home case-study / hero tooltips: gray panel, cyan border, above trigger. */
 const orbitTooltipShadow =
-  "shadow-[0_0_28px_rgba(0,174,239,0.22),0_12px_40px_rgba(0,0,0,0.45)] ring-1 ring-inset ring-[#00aeef]/25";
+  "shadow-[0_0_18px_rgba(0,174,239,0.12),0_6px_24px_rgba(0,0,0,0.22)] ring-1 ring-inset ring-[#00aeef]/18";
 
 const orbitTooltipPanelClass = `pointer-events-none absolute bottom-[calc(100%+0.5rem)] left-1/2 z-[110] w-max max-w-[min(22rem,calc(100vw-2rem))] sm:max-w-[28rem] -translate-x-1/2 rounded-xl border border-[#00aeef]/45 bg-[#999999] px-3 py-2.5 text-left text-sm font-normal leading-relaxed text-slate-900 opacity-0 transition-opacity duration-200 group-hover/orbit:opacity-100 group-focus-within/orbit:opacity-100 sm:px-4 sm:py-3.5 ${orbitTooltipShadow}`;
 
 export const CenterIcon = (
   <div
-    className="z-0 flex h-32 w-32 shrink-0 animate-float items-center justify-center rounded-full bg-gradient-to-br from-purple-400 via-[#00aeef] to-blue-600 p-2.5 shadow-lg ring-1 ring-white/20"
+    className="z-0 flex h-32 w-32 shrink-0 animate-float items-center justify-center rounded-full bg-gradient-to-br from-purple-400 via-[#00aeef] to-blue-600 p-2.5 shadow-lg ring-1 ring-white/15"
     style={{
-      boxShadow: "0 0 22px 12px rgba(0, 174, 239, 0.25), 0 0 28px 14px rgba(147, 51, 234, 0.2)",
+      boxShadow:
+        "0 0 14px 5px rgba(0, 174, 239, 0.11), 0 0 18px 7px rgba(147, 51, 234, 0.07)",
     }}
   >
     <img
@@ -219,8 +220,11 @@ function getOrbitItemVectors({
   const xTilted = x * Math.cos(tiltRadians) - y * Math.sin(tiltRadians);
   const yTilted = x * Math.sin(tiltRadians) + y * Math.cos(tiltRadians);
 
+  /* Smooth depth: old `angle < 180 ? 1.2 : 1` popped at the meridian. Same front/back as before
+   * (largest near 0°/360°, smallest near 180°) via (1 + cos) / 2. */
+  const forwardness = (1 + Math.cos((angle * Math.PI) / 180)) / 2;
+  const scale = 1 + forwardness * 0.2;
   const zIndex = angle > 180 ? -1 : 1;
-  const scale = angle < 180 ? 1.2 : 1;
 
   return { xTilted, yTilted, zIndex, scale };
 }
@@ -238,9 +242,10 @@ function orbitGlassStyleForOffset(xTilted: number, yTilted: number): CSSProperti
   const g0 = 0.22 + t * 0.3;
   const g1 = 0.12 + t * 0.18;
   const g2 = 0.06 + t * 0.12;
-  const borderA = 0.52 + t * 0.22;
-  const spec = 0.78 + t * 0.2;
-  const violetGlow = 0.05 + t * 0.1;
+  const borderA = 0.48 + t * 0.18;
+  const spec = 0.55 + t * 0.22;
+  const violetGlow = 0.012 + t * 0.032;
+  const insetWash = 0.03 + t * 0.05;
 
   const backdropFilter = `blur(${blurPx}px) saturate(${sat}) brightness(${bright})`;
 
@@ -249,7 +254,8 @@ function orbitGlassStyleForOffset(xTilted: number, yTilted: number): CSSProperti
     backdropFilter,
     WebkitBackdropFilter: backdropFilter,
     border: `1px solid rgba(255,255,255,${borderA})`,
-    boxShadow: `inset 0 1px 0 rgba(255,255,255,${spec}), inset 0 -10px 20px rgba(255,255,255,${0.05 + t * 0.08}), inset 0 0 0 1px rgba(255,255,255,${0.26 + t * 0.2}), 0 8px 32px rgba(139,92,246,${violetGlow}), 0 0 0 1px rgba(255,255,255,${0.06 + t * 0.08})`,
+    /* Tight, low-opacity violet; negative spread keeps glow hugging the orb. */
+    boxShadow: `inset 0 1px 0 rgba(255,255,255,${spec}), inset 0 -6px 14px rgba(255,255,255,${insetWash}), inset 0 0 0 1px rgba(255,255,255,${0.2 + t * 0.14}), 0 1px 8px -2px rgba(139,92,246,${violetGlow}), 0 2px 16px -4px rgba(139,92,246,${violetGlow * 0.55}), 0 0 0 1px rgba(255,255,255,${0.05 + t * 0.06})`,
   };
 }
 

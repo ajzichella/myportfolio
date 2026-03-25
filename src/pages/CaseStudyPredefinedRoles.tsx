@@ -511,33 +511,33 @@ export function CaseStudyPredefinedRoles() {
       </div>
 
       <section
-        className="relative z-10 mt-4 w-full min-w-0 py-1 md:py-2"
+        className="relative z-10 mt-1 w-full min-w-0 py-0 md:mt-2"
         aria-label="Launch screenshots: success state, invite flow, and change role"
       >
         <motion.div
           {...fadeUp}
           transition={{ duration: 0.4, delay: 0.09 }}
-          className="grid w-full grid-cols-1 gap-2 px-0 sm:gap-3 md:grid-cols-3 md:gap-4 lg:gap-5"
+          className="grid w-full grid-cols-1 gap-2 px-0 py-6 sm:gap-3 md:grid-cols-3 md:gap-4 md:py-40 lg:gap-5"
         >
           <LightboxImageButton
             src={`${base}rbac-success-banner.png`}
             alt="Success banner after joining a team as Modifier: create, read, and update access without delete, with link to team admin"
             wrapperClassName="w-full"
-            className="h-[min(920px,88vh)] w-full rounded-lg object-contain"
+            className="h-auto max-h-[min(920px,88vh)] w-full rounded-lg object-contain"
             onOpen={setImageLightbox}
           />
           <LightboxImageButton
             src={`${base}rbac-invite-members.png`}
             alt="Invite team members flow: Modifier role selected, multiple email chips, secure sign-in option, and send invites"
             wrapperClassName="w-full"
-            className="h-[min(920px,88vh)] w-full rounded-lg object-contain"
+            className="h-auto max-h-[min(920px,88vh)] w-full rounded-lg object-contain"
             onOpen={setImageLightbox}
           />
           <LightboxImageButton
             src={`${base}rbac-change-role-modal-full.png`}
             alt="Change role modal listing Owner, Member, Modifier, Biller, Billing Viewer, and Resource Viewer with permission summaries"
             wrapperClassName="w-full"
-            className="h-[min(920px,88vh)] w-full rounded-lg object-contain"
+            className="h-auto max-h-[min(920px,88vh)] w-full rounded-lg object-contain"
             onOpen={setImageLightbox}
           />
         </motion.div>
@@ -548,7 +548,7 @@ export function CaseStudyPredefinedRoles() {
           {...fadeUpGlass}
           transition={{ duration: 0.4, delay: 0.1 }}
           aria-labelledby="rbac-scope-heading"
-          className="case-study-card case-study-card--no-left-accent relative mt-5 rounded-xl p-6 md:mt-6 md:p-8"
+          className="case-study-card case-study-card--no-left-accent relative mt-3 rounded-xl p-6 md:mt-4 md:p-8"
         >
           <h2 id="rbac-scope-heading" className={sectionTitle}>
             Scope &amp; collaboration
@@ -789,7 +789,7 @@ export function CaseStudyPredefinedRoles() {
               </h2>
               <BlurText
                 text="Experience & communication"
-                className="text-accent-readable text-2xl font-bold tracking-tight md:text-3xl lg:text-4xl"
+                className="pt-8 text-accent-readable text-2xl font-bold tracking-tight md:pt-10 md:text-3xl lg:pt-12 lg:text-4xl"
                 delay={20}
                 animateBy="words"
                 direction="top"

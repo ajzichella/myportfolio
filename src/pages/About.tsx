@@ -232,22 +232,10 @@ export function About() {
         </motion.header>
 
         <section
-          aria-labelledby="about-story-section-heading"
+          aria-label="Story and approach"
           className="mt-14 md:mt-20"
         >
-          <p className="text-sm font-medium uppercase tracking-wider text-accent-readable">
-            Profile
-          </p>
-          <h2
-            id="about-story-section-heading"
-            className="mt-2 text-2xl font-bold tracking-tight text-white md:text-3xl"
-          >
-            Story &amp; approach
-          </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-400 md:text-base">
-            How I think about design, what I care about, and where I aim my craft.
-          </p>
-          <div className="mt-10 grid min-w-0 grid-cols-1 gap-12 md:mt-12 md:grid-cols-2 md:items-start md:gap-x-12 md:gap-y-0">
+          <div className="grid min-w-0 grid-cols-1 gap-12 md:grid-cols-2 md:items-start md:gap-x-12 md:gap-y-0">
             <div className="flex min-w-0 flex-col gap-12">
             <motion.section
               {...fadeUp}
@@ -503,28 +491,28 @@ export function About() {
           aria-labelledby="about-career-section-heading"
           className="mt-10 md:mt-14"
         >
-          <div className="flex flex-wrap items-start gap-3">
-            <Briefcase
-              className="mt-0.5 h-6 w-6 shrink-0 text-[#00aeef] md:h-7 md:w-7"
+          <div className="pt-6 md:pt-8">
+            <hr
+              className="border-0 border-t border-slate-600/45"
               aria-hidden
             />
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium uppercase tracking-wider text-accent-readable">
-                Career
-              </p>
+          </div>
+          <div className="pt-10 md:pt-12">
+            <div className="flex items-center gap-2">
+              <Briefcase
+                className="h-5 w-5 shrink-0 text-[#00aeef]"
+                aria-hidden
+              />
               <h2
                 id="about-career-section-heading"
-                className="mt-2 text-2xl font-bold tracking-tight text-white md:text-3xl"
+                className="text-xl font-bold tracking-tight text-white"
               >
-                Experience &amp; certifications
+                Experience
               </h2>
-              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-400 md:text-base">
-                Roles, impact, and formal training.
-              </p>
             </div>
           </div>
 
-          <div className="mt-10 flex min-w-0 flex-col gap-12 md:mt-12">
+          <div className="mt-4 flex min-w-0 flex-col gap-12">
             <motion.div
               {...fadeUp}
               transition={{ duration: 0.45, delay: 0.14 }}

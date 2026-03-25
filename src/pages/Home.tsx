@@ -346,7 +346,7 @@ export function Home() {
             </div>
           </motion.div>
 
-          <div className="mt-12 flex flex-col gap-6">
+          <div className="mt-12 flex flex-col gap-10 md:gap-12">
             {getFeaturedCaseStudies().map((study, i) => (
               <CaseStudyCard
                 key={study.title}

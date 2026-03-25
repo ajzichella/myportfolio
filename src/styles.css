@@ -63,11 +63,15 @@ a {
   border-left: 3px solid rgba(0, 174, 239, 0.55);
   backdrop-filter: blur(22px) saturate(165%);
   -webkit-backdrop-filter: blur(22px) saturate(165%);
-  /* Softer outer shadow avoids a heavy black “halo” over colored blobs. */
+  /*
+   * Tight drop shadow: two layers + negative spread keep falloff smooth and close to the
+   * rounded rect (avoids the old large black halo). Slate-tint reads softer than pure
+   * black on bright blobs; standard box-shadow is supported consistently in modern browsers.
+   */
   box-shadow:
-    0 8px 28px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.14),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.14);
+    0 1px 2px rgba(0, 0, 0, 0.06),
+    0 3px 12px -2px rgba(15, 23, 42, 0.26),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
 .case-study-card:hover {
@@ -80,10 +84,10 @@ a {
     rgba(2, 6, 23, 0.5) 100%
   );
   box-shadow:
-    0 12px 36px rgba(0, 0, 0, 0.26),
-    0 0 32px rgba(0, 174, 239, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.18),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.12);
+    0 1px 2px rgba(0, 0, 0, 0.07),
+    0 4px 14px -3px rgba(15, 23, 42, 0.3),
+    0 0 22px rgba(0, 174, 239, 0.11),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16);
 }
 
 /* Listing / stacked cards: lighter blur + saturate — cheaper, still see-through. */
@@ -91,17 +95,17 @@ a {
   backdrop-filter: blur(12px) saturate(140%);
   -webkit-backdrop-filter: blur(12px) saturate(140%);
   box-shadow:
-    0 6px 22px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.14),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+    0 1px 2px rgba(0, 0, 0, 0.05),
+    0 3px 10px -2px rgba(15, 23, 42, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .case-study-card.case-study-card--light-glass:hover {
   box-shadow:
-    0 10px 30px rgba(0, 0, 0, 0.14),
-    0 0 28px rgba(0, 174, 239, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.18),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.08);
+    0 1px 2px rgba(0, 0, 0, 0.06),
+    0 4px 12px -2px rgba(15, 23, 42, 0.22),
+    0 0 18px rgba(0, 174, 239, 0.09),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
 }
 
 /* In-page sections: same glass treatment as case study cards, without the cyan left accent. */
@@ -119,9 +123,9 @@ a {
     rgba(2, 6, 23, 0.42) 100%
   );
   box-shadow:
-    0 8px 28px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.14),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.14);
+    0 1px 2px rgba(0, 0, 0, 0.06),
+    0 3px 12px -2px rgba(15, 23, 42, 0.26),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
 @keyframes card-blob-float {
