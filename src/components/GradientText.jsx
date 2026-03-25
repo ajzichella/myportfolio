@@ -78,10 +78,18 @@ export default function GradientText({
   // Duplicate first color at the end for seamless looping
   const gradientColors = [...colors, colors[0]].join(', ');
 
-  const gradientStyle = {
+  const gradientPaint = {
     backgroundImage: `linear-gradient(${gradientAngle}, ${gradientColors})`,
     backgroundSize: direction === 'horizontal' ? '300% 100%' : direction === 'vertical' ? '100% 300%' : '300% 300%',
     backgroundRepeat: 'repeat'
+  };
+  const textFillStyle = {
+    ...gradientPaint,
+    backgroundPosition,
+    /* Inline beats inherited App `text-slate-50` and fixes cascade when CSS loads after Tailwind. */
+    WebkitBackgroundClip: 'text',
+    backgroundClip: 'text',
+    color: 'transparent'
   };
 
   return (
@@ -90,8 +98,8 @@ export default function GradientText({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {showBorder && <motion.div className="gradient-overlay" style={{ ...gradientStyle, backgroundPosition }} />}
-      <motion.div className="text-content" style={{ ...gradientStyle, backgroundPosition }}>
+      {showBorder && <motion.div className="gradient-overlay" style={{ ...gradientPaint, backgroundPosition }} />}
+      <motion.div className="text-content" style={textFillStyle}>
         {children}
       </motion.div>
     </motion.div>

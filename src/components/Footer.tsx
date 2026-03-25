@@ -9,7 +9,7 @@ const footerNavClass = ({ isActive }: { isActive: boolean }) =>
 
 export function Footer() {
   return (
-    <footer className="shrink-0 border-t border-slate-800/80 bg-black px-6 py-4 md:px-12 lg:px-16">
+    <footer className="relative z-10 border-t border-slate-800/80 bg-black px-6 py-4 md:px-12 lg:px-16">
       <div className="mx-auto flex max-w-[1200px] flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
         <p className="max-w-3xl text-left text-xs leading-relaxed text-slate-500 sm:text-sm flex flex-col gap-1">
           <span>

@@ -12,16 +12,13 @@ import {
   siLooker,
   type SimpleIcon,
 } from "simple-icons";
-import { debugAgentLog } from "../../../lib/debugAgentLog";
 import { cn } from "../../../lib/utils";
 
 const assetBase = import.meta.env.BASE_URL;
 
-/** Match Home case-study / hero tooltips: gray panel, cyan border, above trigger. */
-const orbitTooltipShadow =
-  "shadow-[0_0_18px_rgba(0,174,239,0.12),0_6px_24px_rgba(0,0,0,0.22)] ring-1 ring-inset ring-[#00aeef]/18";
-
-const orbitTooltipPanelClass = `pointer-events-none absolute bottom-[calc(100%+0.5rem)] left-1/2 z-[110] w-max max-w-[min(22rem,calc(100vw-2rem))] sm:max-w-[28rem] -translate-x-1/2 rounded-xl border border-[#00aeef]/45 bg-[#999999] px-3 py-2.5 text-left text-sm font-normal leading-relaxed text-slate-900 opacity-0 transition-opacity duration-200 group-hover/orbit:opacity-100 group-focus-within/orbit:opacity-100 sm:px-4 sm:py-3.5 ${orbitTooltipShadow}`;
+/** Match Home tooltips: glass + cyan edge glow. */
+const orbitTooltipPanelClass =
+  "portfolio-tooltip-panel pointer-events-none absolute bottom-[calc(100%+0.5rem)] left-1/2 z-[110] w-max max-w-[min(22rem,calc(100vw-2rem))] sm:max-w-[28rem] -translate-x-1/2 rounded-xl case-study-card case-study-card--no-left-accent px-3 py-2.5 text-left text-sm font-normal leading-relaxed text-slate-100 opacity-0 transition-opacity duration-200 group-hover/orbit:opacity-100 group-focus-within/orbit:opacity-100 sm:px-4 sm:py-3.5";
 
 export const CenterIcon = (
   <div
@@ -306,29 +303,6 @@ export default function OrbitingItems3D({
   const reactId = useId();
   const tooltipDomId = tooltipIdProp ?? `orbit-tooltip-${reactId}`;
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const renderCountRef = useRef(0);
-  renderCountRef.current += 1;
-
-  useEffect(() => {
-    if (!import.meta.env.DEV) return;
-    const t0 = performance.now();
-    const tid = window.setTimeout(() => {
-      // #region agent log
-      debugAgentLog({
-        hypothesisId: "H_orbit_rerenders",
-        location: "orbiting-items-3-d.tsx:2s_sample",
-        message: "orbit_react_renders",
-        data: {
-          pathname: window.location.pathname,
-          renderCount: renderCountRef.current,
-          windowMs: Math.round(performance.now() - t0),
-          durationMsPerDegree: duration,
-        },
-      });
-      // #endregion
-    }, 2000);
-    return () => clearTimeout(tid);
-  }, [duration]);
 
   useEffect(() => {
     const msPerDegree = Math.max(1, duration);

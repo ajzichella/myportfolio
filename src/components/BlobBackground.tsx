@@ -1,5 +1,4 @@
 import { useEffect, useRef } from "react";
-import { debugAgentLog } from "../lib/debugAgentLog";
 import { cn } from "../lib/utils";
 
 let __blobPerfInstanceSeq = 0;
@@ -164,11 +163,16 @@ function clampOrbCenter(
   R: number,
   w: number,
   h: number,
+  /** Lets orb centers sit lower (fraction of h added to maxCy); glow can extend past canvas bottom. */
+  bottomExtentFrac = 0,
 ): { cx: number; cy: number } {
   const minCx = R + w * SIDE_PAD_FRAC;
   const maxCx = w - R - w * SIDE_PAD_FRAC;
   const minCy = R + h * TOP_PAD_FRAC;
-  const maxCy = h - R - h * BOTTOM_PAD_FRAC;
+  const maxCy = Math.min(
+    h + R * 0.55,
+    h - R - h * BOTTOM_PAD_FRAC + h * bottomExtentFrac,
+  );
 
   let nx = cx;
   let ny = cy;
@@ -192,6 +196,13 @@ export type BlobBackgroundProps = {
   alphaScale?: number;
   /** Shifts orb anchor positions right (+) or left (-) in normalized canvas space [0,1]. Default 0. */
   nxShift?: number;
+  /** Shifts orb anchors down (+) or up (-) in normalized canvas space (fraction of height). Default 0. */
+  nyShift?: number;
+  /**
+   * Relaxes the bottom clamp so centers can move down (fraction of canvas height).
+   * Needed when `nyShift` would otherwise hit the old maxCy ceiling with no visible change.
+   */
+  bottomExtentFrac?: number;
   /** Cap device pixel ratio for the canvas (e.g. `1` on dense listing pages). */
   dprCap?: number;
   /** Limit redraw rate; motion stays visible but cheaper (e.g. `24` with glass cards above). */
@@ -199,10 +210,38 @@ export type BlobBackgroundProps = {
   className?: string;
 };
 
+/** Same layout + tuning as CaseStudyPredefinedRoles: full-viewport fixed canvas behind page content. */
+export function FixedBlobBackdrop(props: BlobBackgroundProps = {}) {
+  return (
+    <div
+      className="pointer-events-none fixed inset-0 z-0 w-full overflow-hidden bg-black"
+      aria-hidden
+    >
+      <BlobBackground
+        radiusScale={1.35}
+        alphaScale={0.78}
+        maxFps={24}
+        dprCap={1}
+        {...props}
+      />
+    </div>
+  );
+}
+
+/** Preset for Home / About: softer than case-study pages, field pulled toward lower viewport. */
+export const SOFT_FIXED_BLOB_PRESET: BlobBackgroundProps = {
+  alphaScale: 0.68,
+  radiusScale: 1.26,
+  nyShift: 0.42,
+  bottomExtentFrac: 0.38,
+};
+
 export function BlobBackground({
   radiusScale = 1,
   alphaScale = 1,
   nxShift = 0,
+  nyShift = 0,
+  bottomExtentFrac = 0,
   dprCap,
   maxFps,
   className,
@@ -227,8 +266,6 @@ export function BlobBackground({
     const isFrozen = () => reducedMotionMq.matches;
 
     const blobInstanceId = ++__blobPerfInstanceSeq;
-    let resizeLogged = false;
-
     let raf = 0;
     let logicalW = 1;
     let logicalH = 1;
@@ -261,29 +298,6 @@ export function BlobBackground({
       canvas.style.width = `${logicalW}px`;
       canvas.style.height = `${logicalH}px`;
 
-      if (import.meta.env.DEV && !resizeLogged) {
-        resizeLogged = true;
-        const backingPixels = cw * ch;
-        // #region agent log
-        debugAgentLog({
-          hypothesisId: "H_blob_canvas",
-          location: "BlobBackground.tsx:resize",
-          message: "blob_canvas_started",
-          data: {
-            blobInstanceId,
-            pathname: window.location.pathname,
-            logicalW,
-            logicalH,
-            cw,
-            ch,
-            backingPixels,
-            orbCount: ORBS.length,
-            radiusScale,
-            alphaScale,
-          },
-        });
-        // #endregion
-      }
     };
 
     const drawFrame = (now: number) => {
@@ -306,7 +320,7 @@ export function BlobBackground({
           Math.sin(ang) * o.ampX * w +
           Math.sin(ang * 2.17 + o.phase * 1.3) * o.ampX * 0.22 * w;
         const rawCy =
-          o.ny * h +
+          (o.ny + nyShift) * h +
           Math.cos(ang * 0.87) * o.ampY * h +
           Math.cos(ang * 1.93 + o.phase) * o.ampY * 0.2 * h;
         const pulseRaw =
@@ -321,7 +335,14 @@ export function BlobBackground({
           m *
           radiusScale *
           (1 + 0.045 * Math.sin((t * 2 * Math.PI) / (o.pulsePeriodSec * 1.4) + o.phase));
-        const { cx, cy } = clampOrbCenter(rawCx, rawCy, R, w, h);
+        const { cx, cy } = clampOrbCenter(
+          rawCx,
+          rawCy,
+          R,
+          w,
+          h,
+          bottomExtentFrac,
+        );
 
         const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
         for (const [pos, a] of o.stops) {
@@ -378,7 +399,7 @@ export function BlobBackground({
       ro.disconnect();
       reducedMotionMq.removeEventListener("change", onReducedMotionChange);
     };
-  }, [radiusScale, alphaScale, nxShift, dprCap, maxFps]);
+  }, [radiusScale, alphaScale, nxShift, nyShift, bottomExtentFrac, dprCap, maxFps]);
 
   return (
     <div

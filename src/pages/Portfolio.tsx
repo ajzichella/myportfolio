@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { motion } from "motion/react";
-import { BlobBackground } from "../components/BlobBackground";
+import { FixedBlobBackdrop } from "../components/BlobBackground";
 import { CaseStudyCard } from "../components/CaseStudyCard";
 import GradientText from "../components/GradientText";
 import { CASE_STUDIES, getAllTags } from "../data/caseStudies";
@@ -89,8 +89,8 @@ export function Portfolio() {
   const showEmpty = filteredStudies.length === 0 && selectedTags.size > 0;
 
   return (
-    <section className="relative w-full min-h-screen shrink-0 overflow-hidden px-6 py-16 md:px-12 lg:px-16">
-      <BlobBackground maxFps={24} dprCap={1} />
+    <section className="relative z-10 w-full min-h-screen shrink-0 overflow-hidden px-6 py-16 md:px-12 lg:px-16">
+      <FixedBlobBackdrop />
       <div className="relative z-10 mx-auto max-w-[1200px]">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

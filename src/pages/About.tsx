@@ -10,7 +10,7 @@ import {
   Lightbulb,
   UserRound,
 } from "lucide-react";
-import { BlobBackground } from "../components/BlobBackground";
+import { FixedBlobBackdrop, SOFT_FIXED_BLOB_PRESET } from "../components/BlobBackground";
 import GlareHover from "../components/GlareHover";
 import { LinkedInLogoSolid } from "../components/LinkedInLogoSolid";
 import GradientText from "../components/GradientText";
@@ -113,8 +113,8 @@ export function About() {
   const prefersReducedMotion = useReducedMotion();
 
   return (
-    <section className="relative w-full min-h-screen shrink-0 overflow-hidden px-6 py-16 md:px-12 lg:px-16">
-      <BlobBackground />
+    <section className="relative z-10 w-full min-h-screen shrink-0 overflow-hidden px-6 py-16 md:px-12 lg:px-16">
+      <FixedBlobBackdrop {...SOFT_FIXED_BLOB_PRESET} />
       <div className="relative z-10 mx-auto max-w-[1200px]">
         <motion.header
           {...fadeUp}
@@ -437,46 +437,48 @@ export function About() {
                 orbitAriaLabel="My tech stack: tools shown in orbit around portrait"
                 tooltip={
                   <div className="m-0 space-y-2.5">
-                    <p className="m-0 mb-1.5 block text-base font-bold leading-tight text-slate-950 sm:text-lg">
+                    <p className="m-0 mb-1.5 block text-base font-bold leading-tight text-white sm:text-lg">
                       My tech stack
                     </p>
-                    <ul className="m-0 list-none space-y-1.5 pl-0">
+                    <ul className="m-0 list-none space-y-1.5 pl-0 text-sm leading-relaxed sm:text-base">
                       <li>
-                        <span className="font-medium text-slate-950">
-                          Cursor
-                        </span>{" "}
-                        (prototyping experiences)
+                        <span className="font-medium text-white">Cursor</span>{" "}
+                        <span className="text-[#999999]">
+                          (prototyping experiences)
+                        </span>
                       </li>
                       <li>
-                        <span className="font-medium text-slate-950">
-                          Figma
-                        </span>{" "}
-                        (building out experiences and planning workflows)
+                        <span className="font-medium text-white">Figma</span>{" "}
+                        <span className="text-[#999999]">
+                          (building out experiences and planning workflows)
+                        </span>
                       </li>
                       <li>
-                        <span className="font-medium text-slate-950">
-                          GitHub
-                        </span>{" "}
-                        (creating PRs for review to push to prod)
+                        <span className="font-medium text-white">GitHub</span>{" "}
+                        <span className="text-[#999999]">
+                          (creating PRs for review to push to prod)
+                        </span>
                       </li>
                       <li>
-                        <span className="font-medium text-slate-950">
+                        <span className="font-medium text-white">
                           Atlassian
                         </span>{" "}
-                        (primarily Jira, Confluence, and Loom for work tracking
-                        and documentation)
+                        <span className="text-[#999999]">
+                          (primarily Jira, Confluence, and Loom for work
+                          tracking and documentation)
+                        </span>
                       </li>
                       <li>
-                        <span className="font-medium text-slate-950">
-                          Looker
-                        </span>{" "}
-                        (or Snowflake for data analysis)
+                        <span className="font-medium text-white">Looker</span>{" "}
+                        <span className="text-[#999999]">
+                          (or Snowflake for data analysis)
+                        </span>
                       </li>
                       <li>
-                        <span className="font-medium text-slate-950">
-                          Slack
-                        </span>{" "}
-                        (for constant alignment and async communication)
+                        <span className="font-medium text-white">Slack</span>{" "}
+                        <span className="text-[#999999]">
+                          (for constant alignment and async communication)
+                        </span>
                       </li>
                     </ul>
                   </div>
