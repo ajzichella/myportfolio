@@ -397,7 +397,7 @@ export function CaseStudyPredefinedRoles() {
               aria-hidden
             />
             <span className="text-sm font-medium text-accent-readable">
-              DigitalOcean
+              DigitalOcean | Cloud Computing &amp; Hosting
             </span>
             <span className={`${heroTagClass} uppercase tracking-wide`}>IAM</span>
             <span className={heroTagClass}>Access control</span>

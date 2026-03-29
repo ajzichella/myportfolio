@@ -14,6 +14,21 @@ const CaseStudyPredefinedRoles = lazy(() =>
     default: m.CaseStudyPredefinedRoles,
   })),
 );
+const CaseStudyKafka = lazy(() =>
+  import("./pages/CaseStudyKafka").then((m) => ({
+    default: m.CaseStudyKafka,
+  })),
+);
+const CaseStudyDDoSProtection = lazy(() =>
+  import("./pages/CaseStudyDDoSProtection").then((m) => ({
+    default: m.CaseStudyDDoSProtection,
+  })),
+);
+const CaseStudyEnhancedCheckout = lazy(() =>
+  import("./pages/CaseStudyEnhancedCheckout").then((m) => ({
+    default: m.CaseStudyEnhancedCheckout,
+  })),
+);
 const AboutPage = lazy(() =>
   import("./pages/About").then((m) => ({ default: m.About })),
 );
@@ -80,7 +95,7 @@ export function App() {
             alt="AJ Zichella monogram"
             className="h-auto w-full"
             decoding="async"
-            fetchPriority="low"
+            fetchpriority="low"
           />
         </div>
       </div>
@@ -115,7 +130,7 @@ export function App() {
   );
 
   return (
-    <div className="flex h-dvh min-h-0 overflow-hidden bg-black text-slate-50">
+    <div className="flex min-h-screen bg-black text-slate-50">
       {/* Hamburger / X button - mobile only, top right, always above content */}
       <button
         type="button"
@@ -155,10 +170,10 @@ export function App() {
         <NavContent />
       </aside>
 
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-x-visible lg:ml-52">
+      <div className="flex min-w-0 flex-1 flex-col lg:ml-52">
         <main
           id="main-scroll"
-          className="min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto pt-[max(env(safe-area-inset-top),5rem)] lg:pt-0"
+          className="min-w-0 flex-1 overflow-x-hidden pt-[max(env(safe-area-inset-top),5rem)] lg:pt-0"
         >
           <Suspense fallback={<RouteFallback />}>
             <Routes>
@@ -169,6 +184,18 @@ export function App() {
                 element={<CaseStudyPredefinedRoles />}
               />
               <Route path="/portfolio" element={<Navigate to="/case-studies" replace />} />
+              <Route
+                path="/case-studies/kafka"
+                element={<CaseStudyKafka />}
+              />
+              <Route
+                path="/case-studies/ddos-protection"
+                element={<CaseStudyDDoSProtection />}
+              />
+              <Route
+                path="/case-studies/enhanced-checkout"
+                element={<CaseStudyEnhancedCheckout />}
+              />
               <Route path="/about" element={<AboutPage />} />
               <Route path="*" element={<HomePage />} />
             </Routes>

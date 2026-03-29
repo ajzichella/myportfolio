@@ -343,7 +343,6 @@ export function BlobBackground({
           h,
           bottomExtentFrac,
         );
-
         const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
         for (const [pos, a] of o.stops) {
           const alpha = Math.min(1, a * alphaScale * pulseMul);

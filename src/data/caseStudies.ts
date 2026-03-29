@@ -31,7 +31,7 @@ export const CASE_STUDIES: Study[] = [
       { value: "Protected", label: "networks" },
       { value: "Informed", label: "users" },
     ],
-    link: "https://ajzichella.com/",
+    link: "/case-studies/ddos-protection",
     images: [`${base}ddos1.png`],
     imageAlts: [
       "DDoS Protection networking dashboard with Back Online notification card showing shrimp illustration and recovery message",
@@ -47,7 +47,7 @@ export const CASE_STUDIES: Study[] = [
       { value: "Simplified", label: "Topic upkeep" },
       { value: "Reliable", label: "data environment" },
     ],
-    link: "https://ajzichella.com/",
+    link: "/case-studies/kafka",
     images: [`${base}kafka-permissions.png`, `${base}kafka-create-topic.png`],
     imageAlts: [
       "Kafka topic permissions modal with Admin, Produce, Consume, and Consume and Produce roles",
@@ -64,7 +64,7 @@ export const CASE_STUDIES: Study[] = [
       { value: "Streamlined", label: "checkout experience" },
       { value: "Increased", label: "conversions and revenue" },
     ],
-    link: "https://ajzichella.com/",
+    link: "/case-studies/enhanced-checkout",
     images: [`${base}estoris2.png`, `${base}checkout_mobile.png`],
     imageAlts: [
       "STORIS admin Checkout Settings with delivery options and store pickup",
