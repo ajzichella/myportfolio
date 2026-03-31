@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "motion/react";
-import { ChevronRight, List, X } from "lucide-react";
+import { ChevronRight, List, Lock, LockOpen, PawPrint, X } from "lucide-react";
 import { FixedBlobBackdrop } from "../components/BlobBackground";
 import { Bubbles } from "../components/Bubbles";
 import { ImageLightbox, LightboxImageButton } from "../components/ImageLightbox";
@@ -52,7 +52,13 @@ const DDOS_SECTION_INDEX = [
   { id: "ddos-peer-heading", label: "Peer Feedback" },
 ] as const;
 
+const DDOS_GATE_STORAGE_KEY = "ddos-case-study-unlocked";
+const DDOS_GATE_PASSWORD = "eXperience";
+
 export function CaseStudyDDoSProtection() {
+  const [isUnlocked, setIsUnlocked] = useState(false);
+  const [passwordInput, setPasswordInput] = useState("");
+  const [passwordError, setPasswordError] = useState("");
   const [isSectionIndexOpen, setIsSectionIndexOpen] = useState(false);
   const [readingProgress, setReadingProgress] = useState(0);
   const [imageLightbox, setImageLightbox] = useState<{
@@ -61,6 +67,11 @@ export function CaseStudyDDoSProtection() {
   } | null>(null);
   const pageRef = useRef<HTMLElement>(null);
   const sectionIndexFloatingRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const unlocked = window.localStorage.getItem(DDOS_GATE_STORAGE_KEY) === "1";
+    setIsUnlocked(unlocked);
+  }, []);
 
   useEffect(() => {
     if (!isSectionIndexOpen) return;
@@ -155,6 +166,128 @@ export function CaseStudyDDoSProtection() {
     }
     setIsSectionIndexOpen(false);
   };
+
+  const onUnlockSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (passwordInput === DDOS_GATE_PASSWORD) {
+      window.localStorage.setItem(DDOS_GATE_STORAGE_KEY, "1");
+      setIsUnlocked(true);
+      setPasswordError("");
+      return;
+    }
+    setPasswordError("Incorrect password. Please try again.");
+  };
+
+  if (!isUnlocked) {
+    return (
+      <section className="relative w-full min-w-0 min-h-screen shrink-0 overflow-x-visible py-16 md:py-16 lg:py-16">
+        <FixedBlobBackdrop />
+        <div className="relative z-10 mx-auto flex min-h-[60vh] w-full max-w-[760px] items-center px-6 md:px-12">
+          <div className="case-study-card case-study-card--no-left-accent relative w-full overflow-hidden rounded-xl p-6 md:p-8">
+            <div className="pointer-events-none absolute -right-8 -top-8 h-44 w-44 rounded-full bg-orange-400/20 blur-3xl" aria-hidden />
+            <div className="pointer-events-none absolute -left-10 -bottom-12 h-40 w-40 rounded-full bg-amber-500/15 blur-3xl" aria-hidden />
+            <div className="pointer-events-none absolute inset-0 z-[1] overflow-hidden rounded-xl" aria-hidden>
+              {[
+                // Diagonal paw trail (bottom-left -> top-right), alternating steps
+                { left: "10%", top: "78%", delay: 0.0, duration: 2.6, scale: 0.9 },
+                { left: "16%", top: "70%", delay: 0.12, duration: 2.7, scale: 0.82 },
+                { left: "24%", top: "65%", delay: 0.24, duration: 2.5, scale: 0.88 },
+                { left: "31%", top: "57%", delay: 0.36, duration: 2.8, scale: 0.8 },
+                { left: "39%", top: "52%", delay: 0.48, duration: 2.6, scale: 0.9 },
+                { left: "47%", top: "44%", delay: 0.6, duration: 2.9, scale: 0.84 },
+                { left: "56%", top: "39%", delay: 0.72, duration: 2.7, scale: 0.88 },
+                { left: "64%", top: "31%", delay: 0.84, duration: 2.8, scale: 0.8 },
+                { left: "73%", top: "26%", delay: 0.96, duration: 2.6, scale: 0.86 },
+                { left: "81%", top: "18%", delay: 1.08, duration: 2.9, scale: 0.78 },
+                { left: "89%", top: "13%", delay: 1.2, duration: 2.7, scale: 0.82 },
+              ].map((paw, i) => (
+                <motion.span
+                  key={i}
+                  className="absolute text-amber-200/60"
+                  style={{ left: paw.left, top: paw.top }}
+                  initial={{ opacity: 0.22, y: 4, scale: paw.scale, rotate: -6 }}
+                  animate={{ opacity: [0.2, 0.6, 0.2], y: [4, -5, 4], scale: [paw.scale, paw.scale + 0.08, paw.scale], rotate: [-6, 6, -6] }}
+                  transition={{ duration: paw.duration, delay: paw.delay, repeat: Infinity, repeatType: "loop", ease: "easeInOut" }}
+                >
+                  <PawPrint className="h-6 w-6 drop-shadow-[0_0_10px_rgba(251,191,36,0.35)]" />
+                </motion.span>
+              ))}
+            </div>
+            <div className="relative z-[2]">
+            <p className="inline-flex items-center gap-2 rounded-full border border-amber-300/30 bg-amber-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-amber-200">
+              <span className="relative inline-flex h-4 w-4 items-center justify-center" aria-hidden>
+                <motion.span
+                  className="absolute"
+                  animate={{
+                    opacity: [1, 1, 0, 0, 1],
+                    scale: [1, 1, 0.92, 0.92, 1],
+                    y: [0, 0, 0.8, 0.8, 0],
+                  }}
+                  transition={{
+                    duration: 1.9,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    times: [0, 0.58, 0.581, 0.92, 1],
+                  }}
+                >
+                  <Lock className="h-3.5 w-3.5" />
+                </motion.span>
+                <motion.span
+                  className="absolute"
+                  animate={{
+                    opacity: [0, 0, 1, 1, 0],
+                    scale: [0.68, 0.68, 1.32, 1, 0.94],
+                    y: [0.8, 0.8, -1.2, 0, 0.2],
+                  }}
+                  transition={{
+                    duration: 1.9,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    times: [0, 0.58, 0.581, 0.92, 1],
+                  }}
+                >
+                  <LockOpen className="h-3.5 w-3.5" />
+                </motion.span>
+              </span>
+              🐈 Orange cat security team
+            </p>
+            <h1 className="mt-3 text-2xl font-bold tracking-tight text-white md:text-3xl">
+              DDoS Protection
+            </h1>
+            <p className="mt-3 text-sm leading-relaxed text-[#999999] md:text-base">
+              This case study is password protected. Please enter the provided password and cat security will let you in.
+            </p>
+            <form className="mt-6 space-y-3" onSubmit={onUnlockSubmit}>
+              <label className="block text-xs font-semibold uppercase tracking-wide text-accent-readable">
+                Password
+              </label>
+              <input
+                type="password"
+                value={passwordInput}
+                onChange={(e) => {
+                  setPasswordInput(e.target.value);
+                  if (passwordError) setPasswordError("");
+                }}
+                className="w-full rounded-[8px] border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 outline-none transition-colors focus:border-[#00aeef] focus:ring-2 focus:ring-[#00aeef]/30"
+                autoComplete="current-password"
+              />
+              {passwordError ? (
+                <p className="text-sm text-rose-300">{passwordError}</p>
+              ) : null}
+              <button
+                type="submit"
+                className="inline-flex items-center gap-2 rounded-lg border border-orange-200/30 bg-gradient-to-r from-orange-400 to-amber-400 px-4 py-2 text-sm font-semibold text-slate-950 transition-colors hover:from-orange-300 hover:to-amber-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+              >
+                <span aria-hidden>🐾</span>
+                Unlock case study
+              </button>
+            </form>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section
