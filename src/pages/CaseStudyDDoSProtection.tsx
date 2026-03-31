@@ -1,14 +1,47 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "motion/react";
+import { animate, inView, motion, useReducedMotion } from "motion/react";
 import { ChevronRight, List, Lock, LockOpen, PawPrint, X } from "lucide-react";
 import { FixedBlobBackdrop } from "../components/BlobBackground";
 import { Bubbles } from "../components/Bubbles";
 import { ImageLightbox, LightboxImageButton } from "../components/ImageLightbox";
 import GradientText from "../components/GradientText";
+import BlurText from "../components/BlurText";
 import { LaunchImpactPartyPopper } from "../components/ResultsSectionBadge";
+import { PAW_PATH_D } from "../lib/pawPath";
 
 const base = import.meta.env.BASE_URL;
+const bobCarouselSlides = [
+  `${base}ddos-bob-1.png`,
+  `${base}ddos-bob-2.png`,
+  `${base}ddos-bob-3.png`,
+  `${base}ddos-bob-4.png`,
+] as const;
+const anneCarouselSlides = [
+  `${base}ddos-anne-1.png`,
+  `${base}ddos-anne-2.png`,
+  `${base}ddos-anne-3.png`,
+  `${base}ddos-anne-4.png`,
+] as const;
+
+const ddosPostBetaImages = [
+  {
+    src: `${base}teamline.png`,
+    alt: "DDoS Protection pricing modal clarifying coverage is applied to the current team",
+  },
+  {
+    src: `${base}guidance-1024x356.png`,
+    alt: "DDoS event guidance messaging for Blackhole status and recommended actions",
+  },
+  {
+    src: `${base}overview-summary-1024x448.png`,
+    alt: "DDoS overview summary with mitigated attacks, Blackhole percentage, attack volume, and top attacked resources",
+  },
+  {
+    src: `${base}status-1024x427.png`,
+    alt: "DDoS logs table with event status, attack volume, target resources, and refresh logs control",
+  },
+] as const;
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
@@ -35,25 +68,136 @@ const heroTagClass =
 const resultMetricClass =
   "text-2xl font-bold md:text-3xl bg-gradient-to-br from-[#8fffc4] via-[#3ee0c8] to-[#5bdbd8] bg-clip-text text-transparent [filter:drop-shadow(0_0_12px_rgba(62,224,200,0.4))]";
 
+const PAW_VIEWBOX_WIDTH = 1600;
+const PAW_VIEWBOX_HEIGHT = 2400;
+
+type DdosExperiencePaw = { x: number; y: number; r: number; o: number };
+
+function buildDdosExperiencePaws(): DdosExperiencePaw[] {
+  const yScale = PAW_VIEWBOX_HEIGHT / 900;
+  const makeTrail = (
+    startX: number,
+    endX: number,
+    baseY: number,
+    amplitude: number,
+    phase: number,
+    count: number,
+    rotateBias: number,
+  ) => {
+    const n = Math.max(1, count - 1);
+    const stepX = (endX - startX) / n;
+    const freq = Math.PI * 1.35;
+    return Array.from({ length: count }, (_, i) => {
+      const t = i / n;
+      const x = startX + (endX - startX) * t;
+      const wave = t * freq + phase;
+      const y = baseY * yScale + Math.sin(wave) * (amplitude * yScale);
+      const slopeY = amplitude * yScale * Math.cos(wave) * freq;
+      const tangentDeg = (Math.atan2(slopeY, stepX) * 180) / Math.PI;
+      const headingDeg = tangentDeg + 90;
+      const stepSwing = i % 2 === 0 ? -6 : 6;
+      return {
+        x,
+        y,
+        r: headingDeg + rotateBias + stepSwing,
+        o: 0.09 + t * 0.08,
+      };
+    });
+  };
+
+  return [
+    ...makeTrail(20, 300, 40, 34, 0.02, 8, -28),
+    ...makeTrail(30, 360, 90, 42, 0.05, 9, -26),
+    ...makeTrail(70, 430, 120, 48, 0.15, 10, -24),
+    ...makeTrail(120, 520, 155, 46, 0.28, 10, -20),
+    ...makeTrail(220, 700, 220, 56, 0.6, 11, -14),
+    ...makeTrail(290, 820, 255, 58, 0.82, 11, -8),
+    ...makeTrail(420, 980, 300, 60, 1.0, 12, 4),
+    ...makeTrail(560, 1120, 350, 64, 1.2, 12, 8),
+    ...makeTrail(660, 1260, 400, 66, 1.4, 13, 12),
+    ...makeTrail(780, 1380, 455, 62, 1.62, 12, 2),
+    ...makeTrail(900, 1500, 500, 62, 1.8, 12, -6),
+    ...makeTrail(980, 1560, 545, 58, 2.0, 11, -10),
+    ...makeTrail(1060, 1590, 620, 54, 2.25, 10, -16),
+    ...makeTrail(760, 1360, 675, 46, 2.48, 10, -4),
+    ...makeTrail(180, 820, 700, 44, 2.7, 10, 18),
+    ...makeTrail(60, 640, 760, 40, 2.95, 9, 24),
+    ...makeTrail(220, 980, 820, 36, 3.1, 8, 20),
+    ...makeTrail(900, 1540, 860, 34, 3.25, 8, -18),
+  ];
+}
+
+const DDOS_EXPERIENCE_PAWS = buildDdosExperiencePaws();
+
+const DdosExperiencePawPaths = memo(function DdosExperiencePawPaths() {
+  return (
+    <svg
+      className="absolute inset-0 z-0 h-full w-full opacity-90 text-slate-300/45 [mask-image:radial-gradient(ellipse_94%_94%_at_50%_50%,#000_38%,#000_78%,transparent_100%)]"
+      viewBox={`0 0 ${PAW_VIEWBOX_WIDTH} ${PAW_VIEWBOX_HEIGHT}`}
+      preserveAspectRatio="xMidYMid meet"
+      aria-hidden
+    >
+      {DDOS_EXPERIENCE_PAWS.map((paw, i) => (
+        <path
+          key={i}
+          d={PAW_PATH_D}
+          fill="currentColor"
+          opacity={paw.o}
+          transform={`translate(${paw.x} ${paw.y}) rotate(${paw.r}) scale(2) translate(-8 -8)`}
+        />
+      ))}
+    </svg>
+  );
+});
+
 const DDOS_SECTION_INDEX = [
   { id: "ddos-results-heading", label: "Results" },
   { id: "ddos-scope-heading", label: "Scope & collaboration" },
   { id: "ddos-research-heading", label: "Research & discovery" },
-  { id: "ddos-scoping-heading", label: "Scoping" },
+  { id: "ddos-scoping-heading", label: "Ideation" },
   { id: "ddos-mascot-heading", label: "🦐 DDoS Mascot" },
-  { id: "ddos-emptystate-heading", label: "Empty State" },
-  { id: "ddos-pricing-heading", label: "Pricing Modals" },
-  { id: "ddos-overview-heading", label: "DDoS Overview" },
-  { id: "ddos-alerts-heading", label: "Alert Creation" },
-  { id: "ddos-logs-heading", label: "Log Details" },
-  { id: "ddos-cancel-heading", label: "Cancellation" },
+  { id: "ddos-experience-heading", label: "Experience" },
   { id: "ddos-beta-heading", label: "Beta" },
+  {
+    id: "ddos-postbeta-iterations-heading",
+    label: "Post-Beta Iterations",
+  },
   { id: "ddos-challenges-heading", label: "Challenges & Opportunities" },
   { id: "ddos-peer-heading", label: "Peer Feedback" },
 ] as const;
 
 const DDOS_GATE_STORAGE_KEY = "ddos-case-study-unlocked";
 const DDOS_GATE_PASSWORD = "eXperience";
+
+function ResultCount({
+  value,
+  active,
+  delay,
+}: {
+  value: number;
+  active: boolean;
+  delay: number;
+}) {
+  const reduceMotion = useReducedMotion();
+  const [display, setDisplay] = useState(0);
+
+  useEffect(() => {
+    if (!active) return;
+    if (reduceMotion) {
+      setDisplay(value);
+      return;
+    }
+    const controls = animate(0, value, {
+      duration: 1.4,
+      delay,
+      ease: [0.22, 1, 0.36, 1],
+      onUpdate: (latest) => setDisplay(latest),
+    });
+    return () => controls.stop();
+  }, [active, value, delay, reduceMotion]);
+
+  return <span className="tabular-nums">{Math.round(display).toLocaleString("en-US")}</span>;
+}
 
 export function CaseStudyDDoSProtection() {
   const [isUnlocked, setIsUnlocked] = useState(false);
@@ -65,13 +209,38 @@ export function CaseStudyDDoSProtection() {
     src: string;
     alt: string;
   } | null>(null);
+  const [bobCarouselIndex, setBobCarouselIndex] = useState(0);
+  const [anneCarouselIndex, setAnneCarouselIndex] = useState(0);
   const pageRef = useRef<HTMLElement>(null);
   const sectionIndexFloatingRef = useRef<HTMLDivElement>(null);
+  /** Counters only after ~half of Results is visible in the viewport */
+  const [resultsMetricsActive, setResultsMetricsActive] = useState(false);
+  const resultsInViewCleanupRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     const unlocked = window.localStorage.getItem(DDOS_GATE_STORAGE_KEY) === "1";
     setIsUnlocked(unlocked);
   }, []);
+
+  const resultsSectionRef = useCallback(
+    (node: HTMLElement | null) => {
+      resultsInViewCleanupRef.current?.();
+      resultsInViewCleanupRef.current = null;
+      if (!node || !isUnlocked) return;
+
+      resultsInViewCleanupRef.current = inView(
+        node,
+        () => {
+          setResultsMetricsActive(true);
+        },
+        {
+          /** Trigger only after half of Results is visible in the user's viewport */
+          amount: 0.5,
+        },
+      );
+    },
+    [isUnlocked],
+  );
 
   useEffect(() => {
     if (!isSectionIndexOpen) return;
@@ -352,7 +521,7 @@ export function CaseStudyDDoSProtection() {
           >
             <div className="flex items-start gap-3 rounded-xl border border-amber-400/20 bg-amber-400/[0.06] px-4 py-3 ring-1 ring-inset ring-amber-300/[0.08]">
               <span className="mt-0.5 shrink-0 text-base leading-none" aria-hidden>🤫</span>
-              <p className="text-xs leading-relaxed text-amber-200/80">
+              <p className="text-sm leading-relaxed text-amber-200/80">
                 <span className="font-semibold text-amber-300">Secret Menu Item</span>
                 {" "}– Please keep confidential
               </p>
@@ -411,6 +580,7 @@ export function CaseStudyDDoSProtection() {
         <motion.section
           {...fadeUp}
           transition={{ duration: 0.4, delay: 0.09 }}
+          ref={resultsSectionRef}
           aria-labelledby="ddos-results-heading"
           className="mt-16"
         >
@@ -421,28 +591,40 @@ export function CaseStudyDDoSProtection() {
               <div className="relative z-[2]">
                 <p className="inline-flex items-center gap-2 overflow-visible rounded-full border border-[#00aeef]/20 bg-[#00aeef]/[0.06] px-3 py-1 text-xs font-semibold uppercase tracking-wide text-accent-readable">
                   <LaunchImpactPartyPopper />
-                  Launch impact
+                  Beta launch impact
                 </p>
                 <h2 id="ddos-results-heading" className="mt-4 block leading-tight">
                   <span className={resultMetricClass}>Results</span>
                 </h2>
                 <p className="mt-4 max-w-3xl text-base leading-relaxed text-[#b8c0cc] md:text-lg">
-                  We were able to retain large scaling users due to the experience of this
-                  product. The Beta saw incredible demand — and even resulted in the first
-                  known Beta leaker in company history.
+                  A layoff right before GA cut key resources and single point of failure teammates. The launch
+                  shifted into a &quot;secret menu&quot; product available only through CSM
+                  requests. Even with limited access and visibility, top customers continue to find strong
+                  value in DDoS Protection today.
+                </p>
+                <p className="mt-4 max-w-3xl text-base leading-relaxed text-[#b8c0cc] md:text-lg">
+                  The product was initially at risk of being completely scrapped, but one very large
+                  Beta customer (bringing $XXk MRR) was clear they would churn to AWS
+                  without it. We retained that customer, and it was a proud moment to see
+                  users advocate so strongly for the experience. The Beta also saw enough
+                  demand that it resulted in the first known beta leaker in company history.
                 </p>
                 <div className="mt-8 grid gap-4 py-1 sm:grid-cols-3">
                   <div className="results-metric-glow">
                     <div className="relative z-[1] flex h-full min-h-0 flex-col rounded-[6px] bg-[#03040A]/40 px-5 py-5 ring-1 ring-inset ring-white/[0.06] backdrop-blur-[2px]">
-                      <p className={resultMetricClass}>17</p>
+                      <p className={resultMetricClass}>
+                        <ResultCount value={30} active={resultsMetricsActive} delay={0} />
+                      </p>
                       <p className="mt-2 text-sm leading-snug text-slate-200">
-                        Beta users (grew from target of 10 due to demand)
+                        top customers actively using DDoS Protection today
                       </p>
                     </div>
                   </div>
                   <div className="results-metric-glow">
                     <div className="relative z-[1] flex h-full min-h-0 flex-col rounded-[6px] bg-[#03040A]/40 px-5 py-5 ring-1 ring-inset ring-white/[0.06] backdrop-blur-[2px]">
-                      <p className={resultMetricClass}>91</p>
+                      <p className={resultMetricClass}>
+                        <ResultCount value={91} active={resultsMetricsActive} delay={0.08} />
+                      </p>
                       <p className="mt-2 text-sm leading-snug text-slate-200">
                         users responded to Pendo survey on DDoS Protection needs
                       </p>
@@ -450,9 +632,11 @@ export function CaseStudyDDoSProtection() {
                   </div>
                   <div className="results-metric-glow">
                     <div className="relative z-[1] flex h-full min-h-0 flex-col rounded-[6px] bg-[#03040A]/40 px-5 py-5 ring-1 ring-inset ring-white/[0.06] backdrop-blur-[2px]">
-                      <p className={resultMetricClass}>153</p>
+                      <p className={resultMetricClass}>
+                        <ResultCount value={17} active={resultsMetricsActive} delay={0.16} />
+                      </p>
                       <p className="mt-2 text-sm leading-snug text-slate-200">
-                        lines of user survey feedback reviewed to kick off discovery
+                        Beta users (grew from target of 10 due to demand)
                       </p>
                     </div>
                   </div>
@@ -474,15 +658,15 @@ export function CaseStudyDDoSProtection() {
           className="grid w-full grid-cols-1 gap-2 px-0 py-6 sm:gap-3 md:grid-cols-3 md:gap-4 md:py-40 lg:gap-5"
         >
           <LightboxImageButton
-            src={`${base}ddos-empty-state.png`}
-            alt="DDoS Protection empty state on Networking tab explaining the product and its benefits"
+            src={`${base}ddos-overview.png`}
+            alt="DDoS Protection overview showing plan details, protected resources, alerts, and logs"
             wrapperClassName="w-full"
             className="h-auto max-h-[min(920px,88vh)] w-full rounded-lg object-contain"
             onOpen={setImageLightbox}
           />
           <LightboxImageButton
-            src={`${base}ddos-overview.png`}
-            alt="DDoS Protection overview showing plan details, protected resources, alerts, and logs"
+            src={`${base}ddos-empty-state.png`}
+            alt="DDoS Protection empty state on Networking tab explaining the product and its benefits"
             wrapperClassName="w-full"
             className="h-auto max-h-[min(920px,88vh)] w-full rounded-lg object-contain"
             onOpen={setImageLightbox}
@@ -535,17 +719,13 @@ export function CaseStudyDDoSProtection() {
               Cross-Functional Collaboration &amp; Alignment
             </h3>
             <p className="mt-3 text-base leading-relaxed text-[#999999] md:text-lg">
-              I worked with the Billing team to ensure DDoS Protection was integrated
-              properly within the UI and invoice as well as crafting a new section for it
-              as DDoS Protection&apos;s pricing model is unique.
+              I worked with Billing to integrate DDoS Protection into the UI and invoice,
+              plus a dedicated section for its unique pricing model.
             </p>
             <p className="mt-3 text-base leading-relaxed text-[#999999] md:text-lg">
-              Support needed, well, support introducing DDoS Protection into our internal
-              customer service portal. I collaborated with support engineers to create an
-              efficient experience for support techs to look up DDoS information that
-              attacked users may come to support with. This integration allows support
-              techs to troubleshoot webhooks and view DDoS Attack information in order to
-              best help our concerned users.
+              Support needed, well, support. I partnered with support engineers to bring
+              DDoS Protection into our internal portal so support techs can quickly look
+              up attack details and webhook issues when helping impacted users.
             </p>
             <p className="mt-3 text-base leading-relaxed text-[#999999] md:text-lg">
               To ensure that DDoS Protection receives future iterations and its reduced
@@ -590,23 +770,43 @@ export function CaseStudyDDoSProtection() {
                 </p>
               </div>
               <div>
-                <p className="text-base leading-relaxed text-[#999999] md:text-lg">
-                  To kick off DDoS Protection and start to understand its users, I reviewed
-                  153 lines of user survey feedback regarding DDoS attacks and created 2
-                  distinctive user stories using the feedback to identify users and their
-                  needs:
-                </p>
-                <p className="mt-3 text-base leading-relaxed text-[#999999] md:text-lg">
-                  Each user story touches on fleshing out our users by connecting real user
-                  feedback to a persona that aligns, listing their needs and painpoints and
-                  coupling those with potential solutions (JTBD), and sketching out ideas
-                  with possible pre and post paid experiences based on their specific needs
-                </p>
+                
               </div>
             </div>
             <div className="space-y-8">
               <div>
                 <h3 className="text-lg font-semibold text-white">Competitive Analysis</h3>
+                <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
+                  {[
+                    {
+                      src: `${base}Cloudflare_Logo.svg.png`,
+                      alt: "Cloudflare logo",
+                    },
+                    {
+                      src: `${base}Logo_OVH.png`,
+                      alt: "OVHcloud logo",
+                    },
+                    {
+                      src: `${base}Logo-Google-Cloud.png`,
+                      alt: "Google Cloud logo",
+                    },
+                    { src: `${base}logo-linode-competitor.png`, alt: "Linode logo" },
+                    { src: `${base}logo-azure-competitor.png`, alt: "Azure logo" },
+                    { src: `${base}logo-vultr-competitor.png`, alt: "Vultr logo" },
+                  ].map((logo) => (
+                    <div
+                      key={logo.alt}
+                      className="flex min-h-[56px] items-center justify-center rounded-lg border border-white/30 bg-white/20 p-2 backdrop-blur-sm"
+                    >
+                      <img
+                        src={logo.src}
+                        alt={logo.alt}
+                        className="block h-auto w-auto max-h-10 max-w-full object-contain"
+                        loading="lazy"
+                      />
+                    </div>
+                  ))}
+                </div>
                 <p className="mt-3 text-base leading-relaxed text-[#999999] md:text-lg">
                   As always, I researched competitors in the cloud space that offer DDoS
                   Protection to gain an understanding of their specs, features, pricing,
@@ -625,6 +825,177 @@ export function CaseStudyDDoSProtection() {
                 </p>
               </div>
             </div>
+            <div className="md:col-span-2">
+              <h3 className="text-lg font-semibold text-white">Research</h3>
+              <p className="mt-3 text-base leading-relaxed text-[#999999] md:text-lg">
+                To kick off DDoS Protection and start to understand its users, I reviewed
+                153 lines of user survey feedback regarding DDoS attacks and created 2
+                distinctive user stories using the feedback to identify users and their
+                needs:
+              </p>
+              <p className="mt-3 text-base leading-relaxed text-[#999999] md:text-lg">
+                Each user story touches on fleshing out our users by connecting real user
+                feedback to a persona that aligns, listing their needs and painpoints and
+                coupling those with potential solutions (JTBD), and sketching out ideas
+                with possible pre and post paid experiences based on their specific needs
+              </p>
+            </div>
+            <motion.div
+              {...fadeUp}
+              transition={{ duration: 0.4, delay: 0.14 }}
+              className="md:col-span-2"
+            >
+              <div className="w-full">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-xs font-semibold leading-snug tracking-wide text-accent-readable md:text-sm">
+                    "Set it and forget it" Bob&apos;s user story
+                  </p>
+                  <p className="text-xs font-semibold text-slate-300">
+                    {bobCarouselIndex + 1} / {bobCarouselSlides.length}
+                  </p>
+                </div>
+                <div className="mt-2 overflow-hidden rounded-xl border border-slate-700/70 bg-slate-900/40">
+                  <div
+                    className="flex transition-transform duration-300 ease-out"
+                    style={{
+                      transform: `translateX(-${bobCarouselIndex * 100}%)`,
+                    }}
+                  >
+                    {bobCarouselSlides.map((src, idx) => (
+                      <div key={src} className="w-full basis-full shrink-0 p-2">
+                        <LightboxImageButton
+                          src={src}
+                          alt={`Bob research slide ${idx + 1}`}
+                          wrapperClassName="flex w-full justify-center rounded-lg px-1 sm:px-2"
+                          className="block h-auto w-[min(100%,1024px)] rounded-lg object-contain"
+                          onOpen={setImageLightbox}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="mt-3 flex items-center justify-between gap-3">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setBobCarouselIndex((prev) =>
+                        prev === 0 ? bobCarouselSlides.length - 1 : prev - 1,
+                      )
+                    }
+                    className="inline-flex items-center gap-1 rounded-md border border-slate-600 bg-slate-900/60 px-3 py-1.5 text-sm text-slate-200 transition-colors hover:border-[#00aeef]/70 hover:text-[#7ee8ff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00aeef] focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+                    aria-label="Previous Bob slide"
+                  >
+                    <span aria-hidden>←</span>
+                    Previous
+                  </button>
+                  <div className="flex items-center gap-2">
+                    {bobCarouselSlides.map((_, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setBobCarouselIndex(idx)}
+                        className={`h-2.5 w-2.5 rounded-full transition-colors ${
+                          idx === bobCarouselIndex ? "bg-[#00aeef]" : "bg-slate-600 hover:bg-slate-500"
+                        }`}
+                        aria-label={`Go to Bob slide ${idx + 1}`}
+                      />
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setBobCarouselIndex((prev) =>
+                        prev === bobCarouselSlides.length - 1 ? 0 : prev + 1,
+                      )
+                    }
+                    className="inline-flex items-center gap-1 rounded-md border border-slate-600 bg-slate-900/60 px-3 py-1.5 text-sm text-slate-200 transition-colors hover:border-[#00aeef]/70 hover:text-[#7ee8ff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00aeef] focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+                    aria-label="Next Bob slide"
+                  >
+                    Next
+                    <span aria-hidden>→</span>
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+            <motion.div
+              {...fadeUp}
+              transition={{ duration: 0.4, delay: 0.17 }}
+              className="md:col-span-2"
+            >
+              <div className="w-full">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-xs font-semibold leading-snug tracking-wide text-accent-readable md:text-sm">
+                    Anxious Anne&apos;s user story
+                  </p>
+                  <p className="text-xs font-semibold text-slate-300">
+                    {anneCarouselIndex + 1} / {anneCarouselSlides.length}
+                  </p>
+                </div>
+                <div className="mt-2 overflow-hidden rounded-xl border border-slate-700/70 bg-slate-900/40">
+                  <div
+                    className="flex transition-transform duration-300 ease-out"
+                    style={{
+                      transform: `translateX(-${anneCarouselIndex * 100}%)`,
+                    }}
+                  >
+                    {anneCarouselSlides.map((src, idx) => (
+                      <div key={src} className="w-full basis-full shrink-0 p-2">
+                        <LightboxImageButton
+                          src={src}
+                          alt={`Anne research slide ${idx + 1}`}
+                          wrapperClassName="flex w-full justify-center rounded-lg px-1 sm:px-2"
+                          className="block h-auto w-[min(100%,1024px)] rounded-lg object-contain"
+                          onOpen={setImageLightbox}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="mt-3 flex items-center justify-between gap-3">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setAnneCarouselIndex((prev) =>
+                        prev === 0 ? anneCarouselSlides.length - 1 : prev - 1,
+                      )
+                    }
+                    disabled={anneCarouselSlides.length <= 1}
+                    className="inline-flex items-center gap-1 rounded-md border border-slate-600 bg-slate-900/60 px-3 py-1.5 text-sm text-slate-200 transition-colors hover:border-[#00aeef]/70 hover:text-[#7ee8ff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00aeef] focus-visible:ring-offset-2 focus-visible:ring-offset-black disabled:cursor-not-allowed disabled:opacity-50"
+                    aria-label="Previous Anne slide"
+                  >
+                    <span aria-hidden>←</span>
+                    Previous
+                  </button>
+                  <div className="flex items-center gap-2">
+                    {anneCarouselSlides.map((_, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setAnneCarouselIndex(idx)}
+                        className={`h-2.5 w-2.5 rounded-full transition-colors ${
+                          idx === anneCarouselIndex ? "bg-[#00aeef]" : "bg-slate-600 hover:bg-slate-500"
+                        }`}
+                        aria-label={`Go to Anne slide ${idx + 1}`}
+                      />
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setAnneCarouselIndex((prev) =>
+                        prev === anneCarouselSlides.length - 1 ? 0 : prev + 1,
+                      )
+                    }
+                    disabled={anneCarouselSlides.length <= 1}
+                    className="inline-flex items-center gap-1 rounded-md border border-slate-600 bg-slate-900/60 px-3 py-1.5 text-sm text-slate-200 transition-colors hover:border-[#00aeef]/70 hover:text-[#7ee8ff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00aeef] focus-visible:ring-offset-2 focus-visible:ring-offset-black disabled:cursor-not-allowed disabled:opacity-50"
+                    aria-label="Next Anne slide"
+                  >
+                    Next
+                    <span aria-hidden>→</span>
+                  </button>
+                </div>
+              </div>
+            </motion.div>
           </div>
         </motion.section>
 
@@ -636,7 +1007,7 @@ export function CaseStudyDDoSProtection() {
           className="mt-16"
         >
           <h2 id="ddos-scoping-heading" className={sectionTitle}>
-            Scoping and Experience Direction
+            Ideation
           </h2>
           <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-start">
             <div>
@@ -653,22 +1024,32 @@ export function CaseStudyDDoSProtection() {
                 DDoS-related information, stakeholders opted for a paid-only experience.
               </p>
               <p className="mt-4 text-base leading-relaxed text-[#999999] md:text-lg">
-                I quickly mocked up a simplified version of a post-paid experience (shown
-                below) and socialized it in our general engineering slack channel to gather
+                I quickly mocked up a simplified version of a post-paid experience and socialized it in our general engineering slack channel to gather
                 internal feedback. Some feedback received mentioned: how large the attack
                 was, what kind of DDoS attack was it, what resource type was hit, how long
                 did the attack last, and when the attack ended
               </p>
             </div>
-            <figure className="min-w-0">
-              <LightboxImageButton
-                src={`${base}ddos-sketch.png`}
-                alt="Early sketch of post-paid DDoS Protection experience showing attack overview"
-                wrapperClassName="rounded-lg"
-                className="w-full rounded-lg"
-                onOpen={setImageLightbox}
-              />
-            </figure>
+            <div className="min-w-0 space-y-4">
+              <figure className="min-w-0">
+                <LightboxImageButton
+                  src={`${base}ddos-plans.png`}
+                  alt="Side-by-side DDoS scoping concepts comparing initial and refined plan layouts"
+                  wrapperClassName="rounded-lg"
+                  className="w-full rounded-lg"
+                  onOpen={setImageLightbox}
+                />
+              </figure>
+              <figure className="min-w-0">
+                <LightboxImageButton
+                  src={`${base}ddos-sketch.png`}
+                  alt="Early sketch of post-paid DDoS Protection experience showing attack overview"
+                  wrapperClassName="rounded-lg"
+                  className="w-full rounded-lg"
+                  onOpen={setImageLightbox}
+                />
+              </figure>
+            </div>
           </div>
         </motion.section>
 
@@ -697,7 +1078,7 @@ export function CaseStudyDDoSProtection() {
             <figure className="min-w-0 rounded-xl bg-white/90 p-4 shadow-md ring-1 ring-black/5">
               <LightboxImageButton
                 src={`${base}ddos-jacques.png`}
-                alt="Jacques the cleaner shrimp — DDoS Protection mascot sketch"
+                alt="Jacques the cleaner shrimp, DDoS Protection mascot sketch"
                 wrapperClassName="rounded-lg"
                 className="w-full rounded-lg"
                 onOpen={setImageLightbox}
@@ -705,263 +1086,304 @@ export function CaseStudyDDoSProtection() {
             </figure>
           </div>
         </motion.section>
+      </div>
 
-        {/* Empty State */}
-        <motion.section
-          {...fadeUp}
-          transition={{ duration: 0.4, delay: 0.12 }}
-          aria-labelledby="ddos-emptystate-heading"
-          className="mt-16"
-        >
-          <h2 id="ddos-emptystate-heading" className={sectionTitle}>
-            Empty State
-          </h2>
-          <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-start">
-            <div>
-              <p className="text-base leading-relaxed text-[#999999] md:text-lg">
-                I asked internal cohorts about where they would go to search for DDoS
-                Protection and Networking was the resounding winner. DDoS Protection&apos;s
-                flow starts on the Networking tab of the DigitalOcean platform, next to
-                Firewalls in which closely relates to DDoS Protection. This empty states
-                helps breakdown DDoS Protection and how it can benefit the user. I crafted
-                this empty state to be minimal and simple as to not overwhelm users with
-                information but enough to provide an idea of safety with the product.
-              </p>
-            </div>
-            <figure className="min-w-0">
-              <LightboxImageButton
-                src={`${base}ddos-empty-state.png`}
-                alt="DDoS Protection empty state on Networking tab with product overview and CTA"
-                wrapperClassName="rounded-lg"
-                className="w-full rounded-lg"
-                onOpen={setImageLightbox}
-              />
-            </figure>
+      <section
+        aria-labelledby="ddos-experience-heading"
+        className="relative isolate z-10 mt-16 w-full min-w-0 overflow-x-clip"
+      >
+          <div
+            className="pointer-events-none absolute inset-y-0 left-1/2 -z-10 w-screen -translate-x-1/2 overflow-hidden"
+            aria-hidden
+          >
+            <div className="absolute inset-x-[-6%] inset-y-0 rounded-[32px] bg-gradient-to-br from-[#00aeef]/[0.12] via-[#0f172a]/[0.03] to-[#7c3aed]/[0.1] [mask-image:radial-gradient(ellipse_86%_74%_at_50%_50%,#000_32%,transparent_100%)]" />
+            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#00aeef]/30 to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#7c3aed]/20 to-transparent" />
           </div>
-        </motion.section>
+          <div
+            className="pointer-events-none absolute inset-y-0 left-1/2 z-0 w-screen -translate-x-1/2"
+            aria-hidden
+          >
+            <DdosExperiencePawPaths />
+          </div>
+          <div className="relative z-10 mx-auto w-full min-w-0 max-w-[1200px] overflow-x-visible px-6 py-6 md:px-12 md:py-10 lg:px-16">
+            <h2 id="ddos-experience-heading" className="sr-only">
+              Experience, creating safety &amp; awareness
+            </h2>
+            <BlurText
+              text="Experience, creating safety & awareness"
+              className="pt-8 text-accent-readable text-2xl font-bold tracking-tight md:pt-10 md:text-3xl lg:pt-12 lg:text-4xl"
+              delay={20}
+              animateBy="words"
+              direction="top"
+              stepDuration={0.2}
+              threshold={0.2}
+              animationFrom={undefined}
+              animationTo={undefined}
+              onAnimationComplete={undefined}
+              getWordClassName={undefined}
+            />
 
-        {/* Pricing Modals */}
-        <motion.section
-          {...fadeUp}
-          transition={{ duration: 0.4, delay: 0.12 }}
-          aria-labelledby="ddos-pricing-heading"
-          className="mt-16"
-        >
-          <h2 id="ddos-pricing-heading" className={sectionTitle}>
-            Add DDoS Protection – Pricing Modals
-          </h2>
-          <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:items-start">
-            <figure className="min-w-0">
-              <LightboxImageButton
-                src={`${base}ddos-pricing-modals.png`}
-                alt="DDoS Protection pricing modals showing team-wide protection features and cost estimates"
-                wrapperClassName="rounded-lg"
-                className="w-full rounded-lg"
-                onOpen={setImageLightbox}
-              />
-            </figure>
-            <div>
-              <p className="text-base leading-relaxed text-[#999999] md:text-lg">
-                This modal interaction appears when the users clicks the CTA on the empty
-                state. In order to view DDoS Protection&apos;s features and experience,
-                users must purchase DDoS Protection. I crafted this modal to detail that
-                it is a team-wide protection for specific resource types and the pricing
-                structure. I made sure to disclose that users can cancel at any time as
-                some product have cancelling restrictions. Documentation is provided if
-                users want more detail.
-              </p>
-              <p className="mt-4 text-base font-semibold text-slate-200 md:text-lg">
-                There are 2 users types for pricing:
-              </p>
-              <ul className="mt-3 grid gap-y-3 text-base leading-relaxed text-[#999999] marker:text-[#00aeef] md:text-lg">
-                <li className="list-disc list-inside">
-                  <span className="font-medium text-slate-300">
-                    New User or User with no invoices:
-                  </span>{" "}
-                  this user type would have no previous invoice to call and therefore have
-                  no price estimates.
-                </li>
-                <li className="list-disc list-inside">
-                  <span className="font-medium text-slate-300">
-                    Users with a previous month&apos;s invoice:
-                  </span>{" "}
-                  most users that would enroll in a paid DDoS Protection subscription
-                  would have resources that they are wanting to protect. Using the previous
-                  month&apos;s invoice, we are able to provide users would an estimated
-                  cost and save themselves mental math. This experience is in tune with
-                  DO&apos;s upfront comprehensive pricing value. Ideally, I wanted to
-                  provide a more exact number for users based on their current monthly
-                  usage but this call was out of scope from the Billing team, so I worked
-                  with the Billing team to create a much quicker and smaller call based on
-                  the previous month&apos;s invoice.
-                </li>
-              </ul>
-            </div>
-          </div>
-        </motion.section>
+            {/* Empty State */}
+            <motion.section
+              {...fadeUp}
+              transition={{ duration: 0.4, delay: 0.12 }}
+              aria-labelledby="ddos-emptystate-heading"
+              className="mt-10"
+            >
+              <h2 id="ddos-emptystate-heading" className={sectionTitle}>
+                Empty State
+              </h2>
+              <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-start">
+                <div>
+                  <p className="text-base leading-relaxed text-[#999999] md:text-lg">
+                    I asked internal cohorts about where they would go to search for DDoS
+                    Protection and Networking was the resounding winner. DDoS Protection&apos;s
+                    flow starts on the Networking tab of the DigitalOcean platform, next to
+                    Firewalls in which closely relates to DDoS Protection. This empty states
+                    helps breakdown DDoS Protection and how it can benefit the user. I crafted
+                    this empty state to be minimal and simple as to not overwhelm users with
+                    information but enough to provide an idea of safety with the product.
+                  </p>
+                </div>
+                <figure className="min-w-0">
+                  <LightboxImageButton
+                    src={`${base}ddos-empty-state.png`}
+                    alt="DDoS Protection empty state on Networking tab with product overview and CTA"
+                    wrapperClassName="rounded-lg focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+                    className="w-full rounded-lg"
+                    onOpen={setImageLightbox}
+                  />
+                </figure>
+              </div>
+            </motion.section>
 
-        {/* DDoS Protection Overview */}
-        <motion.section
-          {...fadeUp}
-          transition={{ duration: 0.4, delay: 0.12 }}
-          aria-labelledby="ddos-overview-heading"
-          className="mt-16"
-        >
-          <h2 id="ddos-overview-heading" className={sectionTitle}>
-            DDoS Protection Overview
-          </h2>
-          <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-start">
-            <div>
-              <p className="text-base leading-relaxed text-[#999999] md:text-lg">
-                This overview acts as the primary experience for subscribed DDoS Protection
-                users. This allows users to edit their plan, re-explains which resources
-                are protected with their purchase, and displays DDoS Alerts and Logs.
-              </p>
-              <p className="mt-4 text-base leading-relaxed text-[#999999] md:text-lg">
-                The Alerting and Logging are the largest benefits of being a subscribed
-                user of DDoS Protection. Users are able to add up to 20 webhook alerts,
-                notifying them of attacks and Blackholes. To users, awareness of incoming
-                attacks allows them to be prepared to defend or reroute their
-                infrastructure.
-              </p>
-              <p className="mt-4 text-base leading-relaxed text-[#999999] md:text-lg">
-                Logs are generated for users whether or not they set up alerts. Originally,
-                Alerts was the only awareness experience I crafted but I wanted users to
-                get the most out of their post-purchase experience by providing a similar
-                feeling of safety and have a singular place to store their DDoS information.
-                Logs would also prove to be useful to those who have notifications on
-                multiple platforms and do not remember which alerts go where. Due to
-                technical and speed restraints, we could not gather some requested
-                information from the back-end such as attack volume and when attacks are
-                over this first MVP launch.
-              </p>
-            </div>
-            <figure className="min-w-0">
-              <LightboxImageButton
-                src={`${base}ddos-overview.png`}
-                alt="DDoS Protection overview showing plan details, protected resources, alerts, and logs"
-                wrapperClassName="rounded-lg"
-                className="w-full rounded-lg"
-                onOpen={setImageLightbox}
-              />
-            </figure>
-          </div>
-        </motion.section>
+            {/* Pricing Modals */}
+            <motion.section
+              {...fadeUp}
+              transition={{ duration: 0.4, delay: 0.12 }}
+              aria-labelledby="ddos-pricing-heading"
+              className="mt-12"
+            >
+              <h2 id="ddos-pricing-heading" className={sectionTitle}>
+                Add DDoS Protection – Pricing Modals
+              </h2>
+              <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:items-start">
+                <figure className="min-w-0">
+                  <LightboxImageButton
+                    src={`${base}ddos-pricing-modals.png`}
+                    alt="DDoS Protection pricing modals showing team-wide protection features and cost estimates"
+                    wrapperClassName="rounded-lg focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+                    className="w-full rounded-lg"
+                    onOpen={setImageLightbox}
+                  />
+                </figure>
+                <div>
+                  <p className="text-base leading-relaxed text-[#999999] md:text-lg">
+                    This modal interaction appears when the users clicks the CTA on the empty
+                    state. In order to view DDoS Protection&apos;s features and experience,
+                    users must purchase DDoS Protection. I crafted this modal to detail that
+                    it is a team-wide protection for specific resource types and the pricing
+                    structure. I made sure to disclose that users can cancel at any time as
+                    some product have cancelling restrictions. Documentation is provided if
+                    users want more detail.
+                  </p>
+                  <p className="mt-4 text-base font-semibold text-slate-200 md:text-lg">
+                    There are 2 users types for pricing:
+                  </p>
+                  <ul className="mt-3 grid gap-y-3 text-base leading-relaxed text-[#999999] marker:text-[#00aeef] md:text-lg">
+                    <li className="list-disc list-inside">
+                      <span className="font-medium text-slate-300">
+                        New User or User with no invoices:
+                      </span>{" "}
+                      this user type would have no previous invoice to call and therefore have
+                      no price estimates.
+                    </li>
+                    <li className="list-disc list-inside">
+                      <span className="font-medium text-slate-300">
+                        Users with a previous month&apos;s invoice:
+                      </span>{" "}
+                      most users that would enroll in a paid DDoS Protection subscription
+                      would have resources that they are wanting to protect. Using the previous
+                      month&apos;s invoice, we are able to provide users would an estimated
+                      cost and save themselves mental math. This experience is in tune with
+                      DO&apos;s upfront comprehensive pricing value. Ideally, I wanted to
+                      provide a more exact number for users based on their current monthly
+                      usage but this call was out of scope from the Billing team, so I worked
+                      with the Billing team to create a much quicker and smaller call based on
+                      the previous month&apos;s invoice.
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </motion.section>
 
-        {/* Alert Creation */}
-        <motion.section
-          {...fadeUp}
-          transition={{ duration: 0.4, delay: 0.12 }}
-          aria-labelledby="ddos-alerts-heading"
-          className="mt-16"
-        >
-          <h2 id="ddos-alerts-heading" className={sectionTitle}>
-            Alert Creation
-          </h2>
-          <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:items-start">
-            <figure className="min-w-0">
-              <LightboxImageButton
-                src={`${base}ddos-alert.png`}
-                alt="DDoS alert creation modal with webhook URL input and Test button"
-                wrapperClassName="rounded-lg"
-                className="w-full rounded-lg"
-                onOpen={setImageLightbox}
-              />
-            </figure>
-            <div>
-              <p className="text-base leading-relaxed text-[#999999] md:text-lg">
-                To increase immediate awareness of users&apos; infrastructures, DDoS
-                Attack Start and Blackhole alerts can be created. Users are able to create
-                webhook alerts to receive real-time notifications on whichever platforms
-                they like to use the most (e.g. email, Slack, Discord, etc.). To ensure
-                users know if they have successfully setup their webhooks, I worked with
-                engineers to implement a Test button which will push the payload example
-                to the user&apos;s inserted webhook. A success/failure toast message will
-                tell the user if we have been able to successfully send the request. Users
-                can check their original platform to see if they receive our payload test
-                and feel certain that their request is working and will notify them of
-                future DDoS attacks.
-              </p>
-              <p className="mt-4 text-base leading-relaxed text-[#999999] md:text-lg">
-                The payload example is accessible to users via a modal. Users may need the
-                sample payload to setup their webhook (for instance, Slack requires it).
-                It also gives the user some foresight into which information we are able
-                to send them in the case of a DDoS Attack or Blackhole.
-              </p>
-              <p className="mt-4 text-base leading-relaxed text-[#999999] md:text-lg">
-                Created alerts are added to a table in which users can easily Test their
-                webhook without going into the editing flow.
-              </p>
-            </div>
-          </div>
-        </motion.section>
+            {/* DDoS Protection Overview */}
+            <motion.section
+              {...fadeUp}
+              transition={{ duration: 0.4, delay: 0.12 }}
+              aria-labelledby="ddos-overview-heading"
+              className="mt-12"
+            >
+              <h2 id="ddos-overview-heading" className={sectionTitle}>
+                DDoS Protection Overview
+              </h2>
+              <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-start">
+                <div>
+                  <p className="text-base leading-relaxed text-[#999999] md:text-lg">
+                    This overview acts as the primary experience for subscribed DDoS Protection
+                    users. This allows users to edit their plan, re-explains which resources
+                    are protected with their purchase, and displays DDoS Alerts and Logs.
+                  </p>
+                  <p className="mt-4 text-base leading-relaxed text-[#999999] md:text-lg">
+                    The Alerting and Logging are the largest benefits of being a subscribed
+                    user of DDoS Protection. Users are able to add up to 20 webhook alerts,
+                    notifying them of attacks and Blackholes. To users, awareness of incoming
+                    attacks allows them to be prepared to defend or reroute their
+                    infrastructure.
+                  </p>
+                  <p className="mt-4 text-base leading-relaxed text-[#999999] md:text-lg">
+                    Logs are generated for users whether or not they set up alerts. Originally,
+                    Alerts was the only awareness experience I crafted but I wanted users to
+                    get the most out of their post-purchase experience by providing a similar
+                    feeling of safety and have a singular place to store their DDoS information.
+                    Logs would also prove to be useful to those who have notifications on
+                    multiple platforms and do not remember which alerts go where. Due to
+                    technical and speed restraints, we could not gather some requested
+                    information from the back-end such as attack volume and when attacks are
+                    over this first MVP launch.
+                  </p>
+                </div>
+                <figure className="min-w-0">
+                  <LightboxImageButton
+                    src={`${base}ddos-overview.png`}
+                    alt="DDoS Protection overview showing plan details, protected resources, alerts, and logs"
+                    wrapperClassName="rounded-lg focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+                    className="w-full rounded-lg"
+                    onOpen={setImageLightbox}
+                  />
+                </figure>
+              </div>
+            </motion.section>
 
-        {/* Log Details */}
-        <motion.section
-          {...fadeUp}
-          transition={{ duration: 0.4, delay: 0.12 }}
-          aria-labelledby="ddos-logs-heading"
-          className="mt-16"
-        >
-          <h2 id="ddos-logs-heading" className={sectionTitle}>
-            Log Details
-          </h2>
-          <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-start">
-            <div>
-              <p className="text-base leading-relaxed text-[#999999] md:text-lg">
-                From the DDoS Logs in the overview experience, users are able to view the
-                Log Details of individual events. The Log Details serves as a summary of
-                the specific attack that the user selected and contains a duplicate of the
-                payload at the time of the attack. Users would need Log Details for
-                reporting documentation and troubleshooting.
-              </p>
-            </div>
-            <figure className="min-w-0">
-              <LightboxImageButton
-                src={`${base}ddos-log.png`}
-                alt="DDoS log details showing attack summary and payload for reporting and troubleshooting"
-                wrapperClassName="rounded-lg"
-                className="w-full rounded-lg"
-                onOpen={setImageLightbox}
-              />
-            </figure>
-          </div>
-        </motion.section>
+            {/* Alert Creation */}
+            <motion.section
+              {...fadeUp}
+              transition={{ duration: 0.4, delay: 0.12 }}
+              aria-labelledby="ddos-alerts-heading"
+              className="mt-12"
+            >
+              <h2 id="ddos-alerts-heading" className={sectionTitle}>
+                Alert Creation
+              </h2>
+              <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:items-start">
+                <figure className="min-w-0">
+                  <LightboxImageButton
+                    src={`${base}ddos-alert.png`}
+                    alt="DDoS alert creation modal with webhook URL input and Test button"
+                    wrapperClassName="rounded-lg focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+                    className="w-full rounded-lg"
+                    onOpen={setImageLightbox}
+                  />
+                </figure>
+                <div>
+                  <p className="text-base leading-relaxed text-[#999999] md:text-lg">
+                    To increase immediate awareness of users&apos; infrastructures, DDoS
+                    Attack Start and Blackhole alerts can be created. Users are able to create
+                    webhook alerts to receive real-time notifications on whichever platforms
+                    they like to use the most (e.g. email, Slack, Discord, etc.). To ensure
+                    users know if they have successfully setup their webhooks, I worked with
+                    engineers to implement a Test button which will push the payload example
+                    to the user&apos;s inserted webhook. A success/failure toast message will
+                    tell the user if we have been able to successfully send the request. Users
+                    can check their original platform to see if they receive our payload test
+                    and feel certain that their request is working and will notify them of
+                    future DDoS attacks.
+                  </p>
+                  <p className="mt-4 text-base leading-relaxed text-[#999999] md:text-lg">
+                    The payload example is accessible to users via a modal. Users may need the
+                    sample payload to setup their webhook (for instance, Slack requires it).
+                    It also gives the user some foresight into which information we are able
+                    to send them in the case of a DDoS Attack or Blackhole.
+                  </p>
+                  <p className="mt-4 text-base leading-relaxed text-[#999999] md:text-lg">
+                    Created alerts are added to a table in which users can easily Test their
+                    webhook without going into the editing flow.
+                  </p>
+                </div>
+              </div>
+            </motion.section>
 
-        {/* Cancellation */}
-        <motion.section
-          {...fadeUp}
-          transition={{ duration: 0.4, delay: 0.12 }}
-          aria-labelledby="ddos-cancel-heading"
-          className="mt-16"
-        >
-          <h2 id="ddos-cancel-heading" className={sectionTitle}>
-            Cancellation
-          </h2>
-          <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:items-start">
-            <figure className="min-w-0">
-              <LightboxImageButton
-                src={`${base}ddos-cancel.png`}
-                alt="DDoS Protection cancellation modal with prorated amount, data deletion warning, and log download option"
-                wrapperClassName="rounded-lg"
-                className="w-full rounded-lg"
-                onOpen={setImageLightbox}
-              />
-            </figure>
-            <div>
-              <p className="text-base leading-relaxed text-[#999999] md:text-lg">
-                Users are easily able to cancel their DDoS Protection by cancelling from
-                the overview. I designed this cancellation modal to notify users that it
-                is a prorated amount of what they have used if they cancel. I also alerted
-                the users that their Alerts and Logs would be deleted if they cancel. In
-                anticipating a canceling user would want a record of their Logs, I inserted
-                an easy click to download their Logs within the modal. This Log download is
-                the same on the overview but makes it easier for users to download right
-                then and there.
-              </p>
-            </div>
+            {/* Log Details */}
+            <motion.section
+              {...fadeUp}
+              transition={{ duration: 0.4, delay: 0.12 }}
+              aria-labelledby="ddos-logs-heading"
+              className="mt-12"
+            >
+              <h2 id="ddos-logs-heading" className={sectionTitle}>
+                Log Details
+              </h2>
+              <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-start">
+                <div>
+                  <p className="text-base leading-relaxed text-[#999999] md:text-lg">
+                    From the DDoS Logs in the overview experience, users are able to view the
+                    Log Details of individual events. The Log Details serves as a summary of
+                    the specific attack that the user selected and contains a duplicate of the
+                    payload at the time of the attack. Users would need Log Details for
+                    reporting documentation and troubleshooting.
+                  </p>
+                </div>
+                <figure className="min-w-0">
+                  <LightboxImageButton
+                    src={`${base}ddos-log.png`}
+                    alt="DDoS log details showing attack summary and payload for reporting and troubleshooting"
+                    wrapperClassName="rounded-lg focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+                    className="w-full rounded-lg"
+                    onOpen={setImageLightbox}
+                  />
+                </figure>
+              </div>
+            </motion.section>
+
+            {/* Cancellation */}
+            <motion.section
+              {...fadeUp}
+              transition={{ duration: 0.4, delay: 0.12 }}
+              aria-labelledby="ddos-cancel-heading"
+              className="mt-12"
+            >
+              <h2 id="ddos-cancel-heading" className={sectionTitle}>
+                Cancellation
+              </h2>
+              <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:items-start">
+                <figure className="min-w-0">
+                  <LightboxImageButton
+                    src={`${base}ddos-cancel.png`}
+                    alt="DDoS Protection cancellation modal with prorated amount, data deletion warning, and log download option"
+                    wrapperClassName="rounded-lg focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+                    className="w-full rounded-lg"
+                    onOpen={setImageLightbox}
+                  />
+                </figure>
+                <div>
+                  <p className="text-base leading-relaxed text-[#999999] md:text-lg">
+                    Users are easily able to cancel their DDoS Protection by cancelling from
+                    the overview. I designed this cancellation modal to notify users that it
+                    is a prorated amount of what they have used if they cancel. I also alerted
+                    the users that their Alerts and Logs would be deleted if they cancel. In
+                    anticipating a canceling user would want a record of their Logs, I inserted
+                    an easy click to download their Logs within the modal. This Log download is
+                    the same on the overview but makes it easier for users to download right
+                    then and there.
+                  </p>
+                </div>
+              </div>
+            </motion.section>
           </div>
-        </motion.section>
+      </section>
+
+      <div className="relative z-10 mx-auto w-full min-w-0 max-w-[1200px] overflow-x-visible px-6 md:px-12 lg:px-16">
 
         {/* Beta */}
         <motion.section
@@ -1062,12 +1484,115 @@ export function CaseStudyDDoSProtection() {
           </ol>
         </motion.section>
 
+        {/* Post-Beta Iterations */}
+        <motion.section
+          {...fadeUp}
+          transition={{ duration: 0.4, delay: 0.12 }}
+          aria-labelledby="ddos-postbeta-iterations-heading"
+          className="mt-16"
+        >
+          <h2 id="ddos-postbeta-iterations-heading" className={sectionTitle}>
+            Post-Beta Iterations
+          </h2>
+
+          <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-start">
+            <div>
+              <p className="text-base leading-relaxed text-[#999999] md:text-lg">
+                Through Private Beta, onboarding kept surfacing the same question: was DDoS
+                Protection account-wide, or tied to the team they were signed into? When
+                people can&apos;t tell what they&apos;re buying, they hesitate, and I didn&apos;t
+                want that ambiguity hanging over enrollment. I pulled that feedback straight
+                into the pricing / plan confirmation flow with explicit copy that protection
+                applies to the{" "}
+                <span className="font-semibold text-slate-200">
+                  specific named team
+                </span>{" "}
+                they have open when they add the product, so the scope lines up with how they
+                already work in the platform.
+              </p>
+            </div>
+            <figure className="min-w-0">
+              <LightboxImageButton
+                src={ddosPostBetaImages[0].src}
+                alt={ddosPostBetaImages[0].alt}
+                wrapperClassName="rounded-lg focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+                className="w-full rounded-lg"
+                onOpen={setImageLightbox}
+              />
+            </figure>
+          </div>
+
+          <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-start">
+            <div>
+              <p className="text-base leading-relaxed text-[#999999] md:text-lg">
+                To help users in a potential state of crisis, we added guidance and documentation
+                for every status and pushed more helpful information both in the UI and the
+                webhook payload.
+              </p>
+            </div>
+            <figure className="min-w-0">
+              <LightboxImageButton
+                src={ddosPostBetaImages[1].src}
+                alt={ddosPostBetaImages[1].alt}
+                wrapperClassName="rounded-lg focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+                className="w-full rounded-lg"
+                onOpen={setImageLightbox}
+              />
+            </figure>
+          </div>
+
+          <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-start">
+            <figure className="min-w-0 lg:order-1">
+              <LightboxImageButton
+                src={ddosPostBetaImages[2].src}
+                alt={ddosPostBetaImages[2].alt}
+                wrapperClassName="rounded-lg focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+                className="w-full rounded-lg"
+                onOpen={setImageLightbox}
+              />
+            </figure>
+            <div className="lg:order-2">
+              <p className="text-base leading-relaxed text-[#999999] md:text-lg">
+                I added a tight overview strip so subscribers can scan impact at a glance:
+                mitigated attacks, Blackhole percentage, average attack volume, and the top
+                three resources hit. It reinforces the value of the plan and surfaces the
+                noisiest targets before anyone has to dig through logs.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-start">
+            <div>
+              <p className="text-base leading-relaxed text-[#999999] md:text-lg">
+                Users kept asking for richer DDoS data. Attacker IP wasn&apos;t feasible, but
+                end times for attacks and Blackholes let me evolve Event Type into{" "}
+                <span className="font-semibold text-slate-200">Event Status</span> and a status
+                model that reads clearly in the middle of an incident. Tooltips explain
+                Blackholes and when an ongoing attack is less alarming than it looks. Attack
+                Volume signals how close traffic is to a Blackhole, resource names show inline
+                in the table, and{" "}
+                <span className="font-semibold text-slate-200">Refresh Logs</span> pulls in new
+                rows without a full page reload.
+              </p>
+            </div>
+            <figure className="min-w-0">
+              <LightboxImageButton
+                src={ddosPostBetaImages[3].src}
+                alt={ddosPostBetaImages[3].alt}
+                wrapperClassName="rounded-lg focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+                className="w-full rounded-lg"
+                onOpen={setImageLightbox}
+              />
+            </figure>
+          </div>
+        </motion.section>
+
         {/* Challenges & Opportunities */}
         <motion.section
           {...fadeUp}
           transition={{ duration: 0.4, delay: 0.13 }}
           aria-labelledby="ddos-challenges-heading"
-          className="mt-16"
+          className="mt-16 border-t border-slate-600/50 pt-10 md:pt-12"
         >
           <h2 id="ddos-challenges-heading" className={sectionTitle}>
             🤔 Challenges
