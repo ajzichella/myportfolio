@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "motion/react";
-import { ChevronDown, ArrowRight, Award, TrendingUp, Layers, Code2, Users, FlaskConical, Sparkles } from "lucide-react";
+import { ChevronDown, ArrowRight, Award, Code2, Users, Handshake, TrendingUp } from "lucide-react";
 
 import GradientText from "../components/GradientText";
 import BlurText from "../components/BlurText";
@@ -100,7 +100,7 @@ export function Home() {
               aria-hidden
             />
             <p className="text-base text-[#999999]">
-              Current status — Senior product designer, design engineer for{" "}
+              Current status - Senior product designer, design engineer for{" "}
               <a
                 href="https://www.digitalocean.com"
                 target="_blank"
@@ -359,7 +359,7 @@ export function Home() {
               style={{ '--bc': '0, 174, 239' } as React.CSSProperties}
             >
               <div className="pointer-events-none absolute -right-8 -top-8 h-56 w-56 rounded-full bg-[#00aeef]/10 blur-3xl" aria-hidden />
-              <Award className="h-5 w-5 text-[#00aeef]" aria-hidden />
+              <TrendingUp className="h-5 w-5 text-[#00aeef]" aria-hidden />
               <div className="mt-3 flex flex-wrap items-end gap-x-3 gap-y-1">
                 <span className="text-5xl font-bold leading-none text-white md:text-6xl">
                   8<span className="text-[#00aeef]">+</span>
@@ -367,14 +367,12 @@ export function Home() {
                 <span className="text-lg font-semibold text-slate-300">years of experience</span>
               </div>
               <p className="mt-3 max-w-xl text-sm leading-relaxed text-[#999999] md:text-base">
-                Spanning cloud infrastructure, IAM, and retail eCommerce across{" "}
-                <span className="text-slate-200">DigitalOcean</span>,{" "}
-                <span className="text-slate-200">AMD</span>, and{" "}
-                <span className="text-slate-200">STORIS</span>. I turn ambiguous, complex problems into clean, measurable experiences for B2B and B2C audiences.
+                Spanning across <span className="text-slate-200">cloud infrastructure</span>,{" "} <span className="text-slate-200">IAM (Identity and Access Management)</span>,{" "}and <span className="text-slate-200"> retail eCommerce</span>.{" "}
+                              I turn ambiguous, complex problems into measurable, usable, and delightful experiences for B2B and B2C users.
               </p>
             </motion.div>
 
-            {/* 2 — 23% MoM Growth · emerald */}
+            {/* 2 — Leadership impact · emerald */}
             <motion.div
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -384,15 +382,12 @@ export function Home() {
               style={{ '--bc': '16, 185, 129' } as React.CSSProperties}
             >
               <div className="pointer-events-none absolute -left-4 -bottom-4 h-36 w-36 rounded-full bg-emerald-500/12 blur-2xl" aria-hidden />
-              <TrendingUp className="h-5 w-5 text-emerald-400" aria-hidden />
-              <p className="mt-3 text-5xl font-bold leading-none text-white">
-                23<span className="text-emerald-400">%</span>
-              </p>
-              <p className="mt-1.5 text-xs font-semibold uppercase tracking-wider text-emerald-400/80">
-                Month-over-month growth
-              </p>
+              <Users className="h-5 w-5 text-emerald-400" aria-hidden />
+              <p className="mt-3 text-base font-bold text-white">Leadership that ships</p>
               <p className="mt-2 text-sm leading-relaxed text-[#999999]">
-                In RBAC security feature usage, shortly after shipping the role-based access redesign at DigitalOcean.
+                Led a team of{" "}
+                <span className="font-medium text-emerald-300">8 designers</span>{" "}
+                through a tight launch, giving designers a sense of ownership of their product. Also mentored junior and mid-level designers, helping them grow their skills and confidence.
               </p>
             </motion.div>
 
@@ -406,10 +401,10 @@ export function Home() {
               style={{ '--bc': '99, 102, 241' } as React.CSSProperties}
             >
               <div className="pointer-events-none absolute -right-4 -top-4 h-32 w-32 rounded-full bg-indigo-500/10 blur-2xl" aria-hidden />
-              <Layers className="h-5 w-5 text-indigo-400" aria-hidden />
-              <p className="mt-3 text-base font-bold text-white">IAM &amp; eCommerce Specialist</p>
+              <Award className="h-5 w-5 text-indigo-400" aria-hidden />
+              <p className="mt-3 text-base font-bold text-white">IAM &amp; eCommerce specialist</p>
               <p className="mt-2 text-sm leading-relaxed text-[#999999]">
-                Deep experience in access management, org-wide permissions, audit-friendly flows, and multi-step eCommerce checkout — where every design decision directly affects security and revenue.
+                Deep experience in IAM, platform-wide permissions, audit-friendly logs, and enhancing the eCommerce shopping experience from product discovery to checkout. Every design decision directly affects security and revenue.
               </p>
             </motion.div>
 
@@ -424,9 +419,10 @@ export function Home() {
             >
               <div className="pointer-events-none absolute -left-4 -bottom-4 h-32 w-32 rounded-full bg-amber-500/10 blur-2xl" aria-hidden />
               <Code2 className="h-5 w-5 text-amber-400" aria-hidden />
-              <p className="mt-3 text-base font-bold text-white">Design × Code</p>
+              <p className="mt-3 text-base font-bold text-white">Product Design × Design Engineering</p>
               <p className="mt-2 text-sm leading-relaxed text-[#999999]">
-                Not just Figma files. I prototype in code, push PRs to production, and move fast from PRD to GA. Cursor, Figma, and GitHub are in daily rotation.
+                Senior product designer that leverages tools to build realistic prototypes in code to validate early,
+                reduce handoff friction, and increase shipping speed from PRD to GA.
               </p>
             </motion.div>
 
@@ -441,55 +437,30 @@ export function Home() {
             >
               <div className="pointer-events-none absolute -right-4 -top-4 h-32 w-32 rounded-full bg-purple-500/10 blur-2xl" aria-hidden />
               <Users className="h-5 w-5 text-purple-400" aria-hidden />
-              <p className="mt-3 text-base font-bold text-white">Led a team of 8</p>
+              <p className="mt-3 text-base font-bold text-white">Own end-to-end experiences</p>
               <p className="mt-2 text-sm leading-relaxed text-[#999999]">
-                Guided eight designers through the RBAC launch at DigitalOcean. I mentor, align cross-functionally, and keep campaigns moving fast while staying on-track.
+                I define strategic opportunities, simplify complex workflows, and lead design from concept
+                to delivery with product and engineering partners - balancing craft, speed, user empathy, and
+                business impact.
               </p>
             </motion.div>
 
-            {/* 6 — Research-Certified (col-span-2) · teal */}
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.4, delay: 0.18 }}
-              className="case-study-card case-study-card--no-left-accent bento-card relative overflow-hidden rounded-2xl p-6 sm:col-span-2 lg:col-span-2"
-              style={{ '--bc': '20, 184, 166' } as React.CSSProperties}
-            >
-              <div className="pointer-events-none absolute -right-10 -bottom-10 h-52 w-52 rounded-full bg-teal-500/10 blur-3xl" aria-hidden />
-              <FlaskConical className="h-5 w-5 text-teal-400" aria-hidden />
-              <p className="mt-3 text-base font-bold text-white">Research at the core</p>
-              <p className="mt-2 max-w-xl text-sm leading-relaxed text-[#999999]">
-                Interaction Design Foundation certified with{" "}
-                <span className="font-medium text-teal-300">Top 10%</span>{" "}
-                distinction in both Usability Testing and Web Design for Usability. Decisions are backed by data, research, and a double-diamond approach when the problem calls for it.
-              </p>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {["HCI", "Usability Testing · Top 10%", "Web Design for Usability · Top 10%"].map((cert) => (
-                  <span
-                    key={cert}
-                    className="rounded-md bg-teal-400/10 px-2.5 py-1 text-xs font-medium text-teal-300"
-                  >
-                    {cert}
-                  </span>
-                ))}
-              </div>
-            </motion.div>
-
-            {/* 7 — Storytelling by Design · rose */}
+            {/* 7 — Collaboration · rose */}
             <motion.div
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.4, delay: 0.2 }}
-              className="case-study-card case-study-card--no-left-accent bento-card relative overflow-hidden rounded-2xl p-6 sm:col-span-2 lg:col-span-1"
+              className="case-study-card case-study-card--no-left-accent bento-card relative overflow-hidden rounded-2xl p-6 sm:col-span-2 lg:col-span-3"
               style={{ '--bc': '244, 63, 94' } as React.CSSProperties}
             >
               <div className="pointer-events-none absolute -left-4 -bottom-4 h-32 w-32 rounded-full bg-rose-500/10 blur-2xl" aria-hidden />
-              <Sparkles className="h-5 w-5 text-rose-400" aria-hidden />
-              <p className="mt-3 text-base font-bold text-white">Design as storytelling</p>
+              <Handshake className="h-5 w-5 text-rose-400" aria-hidden />
+              <p className="mt-3 text-base font-bold text-white">Collaboration at the center</p>
               <p className="mt-2 text-sm leading-relaxed text-[#999999]">
-                User-centered design isn&apos;t just usability — it&apos;s how products represent brands and connect with people. I design experiences that engage, guide, and leave a lasting impression.
+                I partner closely with product, engineering, researchers, security, pdocs, and other stakeholders to strategize product requirements, insert user voices, run workshops,
+                share context early, and align on trade-offs and shifting requirements so design decisions stick while keeping teams focused and unblocked. Strong
+                collaboration turns fuzzy goals into shipped work the whole team can stand behind.
               </p>
             </motion.div>
           </div>

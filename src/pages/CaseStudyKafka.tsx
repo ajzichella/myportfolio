@@ -435,7 +435,7 @@ export function CaseStudyKafka() {
               </dd>
             </div>
             <div>
-              <dt className={labelClass}>Partners</dt>
+              <dt className={labelClass}>Collaboration</dt>
               <dd className="mt-2 text-sm leading-relaxed text-slate-200 md:text-base">
                 PM, Technical PM, Back-end Eng, Front-end Eng, Insights, Marketing, Pdocs
               </dd>
@@ -813,15 +813,25 @@ export function CaseStudyKafka() {
                 />
               ))}
             </div>
-            <div className="relative z-[1]">
-              {/* Add peer feedback screenshot images here: kafka-peer-feedback.png */}
-              <p className="text-sm text-[#999999]">
-                Peer feedback images coming soon — drop{" "}
-                <code className="rounded bg-slate-800 px-1 py-0.5 text-xs text-accent-readable">
-                  kafka-peer-feedback.png
-                </code>{" "}
-                into <code className="rounded bg-slate-800 px-1 py-0.5 text-xs text-accent-readable">/public</code> to display here.
-              </p>
+            <div className="relative z-[1] grid gap-6 lg:grid-cols-2">
+              <figure className="min-w-0">
+                <LightboxImageButton
+                  src={`${base}kafka-peer-feedback-1.png`}
+                  alt="Peer feedback recognition message praising collaboration on Managed Kafka launch."
+                  onOpen={setImageLightbox}
+                  wrapperClassName="rounded-lg"
+                  className="w-full rounded-lg drop-shadow-xl"
+                />
+              </figure>
+              <figure className="min-w-0">
+                <LightboxImageButton
+                  src={`${base}kafka-peer-feedback-2.png`}
+                  alt="Peer feedback message highlighting AJ's product design leadership in Managed Databases."
+                  onOpen={setImageLightbox}
+                  wrapperClassName="rounded-lg"
+                  className="w-full rounded-lg drop-shadow-xl"
+                />
+              </figure>
             </div>
           </div>
         </motion.section>

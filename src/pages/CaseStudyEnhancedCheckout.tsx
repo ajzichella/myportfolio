@@ -404,7 +404,7 @@ export function CaseStudyEnhancedCheckout() {
               </dd>
             </div>
             <div>
-              <dt className={labelClass}>Partners</dt>
+              <dt className={labelClass}>Collaboration</dt>
               <dd className="mt-2 text-sm leading-relaxed text-slate-200 md:text-base">
                 Funding clients, stakeholders, product team, development team
               </dd>
