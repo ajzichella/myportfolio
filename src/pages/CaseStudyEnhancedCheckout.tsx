@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "motion/react";
-import { ArrowRight, ChevronRight, Heart, List, X } from "lucide-react";
+import { ArrowRight, ChevronRight, List, X } from "lucide-react";
 import { FixedBlobBackdrop } from "../components/BlobBackground";
 import { Bubbles } from "../components/Bubbles";
 import { ImageLightbox, LightboxImageButton } from "../components/ImageLightbox";
@@ -44,21 +44,7 @@ const CHECKOUT_SECTION_INDEX = [
   { id: "checkout-financing-heading", label: "Financing" },
   { id: "checkout-giftcards-heading", label: "Gift Cards" },
   { id: "checkout-delivery-heading", label: "Delivery Scheduling" },
-  { id: "checkout-challenges-heading", label: "Challenges" },
-  { id: "checkout-peer-heading", label: "Peer Feedback" },
-] as const;
-
-const PEER_FEEDBACK_HEARTS = [
-  { left: "5%", top: "12%", size: 18, delay: 0, duration: 8, color: "rgba(0, 174, 239, 0.52)" },
-  { left: "18%", top: "58%", size: 14, delay: 1.1, duration: 10, color: "rgba(163, 232, 247, 0.48)" },
-  { left: "42%", top: "8%", size: 12, delay: 2.4, duration: 9, color: "rgba(14, 165, 233, 0.44)" },
-  { left: "55%", top: "72%", size: 16, delay: 0.6, duration: 11, color: "rgba(56, 189, 248, 0.42)" },
-  { left: "72%", top: "18%", size: 13, delay: 3.2, duration: 8.5, color: "rgba(0, 107, 143, 0.5)" },
-  { left: "88%", top: "45%", size: 15, delay: 1.8, duration: 9.5, color: "rgba(126, 232, 255, 0.4)" },
-  { left: "28%", top: "82%", size: 11, delay: 4, duration: 12, color: "rgba(34, 211, 238, 0.45)" },
-  { left: "78%", top: "78%", size: 12, delay: 2, duration: 10.5, color: "rgba(2, 132, 199, 0.46)" },
-  { left: "12%", top: "38%", size: 10, delay: 5.5, duration: 13, color: "rgba(103, 232, 249, 0.38)" },
-  { left: "92%", top: "12%", size: 14, delay: 0.3, duration: 9, color: "rgba(0, 180, 216, 0.48)" },
+  { id: "checkout-challenges-heading", label: "🤔 Challenges" },
 ] as const;
 
 export function CaseStudyEnhancedCheckout() {
@@ -567,13 +553,15 @@ export function CaseStudyEnhancedCheckout() {
           {...fadeUp}
           transition={{ duration: 0.4, delay: 0.12 }}
           className="mt-16"
-          aria-label="Desktop high-fidelity mockups"
+          aria-label="Desktop high-fidelity mockups, B2B SaaS client-side"
         >
-          <h3 className="text-lg font-semibold text-white">Desktop High-Fidelity Mockups</h3>
+          <h3 className="text-lg font-semibold text-white md:text-xl">
+            B2B SaaS client-side{" "}
+                      </h3>
           <div className="mt-6">
             <LightboxImageButton
-              src={`${base}checkout-settings.png`}
-              alt="STORIS checkout admin settings showing delivery options and plugin configuration"
+              src={`${base}estoris_full.png`}
+              alt="STORIS Checkout Settings dashboard: admin sidebar, Google Maps API key, checkout button style preview, store pickup and home delivery configuration"
               wrapperClassName="rounded-lg"
               className="w-full max-w-none rounded-lg"
               onOpen={setImageLightbox}
@@ -688,7 +676,7 @@ export function CaseStudyEnhancedCheckout() {
           className="mt-16"
         >
           <h2 id="checkout-challenges-heading" className={sectionTitle}>
-            Challenges
+            🤔 Challenges
           </h2>
           <p className="mt-6 text-base leading-relaxed text-[#999999] md:text-lg">
             Many challenges presented themselves during this task:
@@ -712,55 +700,6 @@ export function CaseStudyEnhancedCheckout() {
               included in future iterations/hot fixes
             </li>
           </ul>
-        </motion.section>
-
-        {/* Peer Feedback */}
-        <motion.section
-          {...fadeUpGlass}
-          transition={{ duration: 0.4, delay: 0.19 }}
-          aria-labelledby="checkout-peer-heading"
-          className="mt-16 pb-8"
-        >
-          <h2 id="checkout-peer-heading" className={sectionTitle}>
-            ✍️ Peer feedback
-          </h2>
-          <p className="mt-4 max-w-3xl text-base text-[#999999] md:text-lg">
-            Highlights from internal recognition after the launch.
-          </p>
-          <div className="case-study-card case-study-card--no-left-accent relative mt-8 rounded-xl p-6 md:p-8">
-            <div
-              className="pointer-events-none absolute inset-0 z-0 overflow-hidden rounded-xl"
-              aria-hidden
-            >
-              {PEER_FEEDBACK_HEARTS.map((h, i) => (
-                <Heart
-                  key={i}
-                  className="peer-feedback-heart"
-                  style={{
-                    left: h.left,
-                    top: h.top,
-                    width: h.size,
-                    height: h.size,
-                    color: h.color,
-                    animationDelay: `${h.delay}s`,
-                    animationDuration: `${h.duration}s`,
-                  }}
-                  fill="currentColor"
-                  strokeWidth={0}
-                />
-              ))}
-            </div>
-            <div className="relative z-[1]">
-              {/* Add peer feedback screenshot images here: checkout-peer-feedback.png */}
-              <p className="text-sm text-[#999999]">
-                Peer feedback images coming soon — drop{" "}
-                <code className="rounded bg-slate-800 px-1 py-0.5 text-xs text-accent-readable">
-                  checkout-peer-feedback.png
-                </code>{" "}
-                into <code className="rounded bg-slate-800 px-1 py-0.5 text-xs text-accent-readable">/public</code> to display here.
-              </p>
-            </div>
-          </div>
         </motion.section>
 
         <p className="mt-12 text-center text-sm text-[#999999]">

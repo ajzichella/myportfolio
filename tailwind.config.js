@@ -31,7 +31,8 @@ module.exports = {
           "0 18px 60px rgba(15, 23, 42, 0.65), 0 0 0 1px rgba(148, 163, 184, 0.12)"
       },
       fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"]
+        sans: ["Inter", "system-ui", "sans-serif"],
+        caveat: ["Caveat", "cursive"]
       },
       keyframes: {
         blink: {

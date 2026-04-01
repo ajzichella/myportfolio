@@ -411,3 +411,83 @@ a {
     opacity: 0.18;
   }
 }
+
+/* Kind words: sticky post-it notes (handwriting + bright paper). */
+.kind-words-postit {
+  font-family: "Caveat", cursive;
+  border-radius: 3px;
+  box-shadow:
+    1px 2px 0 rgba(0, 0, 0, 0.07),
+    3px 5px 0 rgba(0, 0, 0, 0.05),
+    5px 12px 22px rgba(0, 0, 0, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.32);
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.kind-words-postit::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 48%;
+  max-width: 8.25rem;
+  height: 13px;
+  transform: translate(-50%, -42%);
+  border-radius: 1px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.55) 0%,
+    rgba(255, 255, 255, 0.2) 100%
+  );
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+  pointer-events: none;
+}
+
+.kind-words-postit:hover {
+  box-shadow:
+    1px 2px 0 rgba(0, 0, 0, 0.09),
+    4px 7px 0 rgba(0, 0, 0, 0.04),
+    7px 18px 32px rgba(0, 0, 0, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+/* Home Kind words: seamless slow scroll of peer-feedback-style hearts behind cards */
+@keyframes kind-words-hearts-scroll {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(0, -50%, 0);
+  }
+}
+
+.kind-words-hearts-track {
+  animation: kind-words-hearts-scroll 85s linear infinite;
+  will-change: transform;
+}
+
+@keyframes kind-words-cards-drift {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(0, -20px, 0);
+  }
+}
+
+.kind-words-cards-drift {
+  animation: kind-words-cards-drift 52s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kind-words-hearts-track {
+    animation: none;
+    transform: translate3d(0, -15%, 0);
+  }
+
+  .kind-words-cards-drift {
+    animation: none;
+    transform: none;
+  }
+}
