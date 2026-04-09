@@ -6,6 +6,7 @@
     "dev": "vite",
     "build": "vite build && node -e \"require('fs').copyFileSync('dist/index.html', 'dist/404.html')\"",
     "preview": "vite preview",
+    "start": "node scripts/start-production.mjs",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
@@ -22,7 +23,8 @@
     "react-router-dom": "^7.13.1",
     "simple-icons": "^16.13.0",
     "tailwind-merge": "^2.5.4",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "serve": "^14.2.4"
   },
   "devDependencies": {
     "@types/react": "^18.3.11",
