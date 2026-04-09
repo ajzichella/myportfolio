@@ -1,8 +1,17 @@
 import { defineConfig, searchForWorkspaceRoot } from "vite";
 import react from "@vitejs/plugin-react-swc";
 
+/** Default matches GitHub Pages. Set `VITE_BASE=/` when the app is served from the domain root (e.g. DigitalOcean App Platform). */
+function vitePublicBase(): string {
+  const raw = process.env.VITE_BASE;
+  if (raw === undefined || raw === "") return "/myportfolio/";
+  let b = raw.trim();
+  if (!b.startsWith("/")) b = `/${b}`;
+  return b === "/" ? "/" : b.endsWith("/") ? b : `${b}/`;
+}
+
 export default defineConfig({
-  base: "/myportfolio/",
+  base: vitePublicBase(),
   plugins: [react()],
   server: {
     port: 5173,
