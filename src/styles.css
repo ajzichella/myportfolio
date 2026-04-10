@@ -491,3 +491,233 @@ a {
     transform: none;
   }
 }
+
+/* Kind words board page: cork texture + wood frame */
+.kind-words-corkboard {
+  background-color: #b8895c;
+  background-image:
+    radial-gradient(ellipse 120% 80% at 15% 20%, rgba(255, 255, 255, 0.07) 0%, transparent 45%),
+    radial-gradient(ellipse 90% 70% at 85% 75%, rgba(0, 0, 0, 0.12) 0%, transparent 50%),
+    radial-gradient(circle at 30% 60%, rgba(0, 0, 0, 0.06) 0%, transparent 35%),
+    radial-gradient(circle at 70% 35%, rgba(0, 0, 0, 0.05) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(62, 39, 18, 0.08) 0%, transparent 55%),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0,
+      transparent 2px,
+      rgba(62, 39, 18, 0.03) 2px,
+      rgba(62, 39, 18, 0.03) 3px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent 0,
+      transparent 2px,
+      rgba(90, 56, 28, 0.04) 2px,
+      rgba(90, 56, 28, 0.04) 3px
+    );
+  box-shadow:
+    inset 0 0 100px rgba(40, 22, 8, 0.35),
+    inset 0 2px 0 rgba(255, 255, 255, 0.06);
+  border: 12px solid;
+  border-color: #4a2f1a #3d2614 #2a180c #3d2614;
+  border-radius: 4px;
+}
+
+.kind-words-corkboard-inner {
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.2);
+}
+
+/* Kind words board: speech-bubble stickers per word (Fredoka via index.html) */
+.kind-words-board-bubble-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0.65rem 0.85rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.35rem;
+}
+
+@media (min-width: 640px) {
+  .kind-words-board-bubble-row {
+    gap: 0.75rem 1.1rem;
+    padding-bottom: 0.5rem;
+  }
+}
+
+.kind-words-speech-bubble {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  isolation: isolate;
+  min-width: 4.75em;
+  min-height: 2.35em;
+  /* Less bottom / more top: bubble “body” sits above the tail in the SVG viewBox */
+  padding: 0.56em 1em 0.3em;
+  font-family: "Fredoka", "Inter", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: clamp(1.35rem, 3.5vw + 0.4rem, 2.35rem);
+  line-height: 1.05;
+  letter-spacing: 0.01em;
+}
+
+.kind-words-speech-bubble__svg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+/* Pushpins into cork (head + metal shaft) */
+.kind-words-speech-bubble__pin {
+  position: absolute;
+  z-index: 4;
+  pointer-events: none;
+  top: -0.12rem;
+  width: 0;
+  height: 0;
+}
+
+.kind-words-speech-bubble__pin::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate(-50%, 0);
+  width: 0.78rem;
+  height: 0.78rem;
+  border-radius: 50%;
+  box-shadow:
+    0 2px 3px rgba(0, 0, 0, 0.38),
+    inset 0 -4px 6px rgba(0, 0, 0, 0.2),
+    inset 0 3px 5px rgba(255, 255, 255, 0.35);
+}
+
+/* Rainbow pin heads (vibrant, distinct per pin) */
+.kind-words-speech-bubble__pin--rb0::before {
+  background: radial-gradient(circle at 33% 28%, #fecaca 0%, #f43f5e 40%, #be123c 90%);
+}
+
+.kind-words-speech-bubble__pin--rb1::before {
+  background: radial-gradient(circle at 33% 28%, #fed7aa 0%, #fb923c 42%, #c2410c 90%);
+}
+
+.kind-words-speech-bubble__pin--rb2::before {
+  background: radial-gradient(circle at 33% 28%, #fef08a 0%, #eab308 45%, #a16207 90%);
+}
+
+.kind-words-speech-bubble__pin--rb3::before {
+  background: radial-gradient(circle at 33% 28%, #bbf7d0 0%, #22c55e 40%, #15803d 90%);
+}
+
+.kind-words-speech-bubble__pin--rb4::before {
+  background: radial-gradient(circle at 33% 28%, #7ee8ff 0%, #00aeef 42%, #0369a1 90%);
+}
+
+.kind-words-speech-bubble__pin--rb5::before {
+  background: radial-gradient(circle at 33% 28%, #e9d5ff 0%, #a855f7 38%, #6d28d9 90%);
+}
+
+.kind-words-speech-bubble__pin::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.52rem;
+  transform: translate(-50%, 0);
+  width: 0.22rem;
+  height: 0.72rem;
+  border-radius: 1px;
+  background: linear-gradient(180deg, #c0c8d0 0%, #6b7280 52%, #4b5563 100%);
+  box-shadow: 1px 0 1px rgba(0, 0, 0, 0.22);
+}
+
+.kind-words-speech-bubble__pin--first {
+  transform: rotate(-11deg);
+}
+
+.kind-words-speech-bubble__pin--second {
+  left: auto;
+  transform: rotate(9deg);
+}
+
+/* Organic pin placement per bubble (Kind / words / board); nudged inward from bubble edges */
+.kind-words-speech-bubble--idx-0 .kind-words-speech-bubble__pin--first {
+  left: 17%;
+  top: -0.22rem;
+  transform: rotate(-15deg);
+}
+
+.kind-words-speech-bubble--idx-0 .kind-words-speech-bubble__pin--second {
+  right: 32%;
+  top: -0.04rem;
+  transform: rotate(17deg);
+}
+
+.kind-words-speech-bubble--idx-1 .kind-words-speech-bubble__pin--first {
+  left: 32%;
+  top: 0.02rem;
+  transform: rotate(7deg);
+}
+
+.kind-words-speech-bubble--idx-1 .kind-words-speech-bubble__pin--second {
+  right: 19%;
+  top: -0.2rem;
+  transform: rotate(-12deg);
+}
+
+.kind-words-speech-bubble--idx-2 .kind-words-speech-bubble__pin--first {
+  left: 15%;
+  top: -0.06rem;
+  transform: rotate(-8deg);
+}
+
+.kind-words-speech-bubble--idx-2 .kind-words-speech-bubble__pin--second {
+  right: 37%;
+  top: -0.18rem;
+  transform: rotate(14deg);
+}
+
+.kind-words-speech-bubble__text {
+  position: relative;
+  z-index: 1;
+  transform: translateY(-0.32em);
+}
+
+.kind-words-speech-bubble--ink-0 .kind-words-speech-bubble__text {
+  color: #9c3d10;
+}
+
+.kind-words-speech-bubble--ink-1 .kind-words-speech-bubble__text {
+  color: #2d4a0c;
+}
+
+.kind-words-speech-bubble--ink-2 .kind-words-speech-bubble__text {
+  color: #0c4a6e;
+}
+
+.kind-words-speech-bubble--shape-0 {
+  transform: rotate(-2.5deg);
+}
+
+.kind-words-speech-bubble--shape-1 {
+  transform: rotate(1.8deg);
+}
+
+.kind-words-speech-bubble--shape-2 {
+  padding-left: 1.05em;
+  padding-right: 1.05em;
+  transform: rotate(-1.2deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kind-words-speech-bubble,
+  .kind-words-speech-bubble--shape-0,
+  .kind-words-speech-bubble--shape-1,
+  .kind-words-speech-bubble--shape-2 {
+    transform: none;
+  }
+}

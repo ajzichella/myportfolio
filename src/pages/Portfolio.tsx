@@ -108,7 +108,8 @@ export function Portfolio() {
             </GradientText>
           </h1>
           <p className="mt-2 text-lg text-[#999999]">
-            Case studies — filter by badge to explore by topic.
+            End-to-end product stories, from concept to launch. Filter by topic
+            to follow the themes that matter to you.
           </p>
         </motion.div>
 

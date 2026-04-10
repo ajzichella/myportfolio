@@ -1,6 +1,6 @@
 import React, { lazy, Suspense, useState, useEffect, useLayoutEffect } from "react";
 import { Routes, Route, NavLink, Navigate, useLocation } from "react-router-dom";
-import { Home, FolderKanban, User, Menu, X } from "lucide-react";
+import { Home, FolderKanban, Heart, User, Menu, X } from "lucide-react";
 import { Footer } from "./components/Footer";
 
 const HomePage = lazy(() =>
@@ -31,6 +31,11 @@ const CaseStudyEnhancedCheckout = lazy(() =>
 );
 const AboutPage = lazy(() =>
   import("./pages/About").then((m) => ({ default: m.About })),
+);
+const KindWordsBoardPage = lazy(() =>
+  import("./pages/KindWordsBoard").then((m) => ({
+    default: m.KindWordsBoard,
+  })),
 );
 
 function RouteFallback() {
@@ -125,6 +130,14 @@ export function App() {
           <User className="h-4 w-4" />
           <span>About me</span>
         </NavLink>
+        <NavLink
+          to="/kind-words"
+          className={navLinkClass}
+          onClick={() => setMenuOpen(false)}
+        >
+          <Heart className="h-4 w-4" />
+          <span>Kind words</span>
+        </NavLink>
       </nav>
     </>
   );
@@ -179,6 +192,7 @@ export function App() {
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/case-studies" element={<PortfolioPage />} />
+              <Route path="/kind-words" element={<KindWordsBoardPage />} />
               <Route
                 path="/case-studies/predefined-roles"
                 element={<CaseStudyPredefinedRoles />}

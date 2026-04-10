@@ -1,6 +1,6 @@
 /**
- * DigitalOcean App Platform serves this app at the domain root; Vite must use base "/".
- * GitHub Pages keeps using `npm run build` (default base /myportfolio/).
+ * DigitalOcean App Platform serves this app at the domain root; force Vite base "/".
+ * GitHub Pages uses `npm run build` (default base `./` — works for custom domain + /myportfolio/).
  */
 import { spawnSync } from "node:child_process";
 

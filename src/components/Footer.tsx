@@ -33,6 +33,9 @@ export function Footer() {
             <NavLink to="/about" className={footerNavClass}>
               About me
             </NavLink>
+            <NavLink to="/kind-words" className={footerNavClass}>
+              Kind words
+            </NavLink>
           </nav>
           <span className="flex shrink-0 items-center border-slate-700 sm:border-l sm:pl-3">
             <a

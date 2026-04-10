@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { Link } from "react-router-dom";
-import { motion, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
 import {
   ChevronDown,
   ArrowRight,
@@ -9,7 +9,6 @@ import {
   Users,
   Handshake,
   TrendingUp,
-  Heart,
 } from "lucide-react";
 
 import GradientText from "../components/GradientText";
@@ -20,6 +19,44 @@ import { FixedBlobBackdrop, SOFT_FIXED_BLOB_PRESET } from "../components/BlobBac
 import { PawDotPattern } from "../components/PawDotPattern";
 import { DigitalOceanHeaderWordmark } from "../components/DigitalOceanHeaderWordmark";
 import { getFeaturedCaseStudies } from "../data/caseStudies";
+import { homeKindWordsPostits, homeKindWordsTestimonials } from "../data/kindWords";
+import {
+  KindWordsHeartsBackdrop,
+  KindWordsPostItGrid,
+} from "../components/KindWordsPostIts";
+
+const HOME_KIND_WORDS_HEARTS = [
+  { left: "5%", top: "12%", size: 18, delay: 0, duration: 8, color: "rgba(0, 174, 239, 0.7)" },
+  { left: "18%", top: "58%", size: 14, delay: 1.1, duration: 10, color: "rgba(163, 232, 247, 0.35)" },
+  { left: "42%", top: "8%", size: 12, delay: 2.4, duration: 9, color: "rgba(14, 165, 233, 0.55)" },
+  { left: "55%", top: "72%", size: 16, delay: 0.6, duration: 11, color: "rgba(56, 189, 248, 0.25)" },
+  { left: "72%", top: "18%", size: 13, delay: 3.2, duration: 8.5, color: "rgba(0, 107, 143, 0.65)" },
+  { left: "88%", top: "45%", size: 15, delay: 1.8, duration: 9.5, color: "rgba(126, 232, 255, 0.3)" },
+  { left: "28%", top: "82%", size: 11, delay: 4, duration: 12, color: "rgba(34, 211, 238, 0.6)" },
+  { left: "78%", top: "78%", size: 12, delay: 2, duration: 10.5, color: "rgba(2, 132, 199, 0.4)" },
+  { left: "12%", top: "38%", size: 10, delay: 5.5, duration: 13, color: "rgba(103, 232, 249, 0.2)" },
+  { left: "92%", top: "12%", size: 14, delay: 0.3, duration: 9, color: "rgba(0, 180, 216, 0.7)" },
+  { left: "35%", top: "28%", size: 16, delay: 0.8, duration: 9, color: "rgba(0, 174, 239, 0.3)" },
+  { left: "62%", top: "42%", size: 11, delay: 2.8, duration: 11, color: "rgba(163, 232, 247, 0.55)" },
+  { left: "8%", top: "68%", size: 15, delay: 1.5, duration: 10, color: "rgba(56, 189, 248, 0.65)" },
+  { left: "82%", top: "55%", size: 13, delay: 3.8, duration: 8, color: "rgba(34, 211, 238, 0.25)" },
+  { left: "48%", top: "88%", size: 17, delay: 0.4, duration: 12, color: "rgba(0, 107, 143, 0.5)" },
+  { left: "22%", top: "5%", size: 12, delay: 4.5, duration: 9.5, color: "rgba(126, 232, 255, 0.7)" },
+  { left: "68%", top: "62%", size: 14, delay: 1.3, duration: 10.5, color: "rgba(14, 165, 233, 0.35)" },
+  { left: "95%", top: "32%", size: 10, delay: 5, duration: 11, color: "rgba(103, 232, 249, 0.6)" },
+  { left: "15%", top: "92%", size: 13, delay: 2.2, duration: 8.5, color: "rgba(2, 132, 199, 0.45)" },
+  { left: "50%", top: "48%", size: 15, delay: 3.5, duration: 9, color: "rgba(0, 180, 216, 0.2)" },
+  { left: "3%", top: "75%", size: 16, delay: 0.9, duration: 10, color: "rgba(0, 174, 239, 0.55)" },
+  { left: "30%", top: "15%", size: 11, delay: 3.1, duration: 8, color: "rgba(56, 189, 248, 0.3)" },
+  { left: "58%", top: "35%", size: 14, delay: 1.7, duration: 11.5, color: "rgba(34, 211, 238, 0.7)" },
+  { left: "75%", top: "90%", size: 10, delay: 4.8, duration: 9, color: "rgba(126, 232, 255, 0.25)" },
+  { left: "40%", top: "65%", size: 17, delay: 0.2, duration: 12, color: "rgba(14, 165, 233, 0.6)" },
+  { left: "85%", top: "25%", size: 12, delay: 2.6, duration: 8.5, color: "rgba(2, 132, 199, 0.35)" },
+  { left: "10%", top: "50%", size: 15, delay: 5.2, duration: 10.5, color: "rgba(0, 107, 143, 0.7)" },
+  { left: "65%", top: "5%", size: 13, delay: 1.4, duration: 9.5, color: "rgba(103, 232, 249, 0.4)" },
+  { left: "45%", top: "95%", size: 11, delay: 3.9, duration: 11, color: "rgba(163, 232, 247, 0.65)" },
+  { left: "97%", top: "65%", size: 14, delay: 0.7, duration: 8, color: "rgba(0, 180, 216, 0.5)" },
+] as const;
 
 /** Glass tooltips + cyan edge glow (ResultsSection-style). */
 const csTooltipDo =
@@ -39,79 +76,8 @@ const digitalOceanTooltipCopy = (
   </>
 );
 
-const kindWordsTestimonials = [
-  {
-    paragraphs: [
-      "I've had the privilege of having AJ as my mentor throughout my time at DigitalOcean, starting back when I was just an intern. Her extensive knowledge of our design system and product experience means I can ask her anything and get good guidance.",
-      "AJ stands out in her ability to think at multiple levels at once. She doesn't just design, she strategizes. She naturally considers business goals, technical constraints, and user needs together.",
-      "She also pushed me, consistently and generously, to stand up for the user experience even when it was the harder path. That kind of mentorship is rare, and it's shaped how I approach my work every day. I'm really lucky to continue working with her.",
-    ],
-    attribution: "Isabel S, associate product designer",
-  },
-  {
-    paragraphs: [
-      "AJ has demonstrated exceptional skill and dedication as a senior designer at DigitalOcean. Her contributions across various projects have significantly impacted the company's growth and customer satisfaction. AJ's ability to blend research, customer journey understanding, and technical insight has been invaluable. On concurrent priorities, she helped ensure that key features moved toward launch despite shifting product direction.",
-    ],
-    attribution: "John H, senior product design manager",
-  },
-  {
-    paragraphs: [
-      "AJ, thank you so much for your support on post-GA SSO and Session Management! I realize we have had to pivot multiple times, but you've been able to save the day each time.",
-      "Your designs are always thoughtful and take into account what the best customer experience can be. I also value your ability to help make recommendations for what we can prioritize in terms of enhancements and where we can cut scope.",
-      "Your partnership in all of this has been so helpful and I truly appreciate the collaboration and positivity you bring to the team!",
-    ],
-    attribution: "Molly H, IAM senior product manager",
-  },
-] as const;
-
-/** Post-it paper colors + tilt; text is black on all notes. Index aligns with testimonials. */
-const KIND_WORDS_POSTITS = [
-  { bg: "#f2e45a", rotate: "-2.8deg" },
-  { bg: "#f5a3c8", rotate: "2.1deg", hug: true },
-  { bg: "#86e9a8", rotate: "-1.6deg" },
-] as const;
-
-/** Same floating hearts as case study peer feedback; tiled for Kind words scroll. */
-const KIND_WORDS_HEARTS = [
-  { left: "5%", top: "12%", size: 18, delay: 0, duration: 8, color: "rgba(0, 174, 239, 0.52)" },
-  { left: "18%", top: "58%", size: 14, delay: 1.1, duration: 10, color: "rgba(163, 232, 247, 0.48)" },
-  { left: "42%", top: "8%", size: 12, delay: 2.4, duration: 9, color: "rgba(14, 165, 233, 0.44)" },
-  { left: "55%", top: "72%", size: 16, delay: 0.6, duration: 11, color: "rgba(56, 189, 248, 0.42)" },
-  { left: "72%", top: "18%", size: 13, delay: 3.2, duration: 8.5, color: "rgba(0, 107, 143, 0.5)" },
-  { left: "88%", top: "45%", size: 15, delay: 1.8, duration: 9.5, color: "rgba(126, 232, 255, 0.4)" },
-  { left: "28%", top: "82%", size: 11, delay: 4, duration: 12, color: "rgba(34, 211, 238, 0.45)" },
-  { left: "78%", top: "78%", size: 12, delay: 2, duration: 10.5, color: "rgba(2, 132, 199, 0.46)" },
-  { left: "12%", top: "38%", size: 10, delay: 5.5, duration: 13, color: "rgba(103, 232, 249, 0.38)" },
-  { left: "92%", top: "12%", size: 14, delay: 0.3, duration: 9, color: "rgba(0, 180, 216, 0.48)" },
-] as const;
-
-function KindWordsHeartHalf({ layerKey }: { layerKey: string }) {
-  return (
-    <div className="relative h-1/2 w-full min-h-[12rem]">
-      {KIND_WORDS_HEARTS.map((h, i) => (
-        <Heart
-          key={`${layerKey}-${i}`}
-          className="peer-feedback-heart"
-          style={{
-            left: h.left,
-            top: h.top,
-            width: h.size,
-            height: h.size,
-            color: h.color,
-            animationDelay: `${h.delay}s`,
-            animationDuration: `${h.duration}s`,
-          }}
-          fill="currentColor"
-          strokeWidth={0}
-        />
-      ))}
-    </div>
-  );
-}
-
 export function Home() {
   const sectionRef = useRef<HTMLElement>(null);
-  const reduceMotion = useReducedMotion();
 
   return (
     <>
@@ -180,7 +146,7 @@ export function Home() {
               aria-hidden
             />
             <p className="text-base text-[#999999]">
-              Current status - Senior product designer, design engineer for{" "}
+              Senior product designer at{" "}
               <a
                 href="https://www.digitalocean.com"
                 target="_blank"
@@ -189,7 +155,6 @@ export function Home() {
               >
                 DigitalOcean
               </a>
-              .
             </p>
           </motion.div>
           <motion.div
@@ -553,18 +518,7 @@ export function Home() {
         className="relative isolate z-10 w-full shrink-0 overflow-hidden px-6 py-16 md:px-12 md:py-20 lg:px-16"
         aria-labelledby="kind-words-heading"
       >
-        <div
-          className="pointer-events-none absolute inset-0 z-0 overflow-hidden opacity-[0.32] [mask-image:linear-gradient(to_bottom,transparent,black_6%,black_94%,transparent)] [-webkit-mask-image:linear-gradient(to_bottom,transparent,black_6%,black_94%,transparent)]"
-          aria-hidden
-        >
-          <div
-            className="kind-words-hearts-track absolute left-0 right-0 top-0 w-full"
-            style={{ height: "200%" }}
-          >
-            <KindWordsHeartHalf layerKey="a" />
-            <KindWordsHeartHalf layerKey="b" />
-          </div>
-        </div>
+        <KindWordsHeartsBackdrop hearts={HOME_KIND_WORDS_HEARTS} opacity="opacity-[0.38]" />
 
         <div className="relative z-10 mx-auto max-w-[1200px]">
           <motion.div
@@ -572,7 +526,7 @@ export function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.4 }}
-            className="mb-10"
+            className="mb-10 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
           >
             <h2
               id="kind-words-heading"
@@ -580,53 +534,15 @@ export function Home() {
             >
               Kind words
             </h2>
+            <Link
+              to="/kind-words"
+              className="shrink-0 text-sm font-medium text-[#00aeef] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00aeef] focus-visible:ring-offset-2 focus-visible:ring-offset-black rounded-sm"
+            >
+              View kind words board
+            </Link>
           </motion.div>
 
-          <div className="grid grid-cols-1 gap-8 pt-2 pb-6 sm:gap-10 lg:grid-cols-2 lg:gap-x-10 lg:gap-y-12">
-            {kindWordsTestimonials.map((item, index) => {
-              const pad = KIND_WORDS_POSTITS[index] ?? KIND_WORDS_POSTITS[0];
-              const hug = "hug" in pad && pad.hug === true;
-              return (
-                <motion.div
-                  key={item.attribution}
-                  initial={{ opacity: 0, y: 28 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-60px" }}
-                  transition={{ duration: 0.45, delay: 0.06 + index * 0.08 }}
-                  className={`flex justify-center ${
-                    index === 0
-                      ? "lg:justify-start"
-                      : index === 1
-                        ? "lg:justify-end"
-                        : "lg:col-span-2"
-                  }`}
-                >
-                  <article
-                    className={`kind-words-postit relative text-black px-4 pb-5 pt-6 sm:px-5 sm:pb-5 sm:pt-7 md:px-6 md:pb-6 md:pt-7 ${
-                      hug
-                        ? "w-full max-w-[min(100%,19rem)] sm:w-fit sm:max-w-[22rem]"
-                        : "w-full max-w-md md:max-w-lg"
-                    }`}
-                    style={{
-                      backgroundColor: pad.bg,
-                      transform: reduceMotion ? undefined : `rotate(${pad.rotate})`,
-                    }}
-                  >
-                    <blockquote className="mt-0.5">
-                      <div className="space-y-2.5 text-lg leading-snug sm:space-y-3 sm:text-xl md:text-[1.35rem] md:leading-snug">
-                        {item.paragraphs.map((p, pi) => (
-                          <p key={`${item.attribution}-${pi}`}>{p}</p>
-                        ))}
-                      </div>
-                      <p className="mt-4 text-base font-semibold leading-tight sm:mt-5 sm:text-lg">
-                        - {item.attribution}
-                      </p>
-                    </blockquote>
-                  </article>
-                </motion.div>
-              );
-            })}
-          </div>
+          <KindWordsPostItGrid testimonials={homeKindWordsTestimonials} postits={homeKindWordsPostits} />
         </div>
       </section>
     </>
