@@ -1,11 +1,17 @@
 import { defineConfig, searchForWorkspaceRoot } from "vite";
 import react from "@vitejs/plugin-react-swc";
 
-/** Default matches GitHub Pages. Set `VITE_BASE=/` when the app is served from the domain root (e.g. DigitalOcean App Platform). */
+/**
+ * Base URL for built assets.
+ * - Default `./` works for both custom domain (site at `/`) and project Pages (`/myportfolio/`).
+ * - `VITE_BASE=/myportfolio/` if you only deploy to the github.io subpath.
+ * - `VITE_BASE=/` for root-only hosts (e.g. DigitalOcean App Platform).
+ */
 function vitePublicBase(): string {
   const raw = process.env.VITE_BASE;
-  if (raw === undefined || raw === "") return "/myportfolio/";
+  if (raw === undefined || raw === "") return "./";
   let b = raw.trim();
+  if (b === "./" || b === ".") return "./";
   if (!b.startsWith("/")) b = `/${b}`;
   return b === "/" ? "/" : b.endsWith("/") ? b : `${b}/`;
 }
