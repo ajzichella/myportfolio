@@ -60,10 +60,10 @@ export function CaseStudyCard({
     <motion.article
       key={study.title}
       data-figma-capture={study.title === "RBAC - Predefined Roles" ? "rbac-card" : undefined}
-      initial={{ y: 24 }}
-      whileInView={{ y: 0 }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.4, delay: 0.1 * index }}
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.4, delay: 0.05 * (index + 1) }}
       className={cn(
         "relative rounded-xl case-study-card p-8 lg:min-h-[min(380px,46vh)]",
         glassIntensity === "light" && "case-study-card--light-glass",

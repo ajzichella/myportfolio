@@ -2,34 +2,38 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://ajzichella.com/</loc>
-    <lastmod>2026-04-13</lastmod>
+    <lastmod>2026-04-15</lastmod>
   </url>
   <url>
     <loc>https://ajzichella.com/case-studies</loc>
-    <lastmod>2026-04-13</lastmod>
+    <lastmod>2026-04-15</lastmod>
   </url>
   <url>
     <loc>https://ajzichella.com/kind-words</loc>
-    <lastmod>2026-04-13</lastmod>
+    <lastmod>2026-04-15</lastmod>
   </url>
   <url>
     <loc>https://ajzichella.com/case-studies/predefined-roles</loc>
-    <lastmod>2026-04-13</lastmod>
+    <lastmod>2026-04-15</lastmod>
+  </url>
+  <url>
+    <loc>https://ajzichella.com/case-studies/custom-roles</loc>
+    <lastmod>2026-04-16</lastmod>
   </url>
   <url>
     <loc>https://ajzichella.com/case-studies/kafka</loc>
-    <lastmod>2026-04-13</lastmod>
+    <lastmod>2026-04-15</lastmod>
   </url>
   <url>
     <loc>https://ajzichella.com/case-studies/ddos-protection</loc>
-    <lastmod>2026-04-13</lastmod>
+    <lastmod>2026-04-15</lastmod>
   </url>
   <url>
     <loc>https://ajzichella.com/case-studies/enhanced-checkout</loc>
-    <lastmod>2026-04-13</lastmod>
+    <lastmod>2026-04-15</lastmod>
   </url>
   <url>
     <loc>https://ajzichella.com/about</loc>
-    <lastmod>2026-04-13</lastmod>
+    <lastmod>2026-04-15</lastmod>
   </url>
 </urlset>

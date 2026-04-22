@@ -349,21 +349,21 @@ export function CaseStudyEnhancedCheckout() {
         >
           <LightboxImageButton
             src={`${base}checkout-shipping.png`}
-            alt="Enhanced checkout — saved user shipping information step"
+            alt="Enhanced checkout: saved user shipping information step"
             wrapperClassName="w-full"
             className="h-auto max-h-[min(920px,88vh)] w-full rounded-lg object-contain"
             onOpen={setImageLightbox}
           />
           <LightboxImageButton
             src={`${base}checkout-payment.png`}
-            alt="Enhanced checkout — saved user payment step"
+            alt="Enhanced checkout: saved user payment step"
             wrapperClassName="w-full"
             className="h-auto max-h-[min(920px,88vh)] w-full rounded-lg object-contain"
             onOpen={setImageLightbox}
           />
           <LightboxImageButton
             src={`${base}checkout-place-order.jpg`}
-            alt="Enhanced checkout — saved user place order final step"
+            alt="Enhanced checkout: saved user place order final step"
             wrapperClassName="w-full"
             className="h-auto max-h-[min(920px,88vh)] w-full rounded-lg object-contain"
             onOpen={setImageLightbox}
@@ -539,7 +539,7 @@ export function CaseStudyEnhancedCheckout() {
             <figure className="min-w-0">
               <LightboxImageButton
                 src={`${base}checkout_mobile.png`}
-                alt="STORIS mobile secure checkout — shipping information step"
+                alt="STORIS mobile secure checkout: shipping information step"
                 wrapperClassName="rounded-lg"
                 className="w-full rounded-lg"
                 onOpen={setImageLightbox}

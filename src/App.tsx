@@ -14,6 +14,11 @@ const CaseStudyPredefinedRoles = lazy(() =>
     default: m.CaseStudyPredefinedRoles,
   })),
 );
+const CaseStudyCustomRoles = lazy(() =>
+  import("./pages/CaseStudyCustomRoles").then((m) => ({
+    default: m.CaseStudyCustomRoles,
+  })),
+);
 const CaseStudyKafka = lazy(() =>
   import("./pages/CaseStudyKafka").then((m) => ({
     default: m.CaseStudyKafka,
@@ -189,6 +194,7 @@ export function App() {
           className="min-w-0 flex-1 overflow-x-hidden pt-[max(env(safe-area-inset-top),5rem)] lg:pt-0"
         >
           <Suspense fallback={<RouteFallback />}>
+            {/* New indexable routes: add a matching <url> in public/sitemap.xml (see .cursor/rules). */}
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/case-studies" element={<PortfolioPage />} />
@@ -196,6 +202,10 @@ export function App() {
               <Route
                 path="/case-studies/predefined-roles"
                 element={<CaseStudyPredefinedRoles />}
+              />
+              <Route
+                path="/case-studies/custom-roles"
+                element={<CaseStudyCustomRoles />}
               />
               <Route path="/portfolio" element={<Navigate to="/case-studies" replace />} />
               <Route

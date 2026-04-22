@@ -5,13 +5,34 @@ const base = import.meta.env.BASE_URL;
 export const CASE_STUDIES: Study[] = [
   {
     company: "DigitalOcean | Cloud Computing & Hosting",
+    title: "RBAC - Custom Roles",
+    description:
+      "Guided custom role creation with required and related permissions, PAT alignment, and lifecycle management in role access.",
+    tags: ["IAM", "Access control"],
+    metrics: [
+      { value: "Guided", label: "3-step creation" },
+      { value: "Transparent", label: "required permissions" },
+    ],
+    link: "/case-studies/custom-roles",
+    images: [
+      `${base}create%20CR_thumb.png`,
+      `${base}custom_modal.png`,
+    ],
+    imageAlts: [
+      "Create custom role flow with stepper, role details, granular permissions, and summary sidebar with permission totals",
+      "Change role modal with custom role search and role selection list in DigitalOcean team settings",
+    ],
+    sideOverlapSecondLeftExtraPx: 32,
+  },
+  {
+    company: "DigitalOcean | Cloud Computing & Hosting",
     title: "RBAC - Predefined Roles",
     description:
       "Adding 3 new roles to simplify users' more granular access needs with more restrictive RBAC solutions.",
     tags: ["IAM", "Access control"],
     metrics: [
       { value: "Simplified", label: "access management" },
-      { value: "Granular", label: "role options" },
+      { value: "Platform", label: "collaboration" },
     ],
     link: "/case-studies/predefined-roles",
     images: [`${base}invite-team-members.png`, `${base}rbac-role-modal.png`],
@@ -68,7 +89,7 @@ export const CASE_STUDIES: Study[] = [
     images: [`${base}estoris2.png`, `${base}checkout_mobile.png`],
     imageAlts: [
       "STORIS admin Checkout Settings with delivery options and store pickup",
-      "STORIS mobile secure checkout — shipping information step",
+      "STORIS mobile secure checkout: shipping information step",
     ],
     twoImageLayout: "hero-phone",
   },
@@ -76,6 +97,7 @@ export const CASE_STUDIES: Study[] = [
 
 /** Titles of studies shown on the Home teaser (order preserved). */
 export const FEATURED_CASE_STUDY_TITLES: readonly string[] = [
+  "RBAC - Custom Roles",
   "RBAC - Predefined Roles",
   "DDoS Protection",
 ];

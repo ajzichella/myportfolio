@@ -37,8 +37,12 @@ function AnimatedResultNumber({
   }, [active, value, delay, reduceMotion]);
 
   let text: string;
-  if (format === "int-plus") {
+  if (format === "int") {
+    text = Math.round(display).toLocaleString("en-US");
+  } else if (format === "int-plus") {
     text = `${Math.round(display).toLocaleString("en-US")}+`;
+  } else if (format === "int-tilde") {
+    text = `~${Math.round(display).toLocaleString("en-US")}`;
   } else if (format === "percent") {
     text = `${Math.round(display)}%`;
   } else {
@@ -244,6 +248,11 @@ export function ResultsSection({
                     <p className="mt-2 text-sm leading-snug text-slate-200">
                       {s.label}
                     </p>
+                    {s.subLabel ? (
+                      <p className="mt-1.5 text-xs leading-snug text-slate-500">
+                        {s.subLabel}
+                      </p>
+                    ) : null}
                   </div>
                 </motion.div>
               ))}

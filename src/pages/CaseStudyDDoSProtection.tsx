@@ -1,13 +1,14 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { animate, inView, motion, useReducedMotion } from "motion/react";
-import { ChevronRight, List, Lock, LockOpen, PawPrint, X } from "lucide-react";
+import { ChevronRight, Heart, List, Lock, LockOpen, PawPrint, X } from "lucide-react";
 import { FixedBlobBackdrop } from "../components/BlobBackground";
 import { Bubbles } from "../components/Bubbles";
 import { ImageLightbox, LightboxImageButton } from "../components/ImageLightbox";
 import GradientText from "../components/GradientText";
 import BlurText from "../components/BlurText";
 import { LaunchImpactPartyPopper } from "../components/ResultsSectionBadge";
+import { PEER_FEEDBACK_HEARTS } from "../data/peerFeedbackHearts";
 import { PAW_PATH_D } from "../lib/pawPath";
 
 const base = import.meta.env.BASE_URL;
@@ -1625,12 +1626,38 @@ export function CaseStudyDDoSProtection() {
           <h2 id="ddos-peer-heading" className={sectionTitle}>
             ✍️ Peer feedback
           </h2>
-          <blockquote className="mt-6 border-l-4 border-[#00aeef]/60 pl-6 text-base italic leading-relaxed text-slate-200 md:text-lg">
-            <p>&ldquo;I&apos;d put you on any product I work on, anytime&rdquo;</p>
-            <footer className="mt-4 text-sm font-medium not-italic text-[#999999]">
-              MM, Product Operations Director
-            </footer>
-          </blockquote>
+          <div className="case-study-card case-study-card--no-left-accent relative mt-6 rounded-xl p-6 md:p-8">
+            <div
+              className="pointer-events-none absolute inset-0 z-0 overflow-hidden rounded-xl"
+              aria-hidden
+            >
+              {PEER_FEEDBACK_HEARTS.map((h, i) => (
+                <Heart
+                  key={i}
+                  className="peer-feedback-heart"
+                  style={{
+                    left: h.left,
+                    top: h.top,
+                    width: h.size,
+                    height: h.size,
+                    color: h.color,
+                    animationDelay: `${h.delay}s`,
+                    animationDuration: `${h.duration}s`,
+                  }}
+                  fill="currentColor"
+                  strokeWidth={0}
+                />
+              ))}
+            </div>
+            <blockquote className="relative z-[1] m-0 w-full min-w-0 max-w-none border-l-4 border-[#00aeef]/60 pl-6">
+              <p className="text-base leading-relaxed text-slate-200 md:text-lg">
+                &ldquo;I&apos;d put you on any product I work on, anytime&rdquo;
+              </p>
+              <footer className="pt-2 text-sm font-medium not-italic text-[#999999]">
+                MM, Product Operations Director
+              </footer>
+            </blockquote>
+          </div>
         </motion.section>
 
         <p className="mt-12 text-center text-sm text-[#999999]">
