@@ -10,8 +10,8 @@ export const CASE_STUDIES: Study[] = [
       "Guided custom role creation with required and related permissions, PAT alignment, and lifecycle management in role access.",
     tags: ["IAM", "Access control"],
     metrics: [
-      { value: "Guided", label: "3-step creation" },
-      { value: "Transparent", label: "required permissions" },
+      { value: "Friction-less", label: "security" },
+      { value: "Transparent", label: "granular permissions" },
     ],
     link: "/case-studies/custom-roles",
     images: [

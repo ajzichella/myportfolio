@@ -57,7 +57,7 @@ const CASE_STUDY_SECTION_INDEX = [
 
 const SCOPE_COLLAB_STATS = [
   { value: 13, label: "user interviews (with UXR)" },
-  { value: 18, label: "usability participants (two rounds)" },
+  { value: 9, label: "usability participants (prototype sessions)" },
 ] as const;
 
 function ScopeStatValue({
@@ -445,9 +445,9 @@ export function CaseStudyCustomRoles() {
           headingId="cr-results-heading"
           description={
             <>
-              After launch, custom roles saw strong early adoption: nearly five
-              thousand assignments across thousands of teams, with measurable
-              uptake in enterprise accounts.
+              After launch, custom roles saw strong early adoption: nearly 5,000
+              assignments across thousands of teams, with measurable uptake in
+              enterprise accounts.
             </>
           }
           stats={[
@@ -527,8 +527,8 @@ export function CaseStudyCustomRoles() {
             <div>
               <dt className={labelClass}>Research</dt>
               <dd className="mt-2 text-sm leading-relaxed text-slate-200 md:text-base">
-                Thirteen interviews and eighteen usability participants across
-                prototype sessions, plus ongoing IAM/RBAC session summaries.
+                13 interviews and 9 usability participants across prototype sessions,
+                plus ongoing IAM/RBAC session summaries.
               </dd>
             </div>
             <div className="sm:col-span-2 lg:col-span-1">
@@ -559,11 +559,13 @@ export function CaseStudyCustomRoles() {
                   What people told us
                 </h3>
                 <p className="mt-3 max-w-3xl text-base leading-relaxed text-[#999999] md:text-lg">
-                  Users compare our work to other cloud providers and say again and
-                  again that they loathe those role experiences because of
-                  complexity and the sheer number of permissions. They still want
-                  granular control, mostly satisfied with CRUD, with guardrails
-                  so we do not set them up for the wrong combinations.
+                  Users consistently compare DigitalOcean to AWS, Azure, and GCP and cite
+                  complexity as their biggest frustration. Too many permissions and unclear
+                  documentation were the most common complaints. They want granular control,
+                  but not at the cost of simplicity. CRUD checkboxes were the most commonly
+                  requested pattern, with several users describing exactly that before even
+                  seeing the prototype. The custom role creation flow tested well, with the
+                  majority rating it 7/7 for ease-of-use.
                 </p>
               </div>
 
@@ -572,37 +574,46 @@ export function CaseStudyCustomRoles() {
                   Usability focus
                 </h3>
                 <p className="mt-3 max-w-3xl text-base leading-relaxed text-[#999999] md:text-lg">
-                  Most people jump into granular permission selection, but we also
-                  offer templates from basic roles (except Owner) or from other
-                  custom roles they already created. Search helps when they do not
-                  want to scroll; permissions are organized under subheaders by
-                  category so they can find what they need.
+                  Most participants went straight to granular permissions instead of templates.
+                  When Basic Role templates sat above the list, people read them as mandatory or
+                  confusing to edit and simply did not seem too useful, so templates moved into an accordion as an optional starting
+                  point. Clone role was a praised feature by testers and the clearest shortcut for similar roles. Project-level
+                  access came up unprompted in almost every session.
                 </p>
               </div>
             </div>
 
             <div>
-              <h3 className="text-lg font-semibold text-white">
-                Design implications
+              <h3
+                id="cr-research-findings-heading"
+                className="text-lg font-semibold text-white"
+              >
+                Research findings
               </h3>
-              <ul className="mt-4 grid gap-y-3 marker:text-[#00aeef] text-base leading-relaxed text-[#999999] md:text-lg">
-                <li className="list-disc list-inside">
-                  Surface required permissions in-line. If we auto-add reads or
-                  paired actions, use a confirmation modal so we never add
-                  permissions without the user being aware.
+              <p className="mt-4 max-w-3xl text-base leading-relaxed text-[#999999] md:text-lg">
+                In July 2024, 9 prototype sessions on custom role creation and multi-role
+                needs, with participants from hobbyists and SMBs to enterprises managing 400+ users.
+              </p>
+              <ul className="mt-4 grid max-w-3xl gap-y-3 marker:text-[#00aeef] text-base leading-relaxed text-[#999999] md:text-lg">
+                <li className="list-disc list-inside pl-1">
+                  <span className="font-semibold text-slate-200">Project-level access.</span>{" "}
+                  Came up unprompted in almost every session. Many skip the use of DO&apos;s projects
+                  today because it does not govern permissions.
                 </li>
-                <li className="list-disc list-inside">
-                  Offer optional related permissions (for example backups with a
-                  droplet) that are not required for the product to function; in
-                  testing, people added many of them and built more useful roles.
+                <li className="list-disc list-inside pl-1">
+                  <span className="font-semibold text-slate-200">Creation flow.</span>{" "}
+                  Most rated 7/7 for ease of use. CRUD checkboxes matched what people asked for
+                  before they saw the UI in testing. Participants surprisingly has pleasant reactions to the required permissions modal, which completely took me by surprise.
                 </li>
-                <li className="list-disc list-inside">
-                  Selected permissions apply to personal access tokens for assigned
-                  team members so PATs stay within the same restricted scope.
+                <li className="list-disc list-inside pl-1">
+                  <span className="font-semibold text-slate-200">Templates and assignments.</span>{" "}
+                  Basic Role templates read as required until they lived in an accordion. Only 2 of 9 users needed multiple
+                  roles per user; most expected project-level rules or custom roles to cover their needs.
                 </li>
-                <li className="list-disc list-inside">
-                  Deletion requires zero active assignments; otherwise route
-                  admins to team settings to reassign first.
+                <li className="list-disc list-inside pl-1">
+                  <span className="font-semibold text-slate-200">Simplicity.</span>{" "}
+                  Participants kept referencing the mess of AWS and asked that DO Simple UI stay intact as
+                  RBAC depth grows.
                 </li>
               </ul>
             </div>
@@ -613,6 +624,7 @@ export function CaseStudyCustomRoles() {
           {...fadeUpGlass}
           transition={{ duration: 0.4, delay: 0.12 }}
           aria-labelledby="cr-strategy-heading"
+          aria-describedby="cr-strategy-intro"
           className="relative isolate mt-16 overflow-hidden rounded-2xl border border-slate-600/45 bg-gradient-to-br from-slate-950 via-[#0b1424] to-slate-950 p-6 shadow-[0_0_52px_-16px_rgba(0,174,239,0.22)] ring-1 ring-inset ring-white/[0.06] md:p-8"
         >
           <div
@@ -633,6 +645,14 @@ export function CaseStudyCustomRoles() {
               Core experience principles
             </GradientText>
           </h2>
+          <p
+            id="cr-strategy-intro"
+            className="relative z-[1] mt-4 max-w-3xl text-sm leading-relaxed text-[#999999] md:text-base"
+          >
+            I created these core principles to guide both myself and team members in order
+            to establish alignment and ensure our decisions reflected our goals and user
+            needs for custom roles.
+          </p>
           <div className="relative z-[1] mt-5 min-w-0">
             <div className="grid gap-4 md:grid-cols-3 md:gap-5">
               <div className="case-study-card case-study-card--no-left-accent rounded-xl p-5 md:p-6">
@@ -663,11 +683,11 @@ export function CaseStudyCustomRoles() {
                   Simplicity is everything
                 </h4>
                 <p className="mt-3 text-sm leading-relaxed text-[#999999] md:text-base">
-                Our users state over and over again that they loathe the role experience on
-other cloud providers like AWS and GCP due to its complexity and abundance
-of permissions. By offering CRUD of our resource types and keeping the
-creation experience simple, we are meeting the needs of our users by crafting a
-granular way for them to easily create roles to assign to their team members.
+                  In research, users compared this work to other clouds and said again and
+                  again how much they dislike those role experiences, with too many permissions
+                  and too much complexity. CRUD-shaped coverage of core resource types, paired
+                  with a simple creation path, balances granularity with a flow light enough to
+                  assign to teammates with confidence.
                 </p>
               </div>
             </div>
@@ -938,22 +958,38 @@ roles they may have already created to jump start the selection process if the u
           {...fadeUp}
           transition={{ duration: 0.4, delay: 0.18 }}
           aria-labelledby="cr-quote-heading"
+          aria-describedby="cr-quote-intro"
           className="mt-16"
         >
           <h2 id="cr-quote-heading" className={sectionTitle}>
             🧑‍💻 User voice
           </h2>
+          <p
+            id="cr-quote-intro"
+            className="mt-3 max-w-3xl text-base leading-relaxed text-[#999999] md:text-lg"
+          >
+            Representative feedback from usability tests and user interviews on custom roles
+            and related admin needs.
+          </p>
           <blockquote className="mt-6 border-l-4 border-[#00aeef]/60 pl-6 text-base italic leading-relaxed text-slate-200 md:text-lg">
             <p>
-              &ldquo;They wanted a junior engineer to have most permissions in a
-              sandbox project, but a role with very limited access in production.
-              Custom roles are not useful until they can restrict access to
-              specific projects.&rdquo;
+              &ldquo;As account owner / super admin, would like to be able to create and
+              assign a lower account admin role that would be able to invite team members and
+              assign permissions but not remove them.&rdquo;
             </p>
             <footer className="mt-4 text-sm font-medium not-italic text-[#999999]">
-              Example from interviews and usability; project-level conditions
-              were asked for over 90% of the time, and multi-role needs came up
-              alongside that theme.
+              Abhishek (monitoring SaaS), on admin permissions
+            </footer>
+          </blockquote>
+          <blockquote className="mt-10 border-l-4 border-[#00aeef]/60 pl-6 text-base italic leading-relaxed text-slate-200 md:text-lg">
+            <p>
+              &ldquo;Maybe good role for someone who needs to monitor, an intern, consultant,
+              etc. But would want to make sure they can&apos;t see secrets or customer info in
+              DBs.&rdquo;
+            </p>
+            <footer className="mt-4 text-sm font-medium not-italic text-[#999999]">
+              Ismael regarding Resource Viewer predefined role on limiting what viewers can see,
+              inspiring outside CRUD permissions for a select few.
             </footer>
           </blockquote>
         </motion.section>
@@ -977,13 +1013,21 @@ roles they may have already created to jump start the selection process if the u
             overwhelming majority want to limit roles to projects.
           </p>
           <p className="mt-6 text-base leading-relaxed text-[#999999] md:text-lg">
-            People also expect to assign more than one role to the same user. That
+            People also expect to assign more than 1 role to the same user. That
             expectation ties directly to project-level scope: they want different
             permissions for the same person in different projects, which implies
-            multi-role support. In interviews, one participant described wanting a
+            multi-role support. In interviews, 1 participant described wanting a
             junior engineer to have broad permissions in a sandbox project but very
             limited access in production. Examples in that vein surfaced repeatedly
             in interviews and usability sessions.
+          </p>
+          <p className="mt-6 text-base leading-relaxed text-[#999999] md:text-lg">
+            Sadly, previewing the role on the platform before finalizing was descoped.
+            In research, participants said it would have been very useful to see how
+            permissions would behave before committing, and some felt unsure what the
+            final results would be without being able to try it on the platform first.
+            Bringing preview back into the fold in a future release remains a clear
+            opportunity to close that gap.
           </p>
         </motion.section>
 
