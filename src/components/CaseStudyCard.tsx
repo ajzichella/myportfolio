@@ -21,6 +21,8 @@ export interface Study {
   twoImageLayout?: "side-overlap" | "hero-phone";
   /** Side-overlap layout only: move the front (second) image further left by this many px (more overlap); invite/first unchanged */
   sideOverlapSecondLeftExtraPx?: number;
+  /** Side-overlap layout only: nudge the front (second) image down by this many px */
+  sideOverlapSecondTopExtraPx?: number;
 }
 
 interface CaseStudyCardProps {
@@ -280,15 +282,16 @@ export function CaseStudyCard({
                 }
                 aria-label={`Open larger view: ${altFor(1)}`}
                 className={cn(
-                  "pointer-events-auto absolute -top-[54px] z-10 w-[55%] cursor-zoom-in rounded-lg border-0 bg-transparent p-0 text-left",
+                  "pointer-events-auto absolute z-10 w-[50%] cursor-zoom-in rounded-lg border-0 bg-transparent p-0 text-left",
                   lightboxTriggerFocus,
                 )}
                 style={{
                   transformOrigin: "bottom center",
+                  top: -(68 - (study.sideOverlapSecondTopExtraPx ?? 0)),
                   left:
                     study.sideOverlapSecondLeftExtraPx != null
-                      ? `calc(55% - ${32 + study.sideOverlapSecondLeftExtraPx}px)`
-                      : "calc(55% - 32px)",
+                      ? `calc(50% - ${32 + study.sideOverlapSecondLeftExtraPx}px)`
+                      : "calc(50% - 32px)",
                 }}
                 whileHover={{ y: -16, scale: 1.05 }}
                 transition={{ duration: 0.3, ease: "easeOut" }}
@@ -355,7 +358,7 @@ export function CaseStudyCard({
                 }
                 aria-label={`Open larger view: ${altFor(0)}`}
                 className={cn(
-                  "pointer-events-auto absolute -top-3 left-[-12px] z-[1] max-h-[min(400px,44vh)] max-w-[74%] w-auto cursor-zoom-in rounded-lg border-0 bg-transparent p-0 text-left",
+                  "pointer-events-auto absolute -top-3 left-[120px] z-[1] max-h-[min(400px,44vh)] max-w-[80%] w-auto cursor-zoom-in rounded-lg border-0 bg-transparent p-0 text-left",
                   lightboxTriggerFocus,
                 )}
                 style={{ transformOrigin: "bottom left" }}
@@ -375,7 +378,7 @@ export function CaseStudyCard({
                 }
                 aria-label={`Open larger view: ${altFor(1)}`}
                 className={cn(
-                  "pointer-events-auto absolute -top-[26px] right-5 z-10 w-[32%] max-w-[200px] cursor-zoom-in border-0 bg-transparent p-0 text-left",
+                  "pointer-events-auto absolute -top-[26px] left-[calc(36%+132px)] z-10 w-[34%] max-w-[200px] cursor-zoom-in border-0 bg-transparent p-0 text-left",
                   lightboxTriggerFocus,
                 )}
                 style={{ transformOrigin: "bottom center" }}
@@ -385,7 +388,7 @@ export function CaseStudyCard({
                 <img
                   src={images[1]}
                   alt={altFor(1)}
-                  className="w-full"
+                  className="w-full drop-shadow-[0_6px_20px_rgba(0,0,0,0.32)]"
                 />
               </motion.button>
             </div>

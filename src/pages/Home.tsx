@@ -1,5 +1,5 @@
-import { useRef } from "react";
-import { Link } from "react-router-dom";
+import { lazy, Suspense, useCallback, useMemo, useRef, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
 import {
   ChevronDown,
@@ -8,6 +8,7 @@ import {
   Code2,
   Users,
   Handshake,
+  Route,
   TrendingUp,
 } from "lucide-react";
 
@@ -15,15 +16,21 @@ import GradientText from "../components/GradientText";
 import BlurText from "../components/BlurText";
 import GlareHover from "../components/GlareHover";
 import { CaseStudyCard } from "../components/CaseStudyCard";
+import { FateD4Icon } from "../components/FateD4Icon";
 import { FixedBlobBackdrop, SOFT_FIXED_BLOB_PRESET } from "../components/BlobBackground";
 import { PawDotPattern } from "../components/PawDotPattern";
 import { DigitalOceanHeaderWordmark } from "../components/DigitalOceanHeaderWordmark";
 import { getFeaturedCaseStudies } from "../data/caseStudies";
+import { csTooltipAmd, csTooltipAshley, csTooltipDo } from "../lib/portfolioTooltip";
 import { homeKindWordsPostits, homeKindWordsTestimonials } from "../data/kindWords";
 import {
   KindWordsHeartsBackdrop,
   KindWordsPostItGrid,
 } from "../components/KindWordsPostIts";
+
+const D4FateDieRoll = lazy(() =>
+  import("../components/D4FateDie").then((m) => ({ default: m.D4FateDieRoll })),
+);
 
 const HOME_KIND_WORDS_HEARTS = [
   { left: "5%", top: "12%", size: 18, delay: 0, duration: 8, color: "rgba(0, 174, 239, 0.7)" },
@@ -58,16 +65,6 @@ const HOME_KIND_WORDS_HEARTS = [
   { left: "97%", top: "65%", size: 14, delay: 0.7, duration: 8, color: "rgba(0, 180, 216, 0.5)" },
 ] as const;
 
-/** Glass tooltips + cyan edge glow (ResultsSection-style). */
-const csTooltipDo =
-  "portfolio-tooltip-panel pointer-events-none absolute bottom-[calc(100%+0.5rem)] left-1/2 z-[110] w-max max-w-[min(18rem,calc(100vw-2rem))] sm:max-w-[22rem] -translate-x-1/2 rounded-xl case-study-card case-study-card--no-left-accent px-3 py-2.5 text-left text-sm font-normal leading-relaxed text-slate-100 opacity-0 transition-opacity duration-200 group-hover/do-cs:opacity-100 group-focus-within/do-cs:opacity-100 sm:px-4 sm:py-3.5";
-
-const csTooltipAmd =
-  "portfolio-tooltip-panel pointer-events-none absolute bottom-[calc(100%+0.5rem)] left-1/2 z-[110] w-max max-w-[min(13rem,calc(100vw-15rem))] sm:max-w-[15rem] -translate-x-1/2 rounded-xl case-study-card case-study-card--no-left-accent px-3 py-2.5 text-left text-sm font-normal leading-relaxed text-slate-100 opacity-0 transition-opacity duration-200 group-hover/amd-cs:opacity-100 group-focus-within/amd-cs:opacity-100 sm:px-4 sm:py-3.5";
-
-const csTooltipAshley =
-  "portfolio-tooltip-panel pointer-events-none absolute bottom-[calc(100%+0.5rem)] right-0 left-auto z-[110] w-max max-w-[min(13rem,calc(100vw-15rem))] sm:max-w-[15rem] rounded-xl case-study-card case-study-card--no-left-accent px-3 py-2.5 text-left text-sm font-normal leading-relaxed text-slate-100 opacity-0 transition-opacity duration-200 group-hover/ashley-cs:opacity-100 group-focus-within/ashley-cs:opacity-100 sm:px-4 sm:py-3.5";
-
 const digitalOceanTooltipCopy = (
   <>
     DigitalOcean is a cloud service provider tailored towards all, from tech
@@ -78,6 +75,30 @@ const digitalOceanTooltipCopy = (
 
 export function Home() {
   const sectionRef = useRef<HTMLElement>(null);
+  const navigate = useNavigate();
+  const [fateRoll, setFateRoll] = useState<{ result: 1 | 2 | 3 } | null>(null);
+
+  const fateTargets = useMemo(
+    () =>
+      getFeaturedCaseStudies().map((study) => ({
+        title: study.title,
+        link: study.link,
+        description: study.description,
+      })),
+    [],
+  );
+
+  const handleFateViewCaseStudy = useCallback(
+    (link: string) => {
+      setFateRoll(null);
+      navigate(link);
+    },
+    [navigate],
+  );
+
+  const startFateRoll = useCallback(() => {
+    setFateRoll({ result: (Math.floor(Math.random() * 3) + 1) as 1 | 2 | 3 });
+  }, []);
 
   return (
     <>
@@ -364,14 +385,25 @@ export function Home() {
               />
             ))}
           </div>
-          <p className="mt-10 text-center text-base text-[#999999]">
-            <Link
-              to="/portfolio"
-              className="font-medium text-[#00aeef] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00aeef] focus-visible:ring-offset-2 focus-visible:ring-offset-black rounded-sm"
+          <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row sm:flex-wrap sm:gap-x-6 sm:gap-y-3">
+            <p className="m-0 text-center text-base text-[#999999]">
+              <Link
+                to="/portfolio"
+                className="font-medium text-[#00aeef] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00aeef] focus-visible:ring-offset-2 focus-visible:ring-offset-black rounded-sm"
+              >
+                View all case studies
+              </Link>
+            </p>
+            <button
+              type="button"
+              disabled={fateRoll !== null}
+              onClick={startFateRoll}
+              className="inline-flex items-center gap-2.5 rounded-lg border border-[#00aeef]/45 bg-[#00aeef]/[0.08] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_0_20px_rgba(0,174,239,0.1)] transition-colors hover:border-[#00aeef]/80 hover:bg-[#00aeef]/[0.14] hover:text-[#7ee8ff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00aeef] focus-visible:ring-offset-2 focus-visible:ring-offset-black disabled:cursor-not-allowed disabled:opacity-60"
             >
-              View all case studies
-            </Link>
-          </p>
+              <FateD4Icon className="h-6 w-6 shrink-0 text-[#7ee8ff]" />
+              Roll for a fated case study
+            </button>
+          </div>
         </div>
       </section>
 
@@ -481,7 +513,7 @@ export function Home() {
               style={{ '--bc': '168, 85, 247' } as React.CSSProperties}
             >
               <div className="pointer-events-none absolute -right-4 -top-4 h-32 w-32 rounded-full bg-purple-500/10 blur-2xl" aria-hidden />
-              <Users className="h-5 w-5 text-purple-400" aria-hidden />
+              <Route className="h-5 w-5 text-purple-400" aria-hidden />
               <p className="mt-3 text-base font-bold text-white">Own end-to-end experiences</p>
               <p className="mt-2 text-sm leading-relaxed text-[#999999]">
                 I define strategic opportunities, simplify complex workflows, and lead design from concept
@@ -545,6 +577,17 @@ export function Home() {
           <KindWordsPostItGrid testimonials={homeKindWordsTestimonials} postits={homeKindWordsPostits} />
         </div>
       </section>
+
+      {fateRoll ? (
+        <Suspense fallback={null}>
+          <D4FateDieRoll
+            result={fateRoll.result}
+            targets={fateTargets}
+            onViewCaseStudy={handleFateViewCaseStudy}
+            onDismiss={() => setFateRoll(null)}
+          />
+        </Suspense>
+      ) : null}
     </>
   );
 }

@@ -2,6 +2,20 @@
 module.exports = {
   darkMode: ["class"],
   content: ["./index.html", "./src/**/*.{ts,tsx}"],
+  // Named-group hover/focus utilities for portfolio tooltips — must stay literal
+  // (dynamic `group-hover/${name}` strings are not picked up by Tailwind JIT).
+  safelist: [
+    "group-hover/do-cs:opacity-100",
+    "group-focus-within/do-cs:opacity-100",
+    "group-hover/amd-cs:opacity-100",
+    "group-focus-within/amd-cs:opacity-100",
+    "group-hover/ashley-cs:opacity-100",
+    "group-focus-within/ashley-cs:opacity-100",
+    "group-hover/ddos-pw-tip:opacity-100",
+    "group-focus-within/ddos-pw-tip:opacity-100",
+    "group-hover/orbit:opacity-100",
+    "group-focus-within/orbit:opacity-100",
+  ],
   theme: {
     container: {
       center: true,

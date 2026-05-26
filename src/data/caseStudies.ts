@@ -22,7 +22,7 @@ export const CASE_STUDIES: Study[] = [
       "Create custom role flow with stepper, role details, granular permissions, and summary sidebar with permission totals",
       "Change role modal with custom role search and role selection list in DigitalOcean team settings",
     ],
-    sideOverlapSecondLeftExtraPx: 32,
+    sideOverlapSecondLeftExtraPx: 12,
   },
   {
     company: "DigitalOcean | Cloud Computing & Hosting",
@@ -40,7 +40,8 @@ export const CASE_STUDIES: Study[] = [
       "Invite team members screen showing member list and roles",
       "Change role modal for assigning a predefined RBAC role",
     ],
-    sideOverlapSecondLeftExtraPx: 32,
+    sideOverlapSecondLeftExtraPx: 12,
+    sideOverlapSecondTopExtraPx: 32,
   },
   {
     company: "DigitalOcean | Cloud Computing & Hosting",

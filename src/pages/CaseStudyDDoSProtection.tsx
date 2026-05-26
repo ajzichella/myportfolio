@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { animate, inView, motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, animate, inView, motion, useReducedMotion } from "motion/react";
 import { ChevronRight, Heart, List, Lock, LockOpen, PawPrint, X } from "lucide-react";
 import { FixedBlobBackdrop } from "../components/BlobBackground";
 import { Bubbles } from "../components/Bubbles";
@@ -10,6 +10,8 @@ import BlurText from "../components/BlurText";
 import { LaunchImpactPartyPopper } from "../components/ResultsSectionBadge";
 import { PEER_FEEDBACK_HEARTS } from "../data/peerFeedbackHearts";
 import { PAW_PATH_D } from "../lib/pawPath";
+import { csTooltipDoInline } from "../lib/portfolioTooltip";
+import { cn } from "../lib/utils";
 
 const base = import.meta.env.BASE_URL;
 const bobCarouselSlides = [
@@ -169,6 +171,87 @@ const DDOS_SECTION_INDEX = [
 
 const DDOS_GATE_STORAGE_KEY = "ddos-case-study-unlocked";
 const DDOS_GATE_PASSWORD = "eXperience";
+
+function DdosGateUnlockButton({ hasPassword }: { hasPassword: boolean }) {
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const cooldownRef = useRef(false);
+  const reduceMotion = useReducedMotion();
+  const [swat, setSwat] = useState<{ x: number; y: number; id: number } | null>(
+    null,
+  );
+  const [btnNudge, setBtnNudge] = useState({ x: 0, y: 0 });
+
+  const triggerSwat = (e: React.PointerEvent<HTMLButtonElement>) => {
+    if (hasPassword || cooldownRef.current) return;
+    if (reduceMotion) return;
+
+    const wrap = wrapRef.current;
+    if (!wrap) return;
+
+    const rect = wrap.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const btnRect = e.currentTarget.getBoundingClientRect();
+    const bcx = btnRect.left + btnRect.width / 2 - rect.left;
+    const bcy = btnRect.top + btnRect.height / 2 - rect.top;
+    const dx = x - bcx;
+    const dy = y - bcy;
+    const len = Math.hypot(dx, dy) || 1;
+
+    cooldownRef.current = true;
+    setBtnNudge({ x: -(dx / len) * 30, y: -(dy / len) * 22 });
+    setSwat({ x, y, id: Date.now() });
+
+    window.setTimeout(() => {
+      setSwat(null);
+      setBtnNudge({ x: 0, y: 0 });
+      cooldownRef.current = false;
+    }, 620);
+  };
+
+  return (
+    <div ref={wrapRef} className="relative inline-block">
+      <AnimatePresence>
+        {swat ? (
+          <motion.span
+            key={swat.id}
+            className="pointer-events-none absolute z-30 text-orange-400"
+            style={{ left: swat.x, top: swat.y }}
+            initial={{ x: -18, y: 44, scale: 0.3, rotate: -62, opacity: 0 }}
+            animate={{
+              x: [-18, -6, 14],
+              y: [44, -8, -34],
+              scale: [0.3, 1.45, 1.2],
+              rotate: [-62, 16, -6],
+              opacity: [0, 1, 0.92],
+            }}
+            exit={{ opacity: 0, scale: 0.55, transition: { duration: 0.12 } }}
+            transition={{ duration: 0.44, ease: [0.16, 1, 0.3, 1] }}
+            aria-hidden
+          >
+            <PawPrint className="h-[3.25rem] w-[3.25rem] drop-shadow-[0_6px_20px_rgba(249,115,22,0.55)]" />
+          </motion.span>
+        ) : null}
+      </AnimatePresence>
+      <motion.button
+        type="submit"
+        onPointerEnter={triggerSwat}
+        animate={{ x: btnNudge.x, y: btnNudge.y }}
+        transition={{ type: "spring", stiffness: 460, damping: 24 }}
+        className={cn(
+          "inline-flex items-center gap-2 rounded-lg border border-orange-200/30 bg-gradient-to-r from-orange-400 to-amber-400 px-4 py-2 text-sm font-semibold text-slate-950 transition-colors hover:from-orange-300 hover:to-amber-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:ring-offset-2 focus-visible:ring-offset-black",
+          swat && !hasPassword && "pointer-events-none",
+          !hasPassword && "select-none",
+        )}
+        whileHover={hasPassword ? { scale: 1.02 } : undefined}
+        whileTap={hasPassword ? { scale: 0.98 } : undefined}
+      >
+        <span aria-hidden>🐾</span>
+        Unlock case study
+      </motion.button>
+    </div>
+  );
+}
 
 function ResultCount({
   value,
@@ -339,6 +422,7 @@ export function CaseStudyDDoSProtection() {
 
   const onUnlockSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!passwordInput.trim()) return;
     if (passwordInput === DDOS_GATE_PASSWORD) {
       window.localStorage.setItem(DDOS_GATE_STORAGE_KEY, "1");
       setIsUnlocked(true);
@@ -353,7 +437,7 @@ export function CaseStudyDDoSProtection() {
       <section className="relative w-full min-w-0 min-h-screen shrink-0 overflow-x-visible py-16 md:py-16 lg:py-16">
         <FixedBlobBackdrop />
         <div className="relative z-10 mx-auto flex min-h-[60vh] w-full max-w-[760px] items-center px-6 md:px-12">
-          <div className="case-study-card case-study-card--no-left-accent relative w-full overflow-hidden rounded-xl p-6 md:p-8">
+          <div className="case-study-card case-study-card--no-left-accent relative w-full overflow-visible rounded-xl p-6 md:p-8">
             <div className="pointer-events-none absolute -right-8 -top-8 h-44 w-44 rounded-full bg-orange-400/20 blur-3xl" aria-hidden />
             <div className="pointer-events-none absolute -left-10 -bottom-12 h-40 w-40 rounded-full bg-amber-500/15 blur-3xl" aria-hidden />
             <div className="pointer-events-none absolute inset-0 z-[1] overflow-hidden rounded-xl" aria-hidden>
@@ -383,7 +467,7 @@ export function CaseStudyDDoSProtection() {
                 </motion.span>
               ))}
             </div>
-            <div className="relative z-[2]">
+            <div className="relative z-[2] overflow-visible">
             <p className="inline-flex items-center gap-2 rounded-full border border-amber-300/30 bg-amber-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-amber-200">
               <span className="relative inline-flex h-4 w-4 items-center justify-center" aria-hidden>
                 <motion.span
@@ -419,13 +503,39 @@ export function CaseStudyDDoSProtection() {
                   <LockOpen className="h-3.5 w-3.5" />
                 </motion.span>
               </span>
-              🐈 Orange cat security team
+              <img
+                src={`${base}ddos-orange-cat-trot.gif`}
+                alt=""
+                aria-hidden
+                width={28}
+                height={28}
+                className="h-7 w-7 shrink-0 object-contain [image-rendering:pixelated] motion-reduce:opacity-90"
+                decoding="async"
+              />
+              Orange cat security team
             </p>
             <h1 className="mt-3 text-2xl font-bold tracking-tight text-white md:text-3xl">
               DDoS Protection
             </h1>
             <p className="mt-3 text-sm leading-relaxed text-[#999999] md:text-base">
-              This case study is password protected. Please enter the provided password and cat security will let you in.
+              This case study is password protected. Please enter the{" "}
+              <span className="relative z-[100] inline-flex items-center group/ddos-pw-tip">
+                <span
+                  tabIndex={0}
+                  className="cursor-help rounded-sm border-b border-dotted border-slate-500/80 text-slate-300 underline-offset-2 transition-colors hover:border-[#00aeef] hover:text-[#00aeef] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00aeef] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f172a]"
+                  aria-describedby="ddos-gate-password-tooltip"
+                >
+                  provided password
+                </span>
+                <span
+                  id="ddos-gate-password-tooltip"
+                  role="tooltip"
+                  className={csTooltipDoInline}
+                >
+                  Please refer to my resume and/or cover letter to view the password.
+                </span>
+              </span>{" "}
+              and cat security will let you in. If not, cat security will activate its paws.
             </p>
             <form className="mt-6 space-y-3" onSubmit={onUnlockSubmit}>
               <label className="block text-xs font-semibold uppercase tracking-wide text-accent-readable">
@@ -444,13 +554,7 @@ export function CaseStudyDDoSProtection() {
               {passwordError ? (
                 <p className="text-sm text-rose-300">{passwordError}</p>
               ) : null}
-              <button
-                type="submit"
-                className="inline-flex items-center gap-2 rounded-lg border border-orange-200/30 bg-gradient-to-r from-orange-400 to-amber-400 px-4 py-2 text-sm font-semibold text-slate-950 transition-colors hover:from-orange-300 hover:to-amber-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
-              >
-                <span aria-hidden>🐾</span>
-                Unlock case study
-              </button>
+              <DdosGateUnlockButton hasPassword={passwordInput.trim().length > 0} />
             </form>
             </div>
           </div>

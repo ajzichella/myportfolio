@@ -19,6 +19,9 @@ function vitePublicBase(): string {
 export default defineConfig({
   base: vitePublicBase(),
   plugins: [react()],
+  optimizeDeps: {
+    include: ["three", "@react-three/fiber", "@react-three/drei"],
+  },
   server: {
     port: 5173,
     fs: {
@@ -44,6 +47,13 @@ export default defineConfig({
           }
           if (id.includes("motion")) {
             return "motion";
+          }
+          if (
+            id.includes("three") ||
+            id.includes("@react-three/fiber") ||
+            id.includes("@react-three/drei")
+          ) {
+            return "three";
           }
           if (id.includes("lucide-react")) {
             return "icons";

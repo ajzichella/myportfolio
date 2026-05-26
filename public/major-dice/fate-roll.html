@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Fate d4 — Major's 3D Dice</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    min-height: 100dvh;
+    min-width: 100dvw;
+    overflow: hidden;
+    background: transparent !important;
+    background-color: transparent !important;
+  }
+  #loginform,
+  #bottom-panel,
+  #fav_container,
+  #control_panel_buttons,
+  #control_panel,
+  #waitform,
+  .connection_message,
+  #selector_div,
+  #info_div,
+  #sethelp,
+  #labelhelp,
+  #teal-chat,
+  #teal-chat-messages,
+  #teal-chat-input,
+  #teal-userlist,
+  #colorname,
+  #label,
+  .teal-chat-row,
+  .teal-chat-row-own,
+  .chat-notation,
+  .chat-notation-result,
+  #control_panel,
+  #control_panel_buttons,
+  .sp-container,
+  .sp-replacer,
+  .sp-input,
+  .sp-input-container,
+  .sp-picker-container,
+  .sp-palette-container,
+  .sp-cancel,
+  .sp-choose,
+  .sp-clear,
+  .sp-palette-toggle {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    opacity: 0 !important;
+    position: fixed !important;
+    left: -9999px !important;
+    top: -9999px !important;
+    width: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+  }
+  #desk {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    background: transparent !important;
+    background-color: transparent !important;
+  }
+  #canvas {
+    position: absolute;
+    inset: 0;
+    width: 100% !important;
+    height: 100% !important;
+    background: transparent !important;
+    background-color: transparent !important;
+  }
+  #canvas canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+    background: transparent !important;
+    background-color: transparent !important;
+  }
+</style>
+<script type="module" src="./includes/Teal.js"></script>
+<script type="text/javascript" src="./libs/three.min.js"></script>
+<script type="text/javascript" src="./libs/cannon.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.5.0.min.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+<script type="text/javascript" src="./libs/jquery.ui.touch-punch.min.js"></script>
+<script type="text/javascript" src="./libs/spectrum.js"></script>
+</head>
+<body>
+<input type="hidden" id="parent_notation" value=""/>
+<input type="hidden" id="parent_roll" value="0"/>
+
+<div id="waitform"></div>
+
+<div id="loginform">
+  <button id="button_single" title="Roll for Myself">Roll for Myself</button>
+  <button id="button_join" title="Join Friends">Join Friends</button>
+  <input id="input_user" type="text" value=""/>
+  <input id="input_room" type="text" value=""/>
+  <input id="input_pass" type="password" value=""/>
+  <div id="login_message"></div>
+</div>
+
+<div id="desk" class="noselect">
+  <div class="connection_message control_label">Connection:</div>
+  <div id="selector_div">
+    <button id="clear"></button>
+    <button id="save"></button>
+    <input type="text" id="set" name="set" value="1d4"/>
+    <button id="rage"></button>
+    <button id="throw" title="Throw Dice"></button>
+    <div id="sethelp"></div>
+    <div id="labelhelp"></div>
+  </div>
+  <div id="canvas"></div>
+  <div id="info_div"><div id="label"></div></div>
+</div>
+
+<div id="bottom-panel">
+  <div id="teal-chat">
+    <div id="teal-chat-messages"></div>
+    <textarea id="teal-chat-input"></textarea>
+  </div>
+  <div id="teal-userlist">
+    <h2 id="roomname"></h2>
+    <ul id="users"></ul>
+  </div>
+</div>
+
+<div id="fav_container">
+  <fieldset class="fav_draggable">
+    <button class="fav_throw"></button>
+    <input type="hidden" class="fav_colorset" value=""/>
+    <input type="hidden" class="fav_texture" value=""/>
+  </fieldset>
+</div>
+
+<fieldset id="control_panel_buttons">
+  <button id="cp_showsettings"></button>
+  <button id="cp_showhelp"></button>
+</fieldset>
+
+<fieldset id="control_panel" style="display:none;">
+  <label id="colorname" for="color"></label>
+  <select id="color" name="color"></select>
+  <select id="texture" name="texture"></select>
+  <select id="material" name="material"></select>
+  <input type="checkbox" id="checkbox_allowdiceoverride"/>
+  <select id="system" name="system"></select>
+  <select id="theme" name="theme"></select>
+  <input id="fgcolor" class="control_fgcolor" value="rgb(0,255,0)"/>
+  <input id="bgcolor" class="control_bgcolor" value="rgb(0,255,0)"/>
+  <input type="checkbox" id="checkbox_bumpmap"/>
+  <input type="checkbox" id="checkbox_shadows"/>
+  <input type="checkbox" id="checkbox_sounds"/>
+  <select id="surface" name="surface"></select>
+  <div id="volume_slider"><div id="volume_handle"></div></div>
+  <button id="toggle_selector"></button>
+  <input type="checkbox" id="checkbox_tally"/>
+  <input type="checkbox" id="checkbox_users"/>
+  <button id="cp_hidesettings"></button>
+</fieldset>
+
+<script type="module" src="./includes/DiceRoller.js"></script>
+<script type="module" src="./includes/fate-init.js"></script>
+</body>
+</html>
