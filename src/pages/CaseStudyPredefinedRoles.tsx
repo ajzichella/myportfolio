@@ -108,7 +108,10 @@ function ScopeCollaborationStats() {
             key={stat.label}
             className="flex flex-col items-center text-center"
           >
-            <p className="text-3xl font-bold tabular-nums text-white md:text-4xl">
+            <p
+              className="text-3xl font-bold tabular-nums text-white md:text-4xl"
+              data-metric-value={stat.value.toLocaleString("en-US")}
+            >
               <ScopeStatValue value={stat.value} active={inView} delay={i * 0.1} />
             </p>
             <p className="mt-2 text-sm leading-snug text-[#999999] md:text-base">

@@ -5,6 +5,25 @@ import { LaunchImpactPartyPopper } from "./ResultsSectionBadge";
 
 type ResultNumberFormat = ResultsSectionProps["stats"][number]["format"];
 
+export function formatResultMetric(
+  value: number,
+  format: ResultNumberFormat,
+): string {
+  if (format === "int") {
+    return Math.round(value).toLocaleString("en-US");
+  }
+  if (format === "int-plus") {
+    return `${Math.round(value).toLocaleString("en-US")}+`;
+  }
+  if (format === "int-tilde") {
+    return `~${Math.round(value).toLocaleString("en-US")}`;
+  }
+  if (format === "percent") {
+    return `${Math.round(value)}%`;
+  }
+  return `~${Math.round(value)}%`;
+}
+
 function AnimatedResultNumber({
   value,
   format,
@@ -49,7 +68,13 @@ function AnimatedResultNumber({
     text = `~${Math.round(display)}%`;
   }
 
-  return <p className={className}>{text}</p>;
+  const finalText = formatResultMetric(value, format);
+
+  return (
+    <p className={className} data-metric-value={finalText}>
+      {text}
+    </p>
+  );
 }
 
 /** Subtle palette; pieces fall through the card on a loop, starting at varied heights (no “row at the top”). */

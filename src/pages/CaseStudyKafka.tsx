@@ -84,7 +84,11 @@ function KafkaAnimatedStat({
     return () => controls.stop();
   }, [active, to, delay, reduceMotion, from]);
 
-  return <p className={resultMetricClass}>{format(display)}</p>;
+  return (
+    <p className={resultMetricClass} data-metric-value={format(to)}>
+      {format(display)}
+    </p>
+  );
 }
 
 export function CaseStudyKafka() {

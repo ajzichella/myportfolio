@@ -112,6 +112,13 @@ async function extractPageText(page, route) {
     const clone = main.cloneNode(true);
     clone.querySelector("footer.site-footer")?.remove();
 
+    clone.querySelectorAll("[data-metric-value]").forEach((el) => {
+      const finalValue = el.getAttribute("data-metric-value");
+      if (finalValue) {
+        el.textContent = finalValue;
+      }
+    });
+
     const blocks = clone.querySelectorAll(
       "h1, h2, h3, h4, h5, h6, p, li, blockquote, figcaption, td, th, label, button",
     );
@@ -284,7 +291,7 @@ async function main() {
 
   const server = await startServer();
   const browser = await chromium.launch({ headless: true });
-  const context = await browser.newContext();
+  const context = await browser.newContext({ reducedMotion: "reduce" });
 
   await context.route("**/*", (route) => {
     const url = route.request().url();

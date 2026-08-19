@@ -205,6 +205,34 @@ if (!existsSync(shell404)) {
   }
 }
 
+const TXT_METRIC_CHECKS = [
+  ["case-studies/predefined-roles.txt", ["6,000+", "13%", "23%"], ["\n0+\n", "\n0%\n", "\n~0%\n"]],
+  ["case-studies/custom-roles.txt", ["~5,000", "2,857", "6%"], ["\n~0\n", "\n0\n", "\n0%\n"]],
+  ["case-studies/kafka.txt", ["~3x", "0.52%"], ["~0x", "\n0.00%\n"]],
+];
+
+for (const [file, mustInclude, mustNotInclude] of TXT_METRIC_CHECKS) {
+  const path = join(dist, file);
+  if (!existsSync(path)) continue;
+  const txt = readFileSync(path, "utf8");
+  let fileOk = true;
+  for (const token of mustInclude) {
+    if (!txt.includes(token)) {
+      console.error(`FAIL ${file}: missing metric "${token}"`);
+      failed = true;
+      fileOk = false;
+    }
+  }
+  for (const token of mustNotInclude) {
+    if (txt.includes(token)) {
+      console.error(`FAIL ${file}: animated counter placeholder "${token.trim()}"`);
+      failed = true;
+      fileOk = false;
+    }
+  }
+  if (fileOk) console.log(`OK ${file} metrics`);
+}
+
 if (SITEMAP_ROUTES.length !== 9) {
   console.error(`FAIL expected 9 sitemap routes, got ${SITEMAP_ROUTES.length}`);
   failed = true;
