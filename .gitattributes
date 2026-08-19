@@ -1,2 +1,5 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Vendored MajorVictory helper page is HTML saved with a .php extension
+public/major-dice/autodice.php linguist-language=HTML
