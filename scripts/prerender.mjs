@@ -12,7 +12,11 @@ import {
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
-import { PRERENDER_ROUTES } from "./sitemap-routes.mjs";
+import {
+  PRERENDER_ROUTES,
+  routeToTxtRelPath,
+  routeToTxtUrl,
+} from "./sitemap-routes.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const dist = join(root, "dist");
@@ -92,6 +96,52 @@ function routeToFile(route) {
   return join(dist, route.slice(1), "index.html");
 }
 
+function routeToTxtFile(route) {
+  return join(dist, routeToTxtRelPath(route));
+}
+
+async function extractPageText(page, route) {
+  const meta = ROUTE_META[route];
+  const mainText = await page.evaluate(() => {
+    const main = document.getElementById("main-scroll");
+    if (!main) return "";
+    const clone = main.cloneNode(true);
+    clone.querySelector("footer.site-footer")?.remove();
+
+    const blocks = clone.querySelectorAll(
+      "h1, h2, h3, h4, h5, h6, p, li, blockquote, figcaption, td, th, label, button",
+    );
+    const lines = [];
+    const seen = new Set();
+
+    for (const el of blocks) {
+      const text = el.innerText.replace(/\s+/g, " ").trim();
+      if (!text || seen.has(text)) continue;
+      seen.add(text);
+      lines.push(text);
+    }
+
+    if (lines.length > 0) {
+      return lines.join("\n\n");
+    }
+
+    return clone.innerText.replace(/\n{3,}/g, "\n\n").trim();
+  });
+
+  const canonical = meta?.canonical ?? `${SITE}${route === "/" ? "/" : route}`;
+  const title = meta?.title ?? route;
+
+  return [
+    title,
+    `Canonical: ${canonical}`,
+    `Plain-text mirror: ${routeToTxtUrl(route)}`,
+    "Automated readers only — not shown in the live site UI.",
+    "",
+    mainText.replace(/\r\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim(),
+    "",
+  ].join("\n");
+}
+
 function startServer() {
   const serveBin = join(root, "node_modules", "serve", "build", "main.js");
   if (!existsSync(serveBin)) {
@@ -145,8 +195,9 @@ async function waitForPageContent(page, route) {
 /** Keep prerender text for crawlers; leave #root empty so React does not fight hydrated markup. */
 async function captureCrawlerHtml(page, route) {
   const meta = ROUTE_META[route];
+  const txtUrl = routeToTxtUrl(route);
   return page.evaluate(
-    ({ offscreenStyle, meta: routeMeta }) => {
+    ({ offscreenStyle, meta: routeMeta, txtMirrorUrl }) => {
       document
         .querySelectorAll('link[href*="127.0.0.1"]')
         .forEach((el) => el.remove());
@@ -179,6 +230,16 @@ async function captureCrawlerHtml(page, route) {
           document.head.appendChild(canonical);
         }
         canonical.href = routeMeta.canonical;
+
+        let alt = document.querySelector('link[rel="alternate"][type="text/plain"]');
+        if (!alt) {
+          alt = document.createElement("link");
+          alt.rel = "alternate";
+          alt.type = "text/plain";
+          document.head.appendChild(alt);
+        }
+        alt.href = txtMirrorUrl;
+        alt.title = "Plain-text mirror for automated readers";
       }
 
       const root = document.getElementById("root");
@@ -198,7 +259,7 @@ async function captureCrawlerHtml(page, route) {
 
       return `<!DOCTYPE html>\n${document.documentElement.outerHTML}`;
     },
-    { offscreenStyle: CRAWLER_OFFSCREEN_STYLE, meta },
+    { offscreenStyle: CRAWLER_OFFSCREEN_STYLE, meta, txtMirrorUrl: txtUrl },
   );
 }
 
@@ -239,6 +300,14 @@ async function main() {
       });
       await waitForPageContent(page, route);
 
+      const pageText = await extractPageText(page, route);
+      const txtOut = routeToTxtFile(route);
+      mkdirSync(dirname(txtOut), { recursive: true });
+      writeFileSync(txtOut, pageText, "utf8");
+      console.log(
+        `[prerender] ${route} → ${txtOut.replace(root + "\\", "").replace(root + "/", "")}`,
+      );
+
       const html = await captureCrawlerHtml(page, route);
       const out = routeToFile(route);
 
@@ -264,6 +333,20 @@ async function main() {
 
     writeFileSync(join(dist, "404.html"), shellHtml, "utf8");
     console.log("[prerender] wrote dist/404.html SPA shell for non-prerender routes");
+
+    const indexLines = [
+      "AJ Zichella — plain-text page mirrors for bots and AI agents",
+      "Append .txt to any public page path (home: /home.txt). Not shown in the live UI.",
+      "",
+      ...PRERENDER_ROUTES.map((route) => routeToTxtUrl(route)),
+      "",
+      "Also: https://ajzichella.com/resume.txt",
+      "Also: https://ajzichella.com/llms.txt",
+      "Also: https://ajzichella.com/hiring.md",
+      "",
+    ];
+    writeFileSync(join(dist, "pages-index.txt"), indexLines.join("\n"), "utf8");
+    console.log("[prerender] wrote dist/pages-index.txt");
   } finally {
     await context.close();
     await browser.close();

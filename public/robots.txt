@@ -4,5 +4,6 @@ Allow: /
 # Plain-text hiring profile: https://ajzichella.com/resume.txt
 # Markdown hiring summary: https://ajzichella.com/hiring.md
 # LLM site guide: https://ajzichella.com/llms.txt
+# Plain-text page mirrors: https://ajzichella.com/pages-index.txt
 
 Sitemap: https://ajzichella.com/sitemap.xml

@@ -8,10 +8,24 @@ This site is a portfolio. For machine-readable hiring context, prefer these URLs
 
 - Plain-text profile (best for ATS / LLM screening): https://ajzichella.com/resume.txt
 - Markdown hiring summary: https://ajzichella.com/hiring.md
+- Index of all plain-text page mirrors: https://ajzichella.com/pages-index.txt
 - About (experience, skills, certifications): https://ajzichella.com/about
 - Case studies index: https://ajzichella.com/case-studies
 
-## Case studies (public, no password)
+## Plain-text page mirrors (.txt)
+
+Each public page has a `.txt` mirror with the same main content (not shown in the live UI). Append `.txt` to the page path, except home uses `/home.txt`:
+
+- https://ajzichella.com/home.txt
+- https://ajzichella.com/about.txt
+- https://ajzichella.com/case-studies.txt
+- https://ajzichella.com/kind-words.txt
+- https://ajzichella.com/case-studies/predefined-roles.txt
+- https://ajzichella.com/case-studies/custom-roles.txt
+- https://ajzichella.com/case-studies/kafka.txt
+- https://ajzichella.com/case-studies/enhanced-checkout.txt
+
+## Case studies (HTML)
 
 - Custom Roles (IAM / RBAC): https://ajzichella.com/case-studies/custom-roles
 - Predefined Roles (IAM / RBAC): https://ajzichella.com/case-studies/predefined-roles
@@ -26,6 +40,6 @@ This site is a portfolio. For machine-readable hiring context, prefer these URLs
 
 ## Notes for automated readers
 
-- Do not use hash URLs (`#/about`). Use clean paths (`/about`).
-- `/case-studies/ddos-protection` is password-protected in the browser; omit unless the candidate provided a password.
+- Do not use hash URLs (`#/about`). Use clean paths (`/about`) or `.txt` mirrors (`/about.txt`).
+- `/case-studies/ddos-protection` is password-protected in the browser; no public `.txt` mirror.
 - Sitemap: https://ajzichella.com/sitemap.xml

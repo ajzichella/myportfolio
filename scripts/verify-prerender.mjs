@@ -4,6 +4,7 @@ import {
   PRERENDER_ROUTES,
   PRERENDER_SKIP,
   SITEMAP_ROUTES,
+  routeToTxtRelPath,
 } from "./sitemap-routes.mjs";
 
 const dist = "dist";
@@ -101,6 +102,20 @@ for (const route of PRERENDER_ROUTES) {
     console.error(`FAIL missing prerender file for ${route} (${file})`);
     failed = true;
   }
+
+  const txtPath = join(dist, routeToTxtRelPath(route));
+  if (!existsSync(txtPath)) {
+    console.error(`FAIL missing plain-text mirror for ${route} (${txtPath})`);
+    failed = true;
+  } else {
+    const txt = readFileSync(txtPath, "utf8");
+    if (txt.trim().length < 200) {
+      console.error(`FAIL ${txtPath}: content too short (${txt.trim().length} chars)`);
+      failed = true;
+    } else {
+      console.log(`OK ${routeToTxtRelPath(route)}`);
+    }
+  }
 }
 
 for (const route of PRERENDER_SKIP) {
@@ -111,7 +126,7 @@ for (const route of PRERENDER_SKIP) {
   }
 }
 
-for (const agentFile of ["resume.txt", "llms.txt", "hiring.md"]) {
+for (const agentFile of ["resume.txt", "llms.txt", "hiring.md", "pages-index.txt"]) {
   const path = join(dist, agentFile);
   if (!existsSync(path)) {
     console.error(`FAIL missing dist/${agentFile}`);

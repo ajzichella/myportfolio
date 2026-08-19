@@ -25,10 +25,7 @@ export default defineConfig({
   server: {
     port: 5173,
     fs: {
-      allow: [
-        searchForWorkspaceRoot(process.cwd()),
-        "C:/Users/AJ/.cursor/projects/c-Users-AJ-Documents-GitHub-myportfolio/assets",
-      ],
+      allow: [searchForWorkspaceRoot(process.cwd())],
     },
   },
   build: {

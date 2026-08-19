@@ -17,3 +17,15 @@ export const PRERENDER_SKIP = new Set(["/case-studies/ddos-protection"]);
 export const PRERENDER_ROUTES = SITEMAP_ROUTES.filter(
   (route) => !PRERENDER_SKIP.has(route),
 );
+
+const SITE_ORIGIN = "https://ajzichella.com";
+
+/** Plain-text bot mirror path (e.g. `/about` → `about.txt`, `/` → `home.txt`). */
+export function routeToTxtRelPath(route) {
+  if (route === "/") return "home.txt";
+  return `${route.slice(1)}.txt`;
+}
+
+export function routeToTxtUrl(route) {
+  return `${SITE_ORIGIN}/${routeToTxtRelPath(route)}`;
+}

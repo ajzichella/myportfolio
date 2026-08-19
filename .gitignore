@@ -14,10 +14,8 @@ dist/
 *.swp
 *.swo
 
-# Cursor — ignore local/ephemeral only; rules stay tracked for repo conventions
-.cursor/skills/
-.cursor/*.log
-.cursor/debug*.log
+# Local IDE agent config (not published)
+.cursor/
 
 # OS
 .DS_Store
