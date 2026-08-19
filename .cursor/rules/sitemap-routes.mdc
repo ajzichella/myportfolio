@@ -14,3 +14,5 @@ When you add a **new indexable** `<Route path="...">` in [src/App.tsx](src/App.t
 2. Do **not** add URLs that are only redirects (e.g. `/portfolio` → `/case-studies`) or duplicate the home catch-all (`*`).
 
 If you edit the route table, verify the sitemap list still matches every public page you want indexed.
+
+Prerendered static HTML (ATS/crawlers) is generated for every sitemap route **except** `/case-studies/ddos-protection` (password-gated; uses `dist/404.html` SPA shell). Update [scripts/sitemap-routes.mjs](scripts/sitemap-routes.mjs) when adding routes.

@@ -37,8 +37,46 @@
       rel="stylesheet"
     />
     <script src="https://t.contentsquare.net/uxa/7fa69cf549e21.js"></script>
+    <script>
+      (function () {
+        var hash = location.hash;
+        if (hash.length > 2 && hash.charAt(0) === "#" && hash.charAt(1) === "/") {
+          history.replaceState(null, "", hash.slice(1) + location.search);
+        }
+      })();
+    </script>
   </head>
   <body class="bg-background text-foreground">
+    <noscript>
+      <div
+        style="
+          max-width: 42rem;
+          margin: 2rem auto;
+          padding: 0 1.5rem;
+          font-family: Inter, system-ui, sans-serif;
+          line-height: 1.6;
+          color: #e2e8f0;
+        "
+      >
+        <h1 style="font-size: 1.75rem; margin-bottom: 0.5rem">AJ Zichella</h1>
+        <p style="color: #94a3b8; margin-bottom: 1.25rem">
+          Senior product designer and product design leader — IAM, developer
+          experiences, and retail eCommerce.
+        </p>
+        <nav aria-label="Primary">
+          <ul style="list-style: none; padding: 0; margin: 0">
+            <li style="margin-bottom: 0.5rem"><a href="/">Home</a></li>
+            <li style="margin-bottom: 0.5rem"><a href="/case-studies">Case studies</a></li>
+            <li style="margin-bottom: 0.5rem"><a href="/about">About me</a></li>
+            <li style="margin-bottom: 0.5rem"><a href="/kind-words">Kind words</a></li>
+          </ul>
+        </nav>
+        <p style="margin-top: 1.25rem; color: #64748b; font-size: 0.875rem">
+          This portfolio uses JavaScript for full interactivity. Enable JavaScript
+          or use the links above to read static pages.
+        </p>
+      </div>
+    </noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
