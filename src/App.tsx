@@ -1,59 +1,16 @@
-import React, { lazy, Suspense, useState, useEffect, useLayoutEffect } from "react";
+import React, { useState, useEffect, useLayoutEffect } from "react";
 import { Routes, Route, NavLink, Navigate, useLocation } from "react-router-dom";
 import { Home, FolderKanban, Heart, User, Menu, X } from "lucide-react";
 import { Footer } from "./components/Footer";
-
-const HomePage = lazy(() =>
-  import("./pages/Home").then((m) => ({ default: m.Home })),
-);
-const PortfolioPage = lazy(() =>
-  import("./pages/Portfolio").then((m) => ({ default: m.Portfolio })),
-);
-const CaseStudyPredefinedRoles = lazy(() =>
-  import("./pages/CaseStudyPredefinedRoles").then((m) => ({
-    default: m.CaseStudyPredefinedRoles,
-  })),
-);
-const CaseStudyCustomRoles = lazy(() =>
-  import("./pages/CaseStudyCustomRoles").then((m) => ({
-    default: m.CaseStudyCustomRoles,
-  })),
-);
-const CaseStudyKafka = lazy(() =>
-  import("./pages/CaseStudyKafka").then((m) => ({
-    default: m.CaseStudyKafka,
-  })),
-);
-const CaseStudyDDoSProtection = lazy(() =>
-  import("./pages/CaseStudyDDoSProtection").then((m) => ({
-    default: m.CaseStudyDDoSProtection,
-  })),
-);
-const CaseStudyEnhancedCheckout = lazy(() =>
-  import("./pages/CaseStudyEnhancedCheckout").then((m) => ({
-    default: m.CaseStudyEnhancedCheckout,
-  })),
-);
-const AboutPage = lazy(() =>
-  import("./pages/About").then((m) => ({ default: m.About })),
-);
-const KindWordsBoardPage = lazy(() =>
-  import("./pages/KindWordsBoard").then((m) => ({
-    default: m.KindWordsBoard,
-  })),
-);
-
-function RouteFallback() {
-  return (
-    <div
-      className="flex min-h-[50vh] items-center justify-center bg-black text-sm text-slate-500"
-      role="status"
-      aria-live="polite"
-    >
-      Loading…
-    </div>
-  );
-}
+import { Home as HomePage } from "./pages/Home";
+import { Portfolio as PortfolioPage } from "./pages/Portfolio";
+import { CaseStudyPredefinedRoles } from "./pages/CaseStudyPredefinedRoles";
+import { CaseStudyCustomRoles } from "./pages/CaseStudyCustomRoles";
+import { CaseStudyKafka } from "./pages/CaseStudyKafka";
+import { CaseStudyDDoSProtection } from "./pages/CaseStudyDDoSProtection";
+import { CaseStudyEnhancedCheckout } from "./pages/CaseStudyEnhancedCheckout";
+import { About as AboutPage } from "./pages/About";
+import { KindWordsBoard as KindWordsBoardPage } from "./pages/KindWordsBoard";
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   `flex items-center gap-2 rounded-md px-4 py-6 lg:py-4 text-left hover:bg-slate-800 text-lg lg:text-sm ${
@@ -193,9 +150,7 @@ export function App() {
           id="main-scroll"
           className="min-w-0 flex-1 overflow-x-hidden pt-[max(env(safe-area-inset-top),5rem)] lg:pt-0"
         >
-          <Suspense fallback={<RouteFallback />}>
-            {/* New indexable routes: add a matching <url> in public/sitemap.xml (see .cursor/rules). */}
-            <Routes>
+          <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/case-studies" element={<PortfolioPage />} />
               <Route path="/kind-words" element={<KindWordsBoardPage />} />
@@ -223,7 +178,6 @@ export function App() {
               <Route path="/about" element={<AboutPage />} />
               <Route path="*" element={<HomePage />} />
             </Routes>
-          </Suspense>
           <Footer />
         </main>
       </div>

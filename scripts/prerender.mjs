@@ -86,6 +86,29 @@ async function waitForPageContent(page, route) {
   await page.waitForTimeout(600);
 }
 
+/** Keep prerender text for crawlers; leave #root empty so React does not fight hydrated markup. */
+async function captureCrawlerHtml(page) {
+  return page.evaluate(() => {
+    document
+      .querySelectorAll('link[href*="127.0.0.1"]')
+      .forEach((el) => el.remove());
+
+    const root = document.getElementById("root");
+    if (root && root.childElementCount > 0) {
+      const crawler = document.createElement("div");
+      crawler.id = "crawler-fallback";
+      crawler.hidden = true;
+      crawler.setAttribute("aria-hidden", "true");
+      while (root.firstChild) {
+        crawler.appendChild(root.firstChild);
+      }
+      root.after(crawler);
+    }
+
+    return `<!DOCTYPE html>\n${document.documentElement.outerHTML}`;
+  });
+}
+
 async function main() {
   const shellHtml = readFileSync(join(dist, "index.html"), "utf8");
 
@@ -120,7 +143,7 @@ async function main() {
       });
       await waitForPageContent(page, route);
 
-      const html = await page.content();
+      const html = await captureCrawlerHtml(page);
       const out = routeToFile(route);
       mkdirSync(dirname(out), { recursive: true });
       writeFileSync(out, html, "utf8");

@@ -14,18 +14,36 @@ function routeToFile(route) {
 }
 
 const contentChecks = [
-  ["/about/index.html", ["about-who-heading", "DigitalOcean"], ["id=\"home\""]],
+  ["/about/index.html", ["crawler-fallback", "about-who-heading", "DigitalOcean"], ['id="home"']],
+  [
+    "/case-studies/index.html",
+    ["crawler-fallback", "Filter case studies by topic", "Case studies"],
+    ['id="home"'],
+  ],
   [
     "/case-studies/custom-roles/index.html",
-    ["cr-scope-heading", "custom"],
-    ["id=\"home\"", "password protected"],
+    ["crawler-fallback", "cr-scope-heading", "Custom Roles"],
+    ['id="home"', "password protected"],
   ],
   [
     "/case-studies/predefined-roles/index.html",
-    ["rbac-results-heading", "RBAC"],
-    ["id=\"home\""],
+    ["crawler-fallback", "rbac-results-heading", "RBAC"],
+    ['id="home"'],
   ],
 ];
+
+function assertEmptyRoot(html, label) {
+  const rootMatch = html.match(/<div id="root"[^>]*>([\s\S]*?)<\/div>/);
+  if (!rootMatch) {
+    console.error(`FAIL ${label}: missing #root`);
+    return false;
+  }
+  if (rootMatch[1].trim().length > 0) {
+    console.error(`FAIL ${label}: #root must be empty for live React mount`);
+    return false;
+  }
+  return true;
+}
 
 let failed = false;
 
@@ -69,6 +87,10 @@ for (const [file, must, mustNot] of contentChecks) {
     }
   }
   if (fileOk) console.log(`OK ${file}`);
+  if (!assertEmptyRoot(html, file)) {
+    failed = true;
+    fileOk = false;
+  }
 }
 
 const shell404 = join(dist, "404.html");
