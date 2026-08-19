@@ -7,6 +7,7 @@ This site is a portfolio. For machine-readable hiring context, prefer these URLs
 ## Start here
 
 - Plain-text profile (best for ATS / LLM screening): https://ajzichella.com/resume.txt
+- Markdown hiring summary: https://ajzichella.com/hiring.md
 - About (experience, skills, certifications): https://ajzichella.com/about
 - Case studies index: https://ajzichella.com/case-studies
 

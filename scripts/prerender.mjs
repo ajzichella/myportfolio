@@ -18,6 +18,11 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const dist = join(root, "dist");
 const port = 4173;
 const origin = `http://127.0.0.1:${port}`;
+const SITE = "https://ajzichella.com";
+
+/** Off-screen but parser-readable — no hidden, aria-hidden, or clip rect. */
+const CRAWLER_OFFSCREEN_STYLE =
+  "position:absolute;left:-9999px;top:0;width:900px;max-width:900px;height:auto;overflow:visible;white-space:normal;margin:0;padding:0;border:0;clip:auto;";
 
 /** Unique markers that appear after the correct route has rendered. */
 const ROUTE_READY = {
@@ -29,6 +34,57 @@ const ROUTE_READY = {
   "/case-studies/custom-roles": "#cr-scope-heading",
   "/case-studies/kafka": "#kafka-scope-heading",
   "/case-studies/enhanced-checkout": "#checkout-scope-heading",
+};
+
+const ROUTE_META = {
+  "/": {
+    title: "AJ Zichella · Product Design Leader",
+    description:
+      "AJ Zichella — senior product designer and design engineer. IAM/RBAC at DigitalOcean, developer platforms, and retail eCommerce. Plain-text profile: /resume.txt",
+    canonical: `${SITE}/`,
+  },
+  "/case-studies": {
+    title: "Case Studies · AJ Zichella",
+    description:
+      "Product design case studies: DigitalOcean IAM/RBAC, Managed Kafka, and STORIS eCommerce checkout.",
+    canonical: `${SITE}/case-studies`,
+  },
+  "/kind-words": {
+    title: "Kind Words · AJ Zichella",
+    description:
+      "Peer feedback and testimonials about AJ Zichella's product design and leadership work.",
+    canonical: `${SITE}/kind-words`,
+  },
+  "/about": {
+    title: "About · AJ Zichella",
+    description:
+      "About AJ Zichella — experience at DigitalOcean, STORIS, and AMD; skills, certifications, and design approach.",
+    canonical: `${SITE}/about`,
+  },
+  "/case-studies/predefined-roles": {
+    title: "RBAC Predefined Roles · AJ Zichella",
+    description:
+      "Case study: DigitalOcean RBAC predefined roles — 3 new roles, 23% MoM growth in security experience usage.",
+    canonical: `${SITE}/case-studies/predefined-roles`,
+  },
+  "/case-studies/custom-roles": {
+    title: "RBAC Custom Roles · AJ Zichella",
+    description:
+      "Case study: DigitalOcean IAM custom roles — guided creation flow, ~5,000 assignments after launch.",
+    canonical: `${SITE}/case-studies/custom-roles`,
+  },
+  "/case-studies/kafka": {
+    title: "Managed Kafka · AJ Zichella",
+    description:
+      "Case study: DigitalOcean Managed Kafka — simplified topic management and reliable data environment.",
+    canonical: `${SITE}/case-studies/kafka`,
+  },
+  "/case-studies/enhanced-checkout": {
+    title: "Enhanced Checkout · AJ Zichella",
+    description:
+      "Case study: STORIS eCommerce checkout redesign — streamlined flow, increased conversions and revenue.",
+    canonical: `${SITE}/case-studies/enhanced-checkout`,
+  },
 };
 
 function routeToFile(route) {
@@ -87,26 +143,63 @@ async function waitForPageContent(page, route) {
 }
 
 /** Keep prerender text for crawlers; leave #root empty so React does not fight hydrated markup. */
-async function captureCrawlerHtml(page) {
-  return page.evaluate(() => {
-    document
-      .querySelectorAll('link[href*="127.0.0.1"]')
-      .forEach((el) => el.remove());
+async function captureCrawlerHtml(page, route) {
+  const meta = ROUTE_META[route];
+  return page.evaluate(
+    ({ offscreenStyle, meta: routeMeta }) => {
+      document
+        .querySelectorAll('link[href*="127.0.0.1"]')
+        .forEach((el) => el.remove());
 
-    const root = document.getElementById("root");
-    if (root && root.childElementCount > 0) {
-      const crawler = document.createElement("div");
-      crawler.id = "crawler-fallback";
-      crawler.style.cssText =
-        "position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;";
-      while (root.firstChild) {
-        crawler.appendChild(root.firstChild);
+      if (routeMeta) {
+        document.title = routeMeta.title;
+
+        const setMeta = (key, content, property = false) => {
+          const attr = property ? "property" : "name";
+          let el = document.querySelector(`meta[${attr}="${key}"]`);
+          if (!el) {
+            el = document.createElement("meta");
+            el.setAttribute(attr, key);
+            document.head.appendChild(el);
+          }
+          el.setAttribute("content", content);
+        };
+
+        setMeta("description", routeMeta.description);
+        setMeta("og:title", routeMeta.title, true);
+        setMeta("og:description", routeMeta.description, true);
+        setMeta("og:url", routeMeta.canonical, true);
+        setMeta("twitter:title", routeMeta.title);
+        setMeta("twitter:description", routeMeta.description);
+
+        let canonical = document.querySelector('link[rel="canonical"]');
+        if (!canonical) {
+          canonical = document.createElement("link");
+          canonical.rel = "canonical";
+          document.head.appendChild(canonical);
+        }
+        canonical.href = routeMeta.canonical;
       }
-      root.after(crawler);
-    }
 
-    return `<!DOCTYPE html>\n${document.documentElement.outerHTML}`;
-  });
+      const root = document.getElementById("root");
+      if (root && root.childElementCount > 0) {
+        const crawler = document.createElement("article");
+        crawler.id = "crawler-fallback";
+        crawler.setAttribute(
+          "aria-label",
+          "Static page content for search engines and automated readers",
+        );
+        crawler.style.cssText = offscreenStyle;
+        while (root.firstChild) {
+          crawler.appendChild(root.firstChild);
+        }
+        root.after(crawler);
+      }
+
+      return `<!DOCTYPE html>\n${document.documentElement.outerHTML}`;
+    },
+    { offscreenStyle: CRAWLER_OFFSCREEN_STYLE, meta },
+  );
 }
 
 async function main() {
@@ -128,6 +221,9 @@ async function main() {
     return route.continue();
   });
 
+  /** Homepage is written last — restoreShell() resets index.html before each route. */
+  let homeHtml = null;
+
   try {
     for (const route of PRERENDER_ROUTES) {
       restoreShell();
@@ -143,14 +239,27 @@ async function main() {
       });
       await waitForPageContent(page, route);
 
-      const html = await captureCrawlerHtml(page);
+      const html = await captureCrawlerHtml(page, route);
       const out = routeToFile(route);
-      mkdirSync(dirname(out), { recursive: true });
-      writeFileSync(out, html, "utf8");
-      console.log(
-        `[prerender] ${route} → ${out.replace(root + "\\", "").replace(root + "/", "")}`,
-      );
+
+      if (route === "/") {
+        homeHtml = html;
+      } else {
+        mkdirSync(dirname(out), { recursive: true });
+        writeFileSync(out, html, "utf8");
+        console.log(
+          `[prerender] ${route} → ${out.replace(root + "\\", "").replace(root + "/", "")}`,
+        );
+      }
+
       await page.close();
+    }
+
+    if (homeHtml) {
+      writeFileSync(join(dist, "index.html"), homeHtml, "utf8");
+      console.log("[prerender] / → dist/index.html");
+    } else {
+      throw new Error("Homepage prerender missing");
     }
 
     writeFileSync(join(dist, "404.html"), shellHtml, "utf8");

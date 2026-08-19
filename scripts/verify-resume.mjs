@@ -70,6 +70,12 @@ if (!llms.includes("resume.txt")) {
   ok("llms.txt links resume.txt");
 }
 
+if (!llms.includes("hiring.md")) {
+  fail("llms.txt must link to hiring.md");
+} else {
+  ok("llms.txt links hiring.md");
+}
+
 if (!/https:\/\/ajzichella\.com\/#\//.test(llms)) {
   ok("llms.txt avoids hash URLs in links");
 } else {

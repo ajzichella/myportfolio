@@ -8,26 +8,64 @@ import {
 
 const dist = "dist";
 
+const CLIP_HIDDEN = /clip:\s*rect\(0,\s*0,\s*0,\s*0\)/;
+
 function routeToFile(route) {
   if (route === "/") return join(dist, "index.html");
   return join(dist, route.slice(1), "index.html");
 }
 
 const contentChecks = [
-  ["/about/index.html", ["crawler-fallback", "about-who-heading", "DigitalOcean"], ['id="home"']],
+  [
+    "index.html",
+    [
+      "crawler-fallback",
+      'id="static-content"',
+      "resume.txt",
+      "Senior Product Designer",
+      'canonical" href="https://ajzichella.com/"',
+      'id="home"',
+    ],
+    [],
+  ],
+  [
+    "/about/index.html",
+    [
+      "crawler-fallback",
+      "about-who-heading",
+      "DigitalOcean",
+      'canonical" href="https://ajzichella.com/about"',
+    ],
+    ['id="home"'],
+  ],
   [
     "/case-studies/index.html",
-    ["crawler-fallback", "Filter case studies by topic", "Case studies"],
+    [
+      "crawler-fallback",
+      "Filter case studies by topic",
+      "Case studies",
+      'canonical" href="https://ajzichella.com/case-studies"',
+    ],
     ['id="home"'],
   ],
   [
     "/case-studies/custom-roles/index.html",
-    ["crawler-fallback", "cr-scope-heading", "Custom Roles"],
+    [
+      "crawler-fallback",
+      "cr-scope-heading",
+      "Custom Roles",
+      'canonical" href="https://ajzichella.com/case-studies/custom-roles"',
+    ],
     ['id="home"', "password protected"],
   ],
   [
     "/case-studies/predefined-roles/index.html",
-    ["crawler-fallback", "rbac-results-heading", "RBAC"],
+    [
+      "crawler-fallback",
+      "rbac-results-heading",
+      "RBAC",
+      'canonical" href="https://ajzichella.com/case-studies/predefined-roles"',
+    ],
     ['id="home"'],
   ],
 ];
@@ -40,6 +78,16 @@ function assertEmptyRoot(html, label) {
   }
   if (rootMatch[1].trim().length > 0) {
     console.error(`FAIL ${label}: #root must be empty for live React mount`);
+    return false;
+  }
+  return true;
+}
+
+function assertCrawlerNotClipHidden(html, label) {
+  const match = html.match(/id="crawler-fallback"[^>]*style="([^"]*)"/);
+  if (!match) return true;
+  if (CLIP_HIDDEN.test(match[1])) {
+    console.error(`FAIL ${label}: crawler-fallback must not use clip rect hiding`);
     return false;
   }
   return true;
@@ -63,7 +111,7 @@ for (const route of PRERENDER_SKIP) {
   }
 }
 
-for (const agentFile of ["resume.txt", "llms.txt"]) {
+for (const agentFile of ["resume.txt", "llms.txt", "hiring.md"]) {
   const path = join(dist, agentFile);
   if (!existsSync(path)) {
     console.error(`FAIL missing dist/${agentFile}`);
@@ -89,6 +137,11 @@ for (const [file, must, mustNot] of contentChecks) {
     fileOk = false;
   }
 
+  if (!assertCrawlerNotClipHidden(html, file)) {
+    failed = true;
+    fileOk = false;
+  }
+
   for (const token of must) {
     if (!html.includes(token)) {
       console.error(`FAIL ${file}: missing "${token}"`);
@@ -106,17 +159,6 @@ for (const [file, must, mustNot] of contentChecks) {
   if (fileOk) console.log(`OK ${file}`);
   if (!assertEmptyRoot(html, file)) {
     failed = true;
-  }
-}
-
-const indexHtml = join(dist, "index.html");
-if (existsSync(indexHtml)) {
-  const html = readFileSync(indexHtml, "utf8");
-  if (!html.includes("site-summary-for-agents")) {
-    console.error("FAIL dist/index.html missing site-summary-for-agents");
-    failed = true;
-  } else {
-    console.log("OK dist/index.html agent summary");
   }
 }
 

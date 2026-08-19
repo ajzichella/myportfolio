@@ -5,6 +5,8 @@ import { App } from "./App";
 import { routerBasename } from "./lib/routerBasename";
 import "./styles.css";
 
+document.getElementById("agent-visible-hint")?.remove();
+
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <BrowserRouter basename={routerBasename()}>

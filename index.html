@@ -16,6 +16,8 @@
       title="Plain-text resume summary for ATS and AI readers"
     />
     <link rel="alternate" type="text/plain" href="/llms.txt" title="LLM site guide" />
+    <link rel="alternate" type="text/markdown" href="/hiring.md" title="Hiring summary (Markdown)" />
+    <link rel="help" type="text/plain" href="/resume.txt" title="Plain-text resume for recruiters and agents" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -73,6 +75,24 @@
     </script>
   </head>
   <body class="bg-background text-foreground">
+    <header
+      id="agent-visible-hint"
+      style="
+        font-size: 11px;
+        line-height: 1.4;
+        padding: 4px 12px;
+        background: #0f172a;
+        color: #94a3b8;
+        border-bottom: 1px solid #1e293b;
+      "
+    >
+      AJ Zichella — Senior Product Designer &amp; Design Engineer · IAM/RBAC at DigitalOcean ·
+      <a href="/resume.txt" style="color: #00aeef">resume.txt</a>
+      ·
+      <a href="/llms.txt" style="color: #00aeef">llms.txt</a>
+      ·
+      <a href="/hiring.md" style="color: #00aeef">hiring.md</a>
+    </header>
     <noscript>
       <div
         style="
@@ -101,32 +121,54 @@
           Plain-text profile for recruiters and automated readers:
           <a href="/resume.txt">resume.txt</a>
           · <a href="/llms.txt">llms.txt</a>
+          · <a href="/hiring.md">hiring.md</a>
         </p>
       </div>
     </noscript>
-    <div
-      id="site-summary-for-agents"
+    <article
+      id="static-content"
+      aria-label="Site summary for search engines and automated readers"
       style="
         position: absolute;
-        width: 1px;
-        height: 1px;
+        left: -9999px;
+        top: 0;
+        width: 900px;
+        max-width: 900px;
+        white-space: normal;
+        overflow: visible;
+        margin: 0;
         padding: 0;
-        margin: -1px;
-        overflow: hidden;
-        clip: rect(0, 0, 0, 0);
-        white-space: nowrap;
         border: 0;
+        clip: auto;
       "
     >
-      AJ Zichella — Senior Product Designer and Design Engineer. 8+ years in IAM,
-      developer platforms, and eCommerce. DigitalOcean IAM/RBAC lead. Portfolio:
-      https://ajzichella.com — Plain-text hiring summary: https://ajzichella.com/resume.txt
-      — About: https://ajzichella.com/about — Case studies:
-      https://ajzichella.com/case-studies — LinkedIn:
-      https://www.linkedin.com/in/angela-zichella/
-    </div>
+      <h1>AJ Zichella</h1>
+      <p>
+        Senior Product Designer and Design Engineer with 8+ years in IAM, developer platforms,
+        and retail eCommerce. DigitalOcean IAM/RBAC design lead. Open to new opportunities.
+      </p>
+      <p>
+        Plain-text hiring profile:
+        <a href="/resume.txt">https://ajzichella.com/resume.txt</a>
+        · LLM guide:
+        <a href="/llms.txt">https://ajzichella.com/llms.txt</a>
+        · Markdown summary:
+        <a href="/hiring.md">https://ajzichella.com/hiring.md</a>
+      </p>
+      <nav aria-label="Primary">
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/case-studies">Case studies</a></li>
+          <li><a href="/about">About me</a></li>
+          <li><a href="/kind-words">Kind words</a></li>
+        </ul>
+      </nav>
+      <p>
+        LinkedIn:
+        <a href="https://www.linkedin.com/in/angela-zichella/">https://www.linkedin.com/in/angela-zichella/</a>
+      </p>
+    </article>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-
