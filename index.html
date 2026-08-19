@@ -64,7 +64,7 @@
       href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Fredoka:wght@600;700&family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <script src="https://t.contentsquare.net/uxa/7fa69cf549e21.js"></script>
+    <script src="https://t.contentsquare.net/uxa/7fa69cf549e21.js" defer></script>
     <script>
       (function () {
         var hash = location.hash;
@@ -168,7 +168,15 @@
         <a href="https://www.linkedin.com/in/angela-zichella/">https://www.linkedin.com/in/angela-zichella/</a>
       </p>
     </article>
-    <div id="root"></div>
+    <div id="root">
+      <div
+        id="app-boot"
+        class="flex min-h-screen items-center justify-center bg-black px-6 text-sm text-slate-500"
+        aria-live="polite"
+      >
+        Loading…
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

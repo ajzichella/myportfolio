@@ -6,6 +6,8 @@ import { routerBasename } from "./lib/routerBasename";
 import "./styles.css";
 
 document.getElementById("agent-visible-hint")?.remove();
+document.getElementById("crawler-fallback")?.remove();
+document.getElementById("static-content")?.remove();
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>

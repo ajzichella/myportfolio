@@ -21,13 +21,12 @@ const contentChecks = [
     "index.html",
     [
       "crawler-fallback",
-      'id="static-content"',
       "resume.txt",
       "Senior Product Designer",
       'canonical" href="https://ajzichella.com/"',
-      'id="home"',
+      "AJ Zichella",
     ],
-    [],
+    ['id="home"'],
   ],
   [
     "/about/index.html",
@@ -77,8 +76,14 @@ function assertEmptyRoot(html, label) {
     console.error(`FAIL ${label}: missing #root`);
     return false;
   }
-  if (rootMatch[1].trim().length > 0) {
-    console.error(`FAIL ${label}: #root must be empty for live React mount`);
+  const inner = rootMatch[1].trim();
+  const bootOnly =
+    inner.length === 0 ||
+    (inner.includes('id="app-boot"') && !inner.includes('id="main-scroll"'));
+  if (!bootOnly) {
+    console.error(
+      `FAIL ${label}: #root must be empty or app-boot only for live React mount`,
+    );
     return false;
   }
   return true;
@@ -175,6 +180,12 @@ for (const [file, must, mustNot] of contentChecks) {
   if (!assertEmptyRoot(html, file)) {
     failed = true;
   }
+
+  const rootIdCount = (html.match(/id="root"/g) || []).length;
+  if (rootIdCount !== 1) {
+    console.error(`FAIL ${file}: expected exactly one id="root", found ${rootIdCount}`);
+    failed = true;
+  }
 }
 
 const shell404 = join(dist, "404.html");
@@ -186,8 +197,8 @@ if (!existsSync(shell404)) {
   if (html.includes('id="home"')) {
     console.error("FAIL dist/404.html should be SPA shell, not prerendered home");
     failed = true;
-  } else if (!html.includes('<div id="root"></div>')) {
-    console.error("FAIL dist/404.html missing empty #root shell");
+  } else if (!html.includes('id="root"') || !html.includes('id="app-boot"')) {
+    console.error("FAIL dist/404.html missing #root app-boot shell");
     failed = true;
   } else {
     console.log("OK dist/404.html SPA shell");

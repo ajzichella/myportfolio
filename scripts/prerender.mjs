@@ -28,6 +28,10 @@ const SITE = "https://ajzichella.com";
 const CRAWLER_OFFSCREEN_STYLE =
   "position:absolute;left:-9999px;top:0;width:900px;max-width:900px;height:auto;overflow:visible;white-space:normal;margin:0;padding:0;border:0;clip:auto;";
 
+/** Visible until React mounts — avoids a blank black screen when JS is slow or fails. */
+const APP_BOOT_HTML =
+  '<div id="app-boot" class="flex min-h-screen items-center justify-center bg-black px-6 text-sm text-slate-500" aria-live="polite">Loading…</div>';
+
 /** Unique markers that appear after the correct route has rendered. */
 const ROUTE_READY = {
   "/": "#home",
@@ -197,7 +201,7 @@ async function captureCrawlerHtml(page, route) {
   const meta = ROUTE_META[route];
   const txtUrl = routeToTxtUrl(route);
   return page.evaluate(
-    ({ offscreenStyle, meta: routeMeta, txtMirrorUrl }) => {
+    ({ offscreenStyle, meta: routeMeta, txtMirrorUrl, appBootHtml }) => {
       document
         .querySelectorAll('link[href*="127.0.0.1"]')
         .forEach((el) => el.remove());
@@ -251,15 +255,23 @@ async function captureCrawlerHtml(page, route) {
           "Static page content for search engines and automated readers",
         );
         crawler.style.cssText = offscreenStyle;
-        while (root.firstChild) {
-          crawler.appendChild(root.firstChild);
-        }
+        const snapshot = root.cloneNode(true);
+        snapshot.removeAttribute("id");
+        snapshot.querySelectorAll("[id]").forEach((el) => el.removeAttribute("id"));
+        crawler.appendChild(snapshot);
+        root.replaceChildren();
+        root.innerHTML = appBootHtml;
         root.after(crawler);
       }
 
       return `<!DOCTYPE html>\n${document.documentElement.outerHTML}`;
     },
-    { offscreenStyle: CRAWLER_OFFSCREEN_STYLE, meta, txtMirrorUrl: txtUrl },
+    {
+      offscreenStyle: CRAWLER_OFFSCREEN_STYLE,
+      meta,
+      txtMirrorUrl: txtUrl,
+      appBootHtml: APP_BOOT_HTML,
+    },
   );
 }
 
