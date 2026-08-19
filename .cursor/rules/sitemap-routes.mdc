@@ -16,3 +16,5 @@ When you add a **new indexable** `<Route path="...">` in [src/App.tsx](src/App.t
 If you edit the route table, verify the sitemap list still matches every public page you want indexed.
 
 Prerendered static HTML (ATS/crawlers) is generated for every sitemap route **except** `/case-studies/ddos-protection` (password-gated; uses `dist/404.html` SPA shell). Update [scripts/sitemap-routes.mjs](scripts/sitemap-routes.mjs) when adding routes.
+
+Agent-readable plain-text files live in [public/resume.txt](public/resume.txt) and [public/llms.txt](public/llms.txt); keep them updated when experience or case studies change.

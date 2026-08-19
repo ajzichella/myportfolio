@@ -63,6 +63,16 @@ for (const route of PRERENDER_SKIP) {
   }
 }
 
+for (const agentFile of ["resume.txt", "llms.txt"]) {
+  const path = join(dist, agentFile);
+  if (!existsSync(path)) {
+    console.error(`FAIL missing dist/${agentFile}`);
+    failed = true;
+  } else {
+    console.log(`OK dist/${agentFile}`);
+  }
+}
+
 for (const [file, must, mustNot] of contentChecks) {
   const path = join(dist, file);
   if (!existsSync(path)) {
@@ -72,6 +82,13 @@ for (const [file, must, mustNot] of contentChecks) {
   }
   const html = readFileSync(path, "utf8");
   let fileOk = true;
+
+  if (html.includes('id="crawler-fallback" hidden')) {
+    console.error(`FAIL ${file}: crawler-fallback must not use hidden attribute`);
+    failed = true;
+    fileOk = false;
+  }
+
   for (const token of must) {
     if (!html.includes(token)) {
       console.error(`FAIL ${file}: missing "${token}"`);
@@ -89,7 +106,17 @@ for (const [file, must, mustNot] of contentChecks) {
   if (fileOk) console.log(`OK ${file}`);
   if (!assertEmptyRoot(html, file)) {
     failed = true;
-    fileOk = false;
+  }
+}
+
+const indexHtml = join(dist, "index.html");
+if (existsSync(indexHtml)) {
+  const html = readFileSync(indexHtml, "utf8");
+  if (!html.includes("site-summary-for-agents")) {
+    console.error("FAIL dist/index.html missing site-summary-for-agents");
+    failed = true;
+  } else {
+    console.log("OK dist/index.html agent summary");
   }
 }
 

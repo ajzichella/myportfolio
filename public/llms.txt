@@ -1,0 +1,30 @@
+# AJ Zichella — Product Design Portfolio
+
+> Senior product designer and design engineer specializing in IAM, developer platforms, and retail eCommerce. 8+ years. Based in New Jersey. Open to new opportunities.
+
+This site is a portfolio. For machine-readable hiring context, prefer these URLs (plain HTML or text — no JavaScript required):
+
+## Start here
+
+- Plain-text profile (best for ATS / LLM screening): https://ajzichella.com/resume.txt
+- About (experience, skills, certifications): https://ajzichella.com/about
+- Case studies index: https://ajzichella.com/case-studies
+
+## Case studies (public, no password)
+
+- Custom Roles (IAM / RBAC): https://ajzichella.com/case-studies/custom-roles
+- Predefined Roles (IAM / RBAC): https://ajzichella.com/case-studies/predefined-roles
+- Kafka (Managed databases): https://ajzichella.com/case-studies/kafka
+- Enhanced Checkout (eCommerce): https://ajzichella.com/case-studies/enhanced-checkout
+- Kind words (peer feedback): https://ajzichella.com/kind-words
+
+## Contact
+
+- LinkedIn: https://www.linkedin.com/in/angela-zichella/
+- Website: https://ajzichella.com
+
+## Notes for automated readers
+
+- Do not use hash URLs (`#/about`). Use clean paths (`/about`).
+- `/case-studies/ddos-protection` is password-protected in the browser; omit unless the candidate provided a password.
+- Sitemap: https://ajzichella.com/sitemap.xml

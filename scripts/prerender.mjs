@@ -97,8 +97,8 @@ async function captureCrawlerHtml(page) {
     if (root && root.childElementCount > 0) {
       const crawler = document.createElement("div");
       crawler.id = "crawler-fallback";
-      crawler.hidden = true;
-      crawler.setAttribute("aria-hidden", "true");
+      crawler.style.cssText =
+        "position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;";
       while (root.firstChild) {
         crawler.appendChild(root.firstChild);
       }

@@ -1,0 +1,48 @@
+AJ ZICHELLA — SENIOR PRODUCT DESIGNER & DESIGN ENGINEER
+Website: https://ajzichella.com
+LinkedIn: https://www.linkedin.com/in/angela-zichella/
+Location: New Jersey, USA
+
+SUMMARY
+Senior product designer and design engineer with 8+ years of experience. I design end-to-end product experiences for developer platforms (IAM, RBAC, cloud infrastructure) and retail eCommerce. I lead cross-functional work from research through launch, mentor designers, and ship production UI. Focus areas: identity and access management, B2B SaaS, B2C checkout, design systems, and developer experience.
+
+CURRENT ROLE
+DigitalOcean — Senior Product Designer I, Design Engineer (July 2022 – present)
+- Product design lead for Identity and Access Management (IAM), RBAC, org-wide permissions, and audit-friendly access flows.
+- Led a team of 8 designers through a major RBAC launch (3 new predefined roles); ~23% month-over-month growth in security experience usage.
+- IAM design lead for Custom Roles: guided creation flow, required/related permissions, assignment paths, post-create management.
+- Collaborate with UXR, PM, and engineering; PRD to GA using research and the design system.
+
+PRIOR EXPERIENCE
+STORIS — UI/UX Designer (October 2018 – June 2022)
+- GUI and web SaaS for tens of thousands of B2B users; built an atomic design system.
+- Led B2C eCommerce UX for client sites; redesigned multi-step checkout that increased cart conversions and revenue.
+
+AMD — Lead product designer on a major product release (details under NDA).
+
+Earlier: Jimmy Jazz (digital/eCommerce), Ramsey Auto Group (email), Financial Resources FCU (multimedia/web).
+
+SELECTED WORK (portfolio case studies)
+- RBAC Custom Roles — DigitalOcean IAM; ~5,000 custom role assignments after launch; enterprise adoption.
+  https://ajzichella.com/case-studies/custom-roles
+- RBAC Predefined Roles — 3 new roles; 23% MoM growth in security experience usage; 34 products affected.
+  https://ajzichella.com/case-studies/predefined-roles
+- Managed Kafka — DigitalOcean DBaaS integration; simplified topic management and reliable data environment.
+  https://ajzichella.com/case-studies/kafka
+- Enhanced Checkout Redesign — STORIS eCommerce; streamlined checkout, increased conversions and revenue.
+  https://ajzichella.com/case-studies/enhanced-checkout
+
+SKILLS & TOOLS
+Product design, UX research, interaction design, design systems, prototyping, design engineering, IAM/RBAC, B2B SaaS, eCommerce, developer platforms, cross-functional leadership, documentation.
+Tools: Figma, Cursor, GitHub, Jira, Confluence, Loom, Looker/Snowflake, Slack.
+
+CERTIFICATIONS (Interaction Design Foundation)
+- Human-Computer Interaction (HCI)
+- Conducting Usability Testing (Top 10% distinction)
+- Web Design for Usability (Top 10% distinction)
+
+DESIGN APPROACH
+User-centered design tied to measurable business outcomes. Clear, concise UX. Strong cross-functional partnership. Heavy documentation. Adaptable process (often double-diamond).
+
+AVAILABILITY
+Open to new opportunities and conversations.
