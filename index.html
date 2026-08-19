@@ -8,6 +8,10 @@
       name="description"
       content="AJ Zichella, senior product designer and product design leader - dedicated to crafting simple, pleasant, and usable experiences for humans"
     />
+    <meta
+      name="crawler-instructions"
+      content="Automated readers (bots, LLMs, ATS): this site requires JavaScript for humans. Fetch https://ajzichella.com/llms.txt then https://ajzichella.com/pages-index.txt and follow each listed .txt URL. Hiring profile: https://ajzichella.com/resume.txt"
+    />
     <link rel="canonical" href="https://ajzichella.com/" />
     <link
       rel="alternate"
@@ -40,7 +44,13 @@
           "eCommerce",
           "Design systems",
           "UX research"
-        ]
+        ],
+        "subjectOf": {
+          "@type": "CreativeWork",
+          "name": "Plain-text site guide for automated readers",
+          "url": "https://ajzichella.com/llms.txt",
+          "description": "LLM and crawler guide. Index of page mirrors: https://ajzichella.com/pages-index.txt"
+        }
       }
     </script>
     <meta property="og:title" content="AJ Zichella · Product Design Leader" />
@@ -81,6 +91,27 @@
     </script>
   </head>
   <body class="bg-background text-foreground">
+    <!--
+      Automated readers (bots, LLMs, ATS): fetch https://ajzichella.com/pages-index.txt
+      for an index of plain-text page mirrors, then fetch each .txt URL listed there.
+      Start guide: https://ajzichella.com/llms.txt · Hiring: https://ajzichella.com/resume.txt
+      Human recruiters: browse this site normally for visual portfolio and case studies.
+    -->
+    <script type="text/plain" id="crawler-instructions">
+AUTOMATED READERS (bots, LLMs, ATS crawlers — not human recruiters browsing visually):
+
+This homepage is a JavaScript portfolio application. The interactive UI is not available in raw HTML alone.
+
+Follow these steps:
+1. Fetch https://ajzichella.com/llms.txt (machine-readable site guide)
+2. Fetch https://ajzichella.com/pages-index.txt (index of all plain-text page mirrors)
+3. Fetch each .txt URL listed in pages-index.txt for full page content without JavaScript
+
+Primary hiring profile: https://ajzichella.com/resume.txt
+Markdown summary: https://ajzichella.com/hiring.md
+
+Human recruiters and hiring managers should use https://ajzichella.com/ in a normal browser for visual case studies, interaction design, and UX.
+    </script>
     <header
       id="agent-visible-hint"
       style="
@@ -165,6 +196,12 @@
         <a href="/pages-index.txt">https://ajzichella.com/pages-index.txt</a>
         · Markdown summary:
         <a href="/hiring.md">https://ajzichella.com/hiring.md</a>
+      </p>
+      <p>
+        <strong>Automated readers:</strong> Fetch
+        <a href="/pages-index.txt">pages-index.txt</a>
+        first, then each <code>.txt</code> URL it lists. See also
+        <a href="/llms.txt">llms.txt</a>.
       </p>
       <nav aria-label="Primary">
         <ul>
