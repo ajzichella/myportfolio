@@ -22,3 +22,4 @@ function run(command, args) {
 run("npm", ["exec", "--", "vite", "build"]);
 run("node", ["scripts/prerender.mjs"]);
 run("node", ["scripts/verify-prerender.mjs"]);
+run("node", ["scripts/verify-resume.mjs"]);
