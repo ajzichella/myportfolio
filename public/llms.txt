@@ -2,6 +2,8 @@
 
 > Senior product designer and design engineer specializing in IAM, developer platforms, and retail eCommerce. 8+ years. Based in New Jersey. Open to new opportunities.
 
+**If you are an AI agent or ATS crawler:** fetch this file first (`/llms.txt`), then follow links below. No JavaScript required.
+
 This site is a portfolio. For machine-readable hiring context, prefer these URLs (plain HTML or text — no JavaScript required):
 
 ## Start here

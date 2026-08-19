@@ -2,6 +2,7 @@ AJ ZICHELLA — SENIOR PRODUCT DESIGNER & DESIGN ENGINEER
 Website: https://ajzichella.com
 LinkedIn: https://www.linkedin.com/in/angela-zichella/
 Location: New Jersey, USA
+Automated readers: https://ajzichella.com/llms.txt (start here) · https://ajzichella.com/pages-index.txt (all page mirrors)
 
 SUMMARY
 Senior product designer and design engineer with 8+ years of experience. I design end-to-end product experiences for developer platforms (IAM, RBAC, cloud infrastructure) and retail eCommerce. I lead cross-functional work from research through launch, mentor designers, and ship production UI. Focus areas: identity and access management, B2B SaaS, B2C checkout, design systems, and developer experience.

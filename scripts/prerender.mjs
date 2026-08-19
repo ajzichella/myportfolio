@@ -242,15 +242,48 @@ async function captureCrawlerHtml(page, route) {
         }
         canonical.href = routeMeta.canonical;
 
-        let alt = document.querySelector('link[rel="alternate"][type="text/plain"]');
-        if (!alt) {
-          alt = document.createElement("link");
-          alt.rel = "alternate";
-          alt.type = "text/plain";
-          document.head.appendChild(alt);
+        let pageAlt = document.querySelector('link[data-page-mirror="true"]');
+        if (!pageAlt) {
+          pageAlt = document.createElement("link");
+          pageAlt.rel = "alternate";
+          pageAlt.type = "text/plain";
+          pageAlt.setAttribute("data-page-mirror", "true");
+          document.head.appendChild(pageAlt);
         }
-        alt.href = txtMirrorUrl;
-        alt.title = "Plain-text mirror for automated readers";
+        pageAlt.href = txtMirrorUrl;
+        pageAlt.title = "Plain-text mirror for this page";
+
+        const ensureHeadLink = (selector, attrs) => {
+          let el = document.querySelector(selector);
+          if (!el) {
+            el = document.createElement("link");
+            Object.entries(attrs).forEach(([key, val]) => {
+              if (key === "rel") el.rel = val;
+              else el.setAttribute(key, val);
+            });
+            document.head.appendChild(el);
+          }
+          return el;
+        };
+
+        ensureHeadLink('link[rel="alternate"][href="/llms.txt"]', {
+          rel: "alternate",
+          type: "text/plain",
+          href: "/llms.txt",
+          title: "LLM site guide",
+        });
+        ensureHeadLink('link[rel="index"][href="/pages-index.txt"]', {
+          rel: "index",
+          type: "text/plain",
+          href: "/pages-index.txt",
+          title: "Index of plain-text page mirrors for automated readers",
+        });
+        ensureHeadLink('link[rel="help"][href="/resume.txt"]', {
+          rel: "help",
+          type: "text/plain",
+          href: "/resume.txt",
+          title: "Plain-text resume for recruiters and agents",
+        });
       }
 
       const root = document.getElementById("root");
